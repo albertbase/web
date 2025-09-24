@@ -1,0 +1,354 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #ffe8d0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.nav-links a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #5c3d2e;
+    font-weight: 500;
+    transition: transform 0.3s ease;
+    display: inline-block;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.nav-links a:hover{
+    transform: scale(1.5);
+   color: black;
+}
+
+.logo img {
+    height: 50px;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.logo img:hover{
+    transform: scale(1.5);
+}
+.logo1 img {
+    height: 100px;
+    
+    display: inline-block;
+}
+/* .logo {
+    
+    position: relative;
+    max-width: 100vw;
+    overflow: hidden;
+} */
+
+.cart-menu {
+    font-size: 24px;
+    cursor: pointer;
+    
+}
+
+
+
+
+span.cart, span.menu {
+    transition: transform 0.3s ease, color 0.3s ease;
+    display: inline-block;
+    cursor: pointer;
+}
+
+span.cart:hover,
+span.menu:hover{
+    transform: scale(1.5);
+    color: crimson;
+}
+
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    padding: 50px;
+    align-items: center;
+    position: relative;
+    max-width: 100vw;
+    overflow: hidden;
+}
+
+.hero-text {
+  font-family: 'EB Garamond', serif;
+    font-size: 80px;   /* a bit larger for elegance */
+    font-weight: bold;
+    color: #5c3d2e;
+}
+
+.hero-text p:first-child {
+    font-size: 50px;
+    margin: 0;
+}
+
+.hero-text h1 {
+    font-size: 48px;
+    color: #5c3d2e;
+    margin: 10px 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 100px;   /* a bit larger for elegance */
+    font-weight: bold;
+    color: #5c3d2e;
+}
+
+.hero-text p:nth-child(3) {
+    font-size: 40px;
+    max-width: 500px;
+    line-height: 1.5;
+}
+
+.hero-buttons button {
+    margin-right: 15px;
+    padding: 20px 40px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 50px;
+    font-family: 'EB Garamond', serif;
+    transition: transform 0.3s ease;
+}
+.hero-buttons button:hover {
+    /* margin-right: 15px;
+    padding: 20px 40px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 50px;
+    font-family: 'EB Garamond', serif; */
+    transform: scaleX(1.2);
+    color: black;
+
+}
+
+.order-btn {
+    background-color: #5c3d2e;
+    color: #fff;
+}
+
+.explore-btn {
+    background-color: transparent;
+    color: #5c3d2e;
+    border: 1px solid #5c3d2e;
+}
+
+.stats {
+    display: flex;
+    margin-top: 20px;
+}
+
+.stats div {
+    margin-right: 15px;
+    background-color: #ffb470;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.hero-image img {
+    max-width: 500px;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+    
+}
+
+.hero-image img:hover{
+  transform: scale(1.3);
+}
+
+.hero-image{
+  margin-top: 50px;
+}
+
+.plate {
+  width: 450px;
+  height: 500px;
+  border-radius: 50%;
+  background-color: #ffa43b; /* soft matte beige */
+  box-shadow: 
+    0 15px 25px rgba(0, 0, 0, 0.15),
+    inset 0 25px 40px rgba(255, 255, 255, 0.3);
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  transform: scaleX(1.4); /* gives it a flatter oval look */
+}
+
+
+.basket {
+  width: 500px;
+  position: relative;
+  z-index: 5;
+  margin-bottom: -40px;
+  transform: scale(1.1);
+}
+
+/* public/css/whats-new.css */
+
+/* What's New Carousel Styles */
+.whats-new {
+  text-align: center;
+  margin: 3rem 0;
+}
+
+/* Carousel container */
+/* Carousel container */
+/* Carousel container */
+.food-section {
+  padding: 40px 80px;
+  text-align: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+.food-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+
+
+.food-card h3 {
+  margin: 15px 0 8px;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'EB Garamond', serif;
+}
+
+/* .food-card .highlight {
+  color: #e63946; /* Highlight first item */
+*/
+
+/* .food-card p {
+  font-size: 14px;
+  color: #555;
+} */
+
+.food-card {
+    width: 200px;
+    padding: 20px;
+    margin: 20px;
+    background-color: #fff5ee;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.4s ease, 
+                border 0.4s ease, 
+                background-color 0.4s ease;
+}
+
+.food-card:hover {
+    transform: scale(1.05); /* smooth gentle pop */
+    border: 2px solid #ff8c42; /* highlight box */
+    box-shadow: 0 8px 20px rgba(255,140,66,0.3); /* soft glow */
+    border-radius: 6px;
+    
+}
+
+
+
+
+.footer {
+  background: #222;
+  color: #ddd;
+  padding: 40px 80px 20px;
+ font-family: 'EB Garamond', serif;
+  margin-top: auto;
+
+  .footer-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+  }
+
+
+  .footer-col h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #fff;
+  }
+
+  .footer-col p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .footer-col ul li {
+    margin: 8px 0;
+  }
+
+  .footer-col ul li a {
+    text-decoration: none;
+    color: #bbb;
+    transition: color 0.3s;
+  }
+
+  .footer-col ul li a:hover {
+    color: #ff6f61;
+  }
+
+  .logo {
+    color: #ff6f61;
+    margin-bottom: 10px;
+  }
+
+  .social-icons a {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 18px;
+    color: #bbb;
+    transition: color 0.3s;
+  }
+
+  .social-icons a:hover {
+    color: #ff6f61;
+  }
+
+  .footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    border-top: 1px solid #444;
+    padding-top: 15px;
+    font-size: 14px;
+    color: #aaa;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer .footer-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer .footer-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+}
