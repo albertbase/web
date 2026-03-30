@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ categoryName }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+  <h2>{{ categoryName }} Products</h2>
+
+  {% if products is empty %}
+    <p>No products found in this category.</p>
+  {% else %}
+    <div class="row">
+      {% for product in products %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            {% if product.image %}
+              <img src="{{ asset('uploads/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="card-text">{{ product.description|length > 100 ? product.description|slice(0, 100) ~ '…' : product.description }}</p>
+              <p class="card-text fw-bold">₱{{ product.price|number_format(2) }}</p>
+              <p class="card-text text-muted">Stock: {{ product.stock }}</p>
+              <form method="post" action="{{ path('cart_add', {id: product.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
+                <button type="submit" class="btn btn-success"
+                  {% if product.stock == 0 %}disabled{% endif %}>
+                  Add to Cart
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

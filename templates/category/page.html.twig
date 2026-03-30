@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ selectedCategory }} Products{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+ <h2>{{ selectedCategory }} Products</h2>
+
+{% if products is not empty %}
+  <div class="row">
+    {% for product in products %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          {% if product.image %}
+            <img src="{{ asset('uploads/products/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
+          {% else %}
+            <img src="{{ asset('images/no-image.png') }}" class="card-img-top" alt="No image">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">{{ product.description }}</p>
+            <p class="card-text fw-bold">₱{{ product.price|number_format(2) }}</p>
+            <p class="card-text text-muted">Stock: {{ product.stock }}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-muted">No products found in this category.</p>
+{% endif %}
+
+</div>
+{% endblock %}

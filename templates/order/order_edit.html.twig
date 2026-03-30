@@ -1,0 +1,102 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Edit Order #{{ order.id }}{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+
+  {# ✅ Ownership-based permission check #}
+  {% if not is_granted('ORDER_EDIT', order) %}
+      <div class="alert alert-danger mt-4 shadow-sm">
+          <i class="bi bi-shield-lock"></i> You do not have permission to edit this order.
+      </div>
+  {% endif %}
+
+  <div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-3">
+      <h4 class="mb-0 fw-semibold">✏️ Edit Order #{{ order.id }}</h4>
+      <a href="{{ path('admin_orders') }}" class="btn btn-light btn-sm shadow-sm">
+        <i class="bi bi-arrow-left-circle"></i> Back
+      </a>
+    </div>
+
+    <div class="card-body">
+
+      {# ✅ Flash messages #}
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="alert alert-{{ label }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endfor %}
+
+      <form method="post" class="p-3 bg-light rounded shadow-sm">
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Order Status</label>
+
+          {% if is_granted('ORDER_EDIT', order) %}
+            <select name="status" id="status" class="form-select shadow-sm">
+              {% for s in ['Pending', 'Paid', 'Shipped', 'Delivered'] %}
+                <option value="{{ s }}" {% if order.status == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          {% else %}
+            <input type="text" class="form-control bg-white shadow-sm" value="{{ order.status }}" readonly>
+          {% endif %}
+        </div>
+
+        {# ✅ Status badge #}
+        <div class="mb-3">
+          {% set badgeClass = {
+            'Pending': 'bg-warning text-dark',
+            'Paid': 'bg-info text-dark',
+            'Shipped': 'bg-primary',
+            'Delivered': 'bg-success'
+          }[order.status] %}
+          <span class="badge {{ badgeClass }} px-3 py-2 fs-6 shadow-sm">
+            {{ order.status }}
+          </span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          {% if is_granted('ORDER_EDIT', order) %}
+            <button type="submit" class="btn btn-success shadow-sm px-4">
+              <i class="bi bi-check-circle"></i> Update
+            </button>
+          {% endif %}
+
+          <a href="{{ path('admin_orders') }}" class="btn btn-outline-secondary shadow-sm px-4">
+            <i class="bi bi-x-circle"></i> Cancel
+          </a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .card-header {
+      border-bottom: none;
+  }
+
+  .form-select:hover,
+  .form-control:hover {
+      transform: scale(1.01);
+      transition: 0.15s ease-in-out;
+  }
+
+  button.btn-success:hover {
+      transform: translateY(-2px);
+      transition: 0.2s ease;
+  }
+
+  .badge {
+      border-radius: 8px;
+  }
+</style>
+
+{% endblock %}

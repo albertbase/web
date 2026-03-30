@@ -1,0 +1,69 @@
+
+{% extends 'base.html.twig' %}
+{% block title %}Your Cart{% endblock %}
+
+{% block body %}
+
+{# <link rel="stylesheet" href="{{ asset('css/cart.css') }}"> #}
+
+<div class="container mt-4">
+  <h2 class="mb-4">🛒 Your Cart</h2>
+
+  {# ✅ Flash messages #}
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  {% if cart is empty %}
+    <p class="text-muted">Your cart is empty.</p>
+  {% else %}
+    <table class="table cart-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>
+            <div class="qty-controls">
+              <form method="post" action="{{ path('cart_update', {id: item.product.id, action: 'decrease'}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('cart_update_' ~ item.product.id ~ '_decrease') }}">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">−</button>
+              </form>
+              <span>{{ item.quantity }}</span>
+              <form method="post" action="{{ path('cart_update', {id: item.product.id, action: 'increase'}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('cart_update_' ~ item.product.id ~ '_increase') }}">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">+</button>
+              </form>
+            </div>
+          </td>
+          <td>₱{{ item.subtotal|number_format(2) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="cart-total">
+          <th colspan="2">Total</th>
+          <th>₱{{ total|number_format(2) }}</th>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="text-end">
+      <a href="{{ path('checkout') }}" class="btn btn-primary btn-lg">Proceed to Checkout</a>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+

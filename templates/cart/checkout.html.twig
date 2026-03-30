@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block title %}Checkout{% endblock %}
+
+{% block body %}
+
+{# <link rel="stylesheet" href="{{ asset('css/checkout.css') }}"> #}
+
+<div class="container mt-5 checkout-container">
+  <div class="text-center mb-4">
+    <h2 class="checkout-title">🧾 Confirm Your Order</h2>
+    <p class="checkout-subtext">Please review your cart and click below to place your order.</p>
+  </div>
+
+  <div class="checkout-card mx-auto">
+    <form method="post" action="{{ path('checkout') }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('checkout') }}">
+      <button type="submit" class="btn btn-checkout w-100">
+        <i class="bi bi-bag-check-fill me-2"></i> Place Order
+      </button>
+    </form>
+  </div>
+</div>
+
+
+{% endblock %}

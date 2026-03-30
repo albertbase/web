@@ -1,0 +1,51 @@
+<header class="navbar sticky-top d-flex justify-content-between align-items-center px-4 py-3 shadow-sm">
+  <div class="logo">
+    <a href="{{ path('app_landing') }}">
+      <img src="{{ asset('image/logo.png') }}" alt="Brand Logo" class="logo-img">
+    </a>
+  </div>
+
+  <nav class="nav-links d-flex gap-4">
+    <a href="{{ path('app_landing') }}"
+       class="nav-link {{ app.request.attributes.get('_route') == 'app_landing' ? 'active' : '' }}">
+      Home
+    </a>
+    <a href="{{ path('product_list') }}"
+       class="nav-link {{ app.request.attributes.get('_route') == 'product_list' ? 'active' : '' }}">
+      Menu
+    </a>
+    <a href="{{ path('category_list') }}"
+       class="nav-link {{ app.request.attributes.get('_route') == 'category_list' ? 'active' : '' }}">
+      Category
+    </a>
+    <a href="{{ path('home') }}"
+       class="nav-link {{ app.request.attributes.get('_route') == 'home' ? 'active' : '' }}">
+      About Us
+    </a>
+  </nav>
+
+  <div class="cart-menu">
+    <a href="{{ path('cart_show') }}" class="cart-icon position-relative">
+      🛒
+      {% if cartCount|default(0) > 0 %}
+        <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+          {{ app.session.get('cart')|length }}
+        </span>
+      {% endif %}
+    </a>
+  </div>
+</header>
+<script>
+  window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 10) {
+      navbar.style.backdropFilter = 'blur(8px)';
+      navbar.style.webkitBackdropFilter = 'blur(8px)';
+      navbar.style.backgroundColor = 'rgba(253, 246, 236, 0.8)';
+    } else {
+      navbar.style.backdropFilter = 'blur(0px)';
+      navbar.style.webkitBackdropFilter = 'blur(0px)';
+      navbar.style.backgroundColor = '#fdf6ec';
+    }
+  });
+</script>

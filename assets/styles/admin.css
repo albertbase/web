@@ -1,0 +1,513 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 2rem;
+}
+
+h1, h2 {
+  color: #333;
+}
+
+
+.stats-grid {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: scale(1.03);
+}
+
+.stat-title {
+  font-size: 1rem;
+  color: #777;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+  background-color: #f0f8ff;
+  cursor: pointer;
+}
+
+th {
+  background-color: #f4f4f4;
+  font-weight: 600;
+}
+
+
+.admin-nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-nav a {
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
+  color: white;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.admin-nav a:hover {
+  background-color: #2980b9;
+}
+
+
+.form-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: auto;
+}
+
+form div {
+  margin-bottom: 1rem;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.btn-submit {
+  background-color: #3498db;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-submit:hover {
+  background-color: #2980b9;
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* .sidebar {
+  width: 220px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 1.5rem;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+} */
+
+/* === Sidebar Layout === */
+/* .sidebar {
+  background-color: #5c3d2e;
+  color: #fff;
+  width: 240px;
+  min-height: 100vh;
+  padding: 20px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: all 0.3s ease;
+} */
+
+.logo img {
+  max-width: 160px;
+  margin-bottom: 30px;
+}
+
+/* === Sidebar Navigation === */
+/* === Sidebar Container === */
+.sidebar {
+  background-color: #5c3d2e;
+  color: #fff;
+  width: 240px;
+  min-height: 100vh;
+  padding: 20px;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+/* === Sidebar Navigation === */
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 15px;
+}
+
+/* === Sidebar Buttons === */
+.sidebar-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  background-color: transparent;
+  color: #fff;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.sidebar-btn:hover {
+  background-color: #ff8c42;
+  color: #fff;
+  border-color: #ff8c42;
+}
+
+.sidebar-btn.active {
+  background-color: #fff;
+  color: #5c3d2e;
+  border: 2px solid #ff8c42;
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.3);
+}
+
+
+/* === Admin Header === */
+.admin-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title {
+  margin: 0;
+  color: var(--bakery-choco);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.user-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--bakery-choco);
+}
+
+.user-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-width: 150px;
+  display: none;
+  z-index: 1000;
+}
+
+.user-info:hover .user-menu {
+  display: block;
+}
+
+.user-menu-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--bakery-choco);
+  text-decoration: none;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.user-menu-item:hover {
+  background-color: var(--bakery-gold);
+}
+
+.user-menu-item:last-child {
+  border-bottom: none;
+}
+
+/* === Main Content === */
+.main-content {
+  margin-left: 240px;
+  padding: 0;
+  transition: margin-left 0.3s ease;
+}
+
+/* === Responsive Sidebar === */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    position: relative;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .sidebar-btn {
+    text-align: center;
+  }
+}
+
+
+.sidebar h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin-bottom: 1rem;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.sidebar a:hover {
+  color: #1abc9c;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 10px;
+}
+
+.sidebar nav ul li a {
+  display: block;
+  padding: 12px 20px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar nav ul li a:hover {
+  background-color: #ff8c42;
+  color: #fff;
+}
+
+.sidebar nav ul li a.active {
+  background-color: #fff;
+  color: #5c3d2e;
+  font-weight: bold;
+  box-shadow: inset 4px 0 0 #ff8c42;
+}
+
+.sidebar-btn {
+  display: block;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.sidebar-btn:hover {
+  background-color: #ff8c42;
+  color: #fff;
+  border-color: #ff8c42;
+}
+
+.sidebar-btn.active {
+  background-color: #fff;
+  color: #5c3d2e;
+  font-weight: bold;
+  border: 2px solid #ff8c42;
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.3); /* glowing rectangle */
+}
+
+
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+
+.logo img {
+    height: 60px;
+    width: auto;
+    transition: transform 0.3s ease;
+    display: inline-block;
+    margin-bottom: 50px;
+}
+
+.logo img:hover{
+    transform: scale(1.5);
+}
+
+.menu-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.btn-add {
+  background-color:  #3498db;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.btn-add:hover {
+  background-color: #219150;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-card, table, .admin-nav a {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* === Bakery Color Palette === */
+:root {
+  --bakery-cream: #fff3e0;
+  --bakery-caramel: #ff8c42;
+  --bakery-choco: #5c3d2e;
+  --bakery-gold: #ffe8d0;
+}
+
+/* === Card Styling === */
+.card {
+  border-radius: 16px;
+  background-color: var(--bakery-gold);
+  box-shadow: 0 6px 16px rgba(92, 61, 46, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-body {
+  padding: 2rem;
+  color: var(--bakery-choco);
+}
+
+.card h5 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  color: var(--bakery-choco);
+}
+
+.card p {
+  color: #6b4e2e;
+}
+
+/* === Hover Effect === */
+.hover-scale:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(92, 61, 46, 0.25);
+}
+
+/* === Icon Styling === */
+.card i {
+  background-color: var(--bakery-cream);
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(92, 61, 46, 0.1);
+}
+
+/* === Button Styling === */
+.btn-primary {
+  background-color: var(--bakery-caramel);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #e67e2c;
+  transform: scale(1.05);
+}

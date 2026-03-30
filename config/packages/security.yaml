@@ -1,17 +1,48 @@
 security:
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_STAFF]
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\Entity\User:
+            algorithm: auto
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+
+            entry_point: App\Security\LoginAuthenticator
+
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                csrf_token_id: authenticate
+
+            custom_authenticators: 
+                - App\Security\LoginAuthenticator
+
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                # target: app_any_route
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+                # by default, the feature is enabled by checking a checkbox in the
+                # login form, uncomment the following line to always enable it.
+                #always_remember_me: true
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -22,8 +53,28 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/admin$, roles: ROLE_ADMIN }
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        #  - { path: ^/products, roles: ROLE_STAFF }
+        # - { path: ^/admin/orders, roles: ROLE_STAFF }
+        # - { path: ^/profile, roles: ROLE_STAFF }
+        # ✅ Admin-only sections
+        # - { path: ^/admin/logs, roles: ROLE_ADMIN }
+        # - { path: ^/admin/users, roles: ROLE_ADMIN }
+        # - { path: ^/admin/?, roles: ROLE_ADMIN } # admin dashboard root
+
+        # # ✅ Staff + Admin can manage products
+        # - { path: ^/admin/products, roles: [ROLE_ADMIN, ROLE_STAFF] }
+
+        # # ✅ Staff + Admin can manage orders
+        # - { path: ^/admin/orders, roles: [ROLE_ADMIN, ROLE_STAFF] }
+
+        # # ✅ Staff + Admin can manage categories (if allowed)
+        # - { path: ^/admin/categories, roles: [ROLE_ADMIN, ROLE_STAFF] }
+
+        # ✅ Profile for all authenticated users
+        # - { path: ^/admin/profile, roles: ROLE_USER }
+        # - { path: ^/admin/change-password, roles: ROLE_USER }
 
 when@test:
     security:

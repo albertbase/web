@@ -1,0 +1,168 @@
+{% block body %}
+
+<style>
+    /* --- GLOBAL --- */
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f9bedeff;
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    /* --- WRAPPER --- */
+    .auth-wrapper {
+        width: 100%;
+        max-width: 420px;
+        padding: 24px;
+    }
+
+    /* --- CARD --- */
+    .auth-card {
+        background: #ffffff;
+        padding: 40px 32px;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* --- HEADER --- */
+    .auth-header {
+        margin-bottom: 24px;
+        width: 100%;
+    }
+
+    /* ✅ Bigger logo for visual balance */
+.auth-header .auth-logo {
+        width: 160px; /* ✅ Bigger logo for stronger visual balance */
+        height: auto;
+    }
+
+    .auth-header h2 {
+        margin-top: 16px;
+        margin-bottom: 6px;
+        font-size: 1.7rem;
+    }
+
+    /* --- FORM --- */
+    .auth-form {
+        width: 100%;
+    }
+
+    .auth-form .form-control {
+        height: 48px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        padding-left: 14px;
+        transition: 0.25s;
+    }
+
+    .auth-form .mb-3 {
+        margin-bottom: 20px !important;
+    }
+
+    /* --- META ROW --- */
+    .auth-meta {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* --- BUTTONS --- */
+    .auth-btn {
+        height: 48px;
+        border-radius: 10px;
+        background: #ff7f50;
+        border: none;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: 0.25s;
+        width: 100%;
+    }
+
+    /* --- FOOTER --- */
+    .auth-footer {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .auth-footer .btn-outline-primary {
+        border-radius: 10px;
+        border-color: #ff7f50;
+        color: #ff7f50;
+        height: 45px;
+        width: 100%;
+    }
+
+    /* --- ALERT --- */
+    .alert {
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+</style>
+
+<div class="auth-wrapper fade-in">
+
+    <div class="auth-card slide-in-up">
+
+        <div class="auth-header">
+            <img src="{{ asset('image/logo.png') }}" alt="Sweetoria Logo" class="auth-logo">
+            <h2 class="fw-bold">Welcome Back</h2>
+            <p class="text-muted small">Sign in to continue to Sweetoria</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger fade-in">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+
+            <div class="mb-3">
+                <input type="text" name="username" value="{{ last_username }}" class="form-control"
+                       placeholder="Username" autocomplete="username" required autofocus>
+            </div>
+
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control"
+                       placeholder="Password" autocomplete="current-password" required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="auth-meta">
+                <label class="form-check-label small">
+                    <input type="checkbox" name="_remember_me"> Remember me
+                </label>
+                {# <a href="#" class="forgot-link">Forgot password?</a> #}
+            </div>
+
+            <button class="btn btn-primary auth-btn" type="submit">
+                Sign in
+            </button>
+        </form>
+
+        {# <div class="auth-footer">
+            <p class="small">Don’t have an account?</p>
+            <a href="{{ path('app_register') }}" class="btn btn-outline-primary">
+                Create an Account
+            </a>
+        </div> #}
+
+    </div>
+
+</div>
+
+{% endblock %}

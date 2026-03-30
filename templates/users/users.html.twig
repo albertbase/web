@@ -1,0 +1,132 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Sweetoria Account Management{% endblock %}
+{% block body %}
+<style>
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+
+    .list-table th,
+    .list-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .list-table th {
+      background-color: #f8f8f8;
+      font-weight: bold;
+    }
+
+    .status.active { color: green; font-weight: bold; }
+    .status.inactive { color: red; font-weight: bold; }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      margin: 2px;
+      border-radius: 4px;
+      background-color: #f0c9e0; /* pastel pink for Sweetoria */
+      color: #333;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
+</style>
+
+<h2>Sweetoria Account Management</h2>
+
+{# =========================
+   A. Customer Accounts
+   ========================= #}
+{# Uncomment when ready to use #}
+{# <section class="customer-accounts">
+  <h3>Customer Accounts</h3>
+  <table class="list-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Total Orders</th>
+        <th>Total Spent</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for customer in customers %}
+        <tr>
+          <td>{{ customer.name }}</td>
+          <td>{{ customer.email }}</td>
+          <td>{{ customer.totalOrders }}</td>
+          <td>₱{{ customer.totalSpent }}</td>
+          <td>
+            <a href="{{ path('admin_customer_details', {id: customer.id}) }}">Details</a> |
+            <a href="{{ path('admin_customer_edit', {id: customer.id}) }}">Edit</a>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="5">No customers found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section> #}
+
+{# =========================
+   B. Staff Management
+   ========================= #}
+<section class="staff-management">
+  <h3>Staff Management</h3>
+  <table class="list-table">
+    <thead>
+      <tr>
+        {# <th>Name</th> #}
+        <th>Username</th>
+        <th>Roles</th>
+        <th>Status</th>
+        <th>Created At</th>
+        <th>Operation</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          {# <td>{{ user.name }}</td> #}
+          <td>{{ user.username }}</td>
+          <td>
+            {% for label in user.roleLabels %}
+                <span class="badge role-badge">{{ label }}</span>
+            {% endfor %}
+            </td>
+
+          <td>
+            {% if user.isActive %}
+              <span class="status active">Active</span>
+            {% else %}
+              <span class="status inactive">Inactive</span>
+            {% endif %}
+          </td>
+          <td>{{ user.createdAt|date('Y-m-d | H:i') }}</td>
+          <td>
+            <a href="{{ path('admin_users_edit', {id: user.id}) }}"><i class="fa fa-edit"></i></a>
+            <form method="post" action="{{ path('admin_users_delete', {id: user.id}) }}" style="display:inline;" onsubmit="return confirm('Delete this user?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+              <button type="submit" style="background:none;border:none;"><i class="fa fa-trash"></i></button>
+            </form>
+          </td>
+          <td>
+            <a href="{{ path('admin_users_login_as', {id: user.id}) }}" class="btn btn-sm btn-primary">Login</a>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="7">No staff found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

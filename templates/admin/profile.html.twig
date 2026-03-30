@@ -1,0 +1,17 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Profile</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">User Information</h5>
+            <p class="card-text"><strong>Username:</strong> {{ user.username }}</p>
+            <p class="card-text"><strong>Roles:</strong> {{ user.roles|join(', ') }}</p>
+            <a href="{{ path('admin_change_password') }}" class="btn btn-primary">Change Password</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

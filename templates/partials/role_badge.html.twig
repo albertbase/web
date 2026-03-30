@@ -1,0 +1,14 @@
+{# templates/admin/partials/role_badge.html.twig #}
+
+{% set roleColors = {
+    'ADMIN':    'bg-sweet-admin',
+    'STAFF':    'bg-sweet-staff',
+    'CUSTOMER': 'bg-sweet-customer'
+} %}
+
+{% set label = role|upper %}
+{% set colorClass = roleColors[label] ?? 'bg-secondary' %}
+
+<span class="badge sweet-role-badge {{ colorClass }}">
+    {{ label|capitalize }}
+</span>

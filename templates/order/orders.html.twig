@@ -1,0 +1,125 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Orders{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="fw-bold">📦 Orders</h2>
+
+      {# ✅ STAFF-ONLY CREATE ORDER BUTTON #}
+      <a href="{{ path('admin_orders_new') }}" class="btn btn-success shadow-sm">
+          <i class="bi bi-plus-circle"></i> Create Order
+      </a>
+  </div>
+
+  {# ✅ Search + Filters #}
+  <form method="get" class="row g-2 mb-4 p-3 bg-light rounded shadow-sm">
+      <div class="col-md-4">
+        <input type="text" name="search" value="{{ search|default('') }}"
+               class="form-control" placeholder="🔍 Search by name or customer">
+      </div>
+
+      <div class="col-md-4">
+        <select name="status" class="form-select">
+          <option value="">All Statuses</option>
+          <option value="Pending"   {{ status == 'Pending'   ? 'selected' : '' }}>Pending</option>
+          <option value="Paid"      {{ status == 'Paid'      ? 'selected' : '' }}>Paid</option>
+          <option value="Shipped"   {{ status == 'Shipped'   ? 'selected' : '' }}>Shipped</option>
+          <option value="Delivered" {{ status == 'Delivered' ? 'selected' : '' }}>Delivered</option>
+        </select>
+      </div>
+
+      <div class="col-md-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">Search</button>
+        <a href="{{ path('admin_orders') }}" class="btn btn-secondary">Reset</a>
+      </div>
+  </form>
+
+  {# ✅ Orders Table #}
+  <div class="table-responsive shadow-sm">
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Created</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {% if orders is empty %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <div>No orders found</div>
+          </td>
+        </tr>
+      {% endif %}
+
+      {% for order in orders %}
+        <tr class="order-row">
+          <td class="fw-bold">#{{ order.id }}</td>
+          <td>{{ order.customerName }}</td>
+
+          {# ✅ Status Badge #}
+          <td>
+            {% set badge = {
+              'Pending':   'bg-warning text-dark',
+              'Paid':      'bg-info text-dark',
+              'Shipped':   'bg-primary',
+              'Delivered': 'bg-success'
+            }[order.status] %}
+            <span class="badge {{ badge }} px-3 py-2">{{ order.status }}</span>
+          </td>
+
+          <td class="fw-semibold">₱{{ order.totalAmount|number_format(2) }}</td>
+          <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
+
+          <td class="text-center">
+
+            <div class="btn-group" role="group">
+              <a href="{{ path('admin_order_show', {id: order.id}) }}"
+                 class="btn btn-sm btn-outline-primary">
+                 <i class="bi bi-eye"></i>
+              </a>
+
+              {% if is_granted('ORDER_EDIT', order) %}
+                <a href="{{ path('admin_order_edit', {id: order.id}) }}"
+                   class="btn btn-sm btn-outline-warning">
+                   <i class="bi bi-pencil"></i>
+                </a>
+              {% endif %}
+
+              {% if is_granted('ORDER_DELETE', order) %}
+                <form action="{{ path('admin_order_delete', { id: order.id }) }}"
+                      method="POST"
+                      onsubmit="return confirm('Delete this order? This cannot be undone.')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_order_' ~ order.id) }}">
+                    <button class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+              {% endif %}
+            </div>
+
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<style>
+  .order-row:hover {
+      background: #f8f9fa;
+      transition: 0.2s ease-in-out;
+  }
+</style>
+
+{% endblock %}

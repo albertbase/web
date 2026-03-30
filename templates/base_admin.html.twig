@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Sweetoria{% endblock %}</title>
+  <link rel="stylesheet" href="{{ asset('css/sweetoria_admin.css') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  
+
+
+
+</head>
+
+<body>
+<div class="d-flex">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+    <img src="{{ asset('image/logo.png') }}" alt="Brand Logo" class="brand-logo">
+    <span class="brand-name">Sweetoria</span>
+</div>
+
+    
+    <nav class="nav flex-column">
+
+      {% if is_granted('ROLE_ADMIN') %}
+      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_dashboard' %}active{% endif %}"
+         href="{{ path('admin_dashboard') }}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+      {% endif %}
+
+      <a class="nav-link {% if app.request.attributes.get('_route') == 'products' %}active{% endif %}"
+         href="{{ path('admin_products') }}">
+        <i class="bi bi-box-seam"></i> Products
+      </a>
+
+      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_orders' %}active{% endif %}"
+         href="{{ path('admin_orders') }}">
+        <i class="bi bi-cart-check"></i> Order
+      </a>
+        {% if is_granted('ROLE_ADMIN') %}
+      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_staff_index' %}active{% endif %}"
+         href="{{ path('admin_staff_index') }}">
+        <i class="bi bi-people"></i> User Management
+      </a>
+      {% endif %}
+
+      {% if is_granted('ROLE_ADMIN') %}
+      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_activity_logs_index' %}active{% endif %}"
+         href="{{ path('admin_activity_logs_index') }}">
+        <i class="bi bi-clock-history"></i> Activity Logs
+      </a>
+      {% endif %}
+
+      <a class="nav-link {% if app.request.attributes.get('_route') == 'user_profile' %}active{% endif %}"
+         href="{{ path('user_profile') }}">
+        <i class="bi bi-person-circle"></i> Profile
+      </a>
+
+      <a class="nav-link" href="{{ path('app_logout') }}">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </a>
+
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-grow-1 p-4">
+    <div class="main-content">
+
+      <!-- Header bar -->
+      <div class="header-bar">
+        <p class="welcome">Welcome, {{ app.user.username ?? 'Guest' }} 👋</p>
+
+        <div class="dropdown">
+          <a href="#" class="text-decoration-none dropdown-toggle" id="profileDropdown"
+             data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle fs-3 profile-icon"></i>
+          </a>
+
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+            <li><h6 class="dropdown-header">Logged in as {{ app.user.username ?? 'Guest' }}</h6></li>
+            <li><a class="dropdown-item" href="{{ path('user_profile') }}"><i class="bi bi-person"></i> My Account</a></li>
+            <li><hr class="dropdown-divider"></li>
+          </ul>
+        </div>
+      </div>
+
+      {% block body %}{% endblock %}
+
+    </div>
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+    const sidebar = document.getElementById('sidebar');
+
+    // Desktop collapse
+    if (window.innerWidth > 768) {
+        sidebar.classList.toggle('collapsed');
+    } 
+    // Mobile slide-in
+    else {
+        sidebar.classList.toggle('open');
+    }
+});
+</script>
+
+</body>
+</html>

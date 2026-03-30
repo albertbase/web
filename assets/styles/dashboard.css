@@ -1,0 +1,129 @@
+body {
+  background: linear-gradient(135deg, #fff3e0, #ffe8d0);
+  background-attachment: fixed;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Optional: subtle frosting texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='1' fill='%23ff8c42'/%3E%3Ccircle cx='30' cy='30' r='1' fill='%23ff8c42'/%3E%3Ccircle cx='70' cy='70' r='1' fill='%23ff8c42'/%3E%3Ccircle cx='90' cy='90' r='1' fill='%23ff8c42'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* === Ripple Effect === */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* === Bakery Color Palette === */
+:root {
+  --bakery-cream: #fff3e0;
+  --bakery-caramel: #ff8c42;
+  --bakery-choco: #5c3d2e;
+  --bakery-gold: #ffe8d0;
+  --bakery-shadow: rgba(92, 61, 46, 0.15);
+}
+
+/* === Card Styling === */
+.card {
+  border-radius: 18px;
+  background-color: var(--bakery-gold);
+  box-shadow: 0 8px 20px var(--bakery-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.card-body {
+  padding: 2rem;
+  color: var(--bakery-choco);
+  text-align: center;
+}
+
+/* === Icon Styling (No Circle) === */
+.card i {
+  font-size: 3rem;
+  color: var(--bakery-choco);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.card:hover i {
+  transform: scale(1.1);
+  color: var(--bakery-caramel);
+}
+
+/* === Card Text === */
+.card h5 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  color: var(--bakery-choco);
+  margin-top: 1rem;
+}
+
+.card p {
+  color: #6b4e2e;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* === Hover Effect === */
+.hover-scale:hover {
+  transform: translateY(-8px) scale(1.04);
+  box-shadow: 0 16px 32px rgba(92, 61, 46, 0.25);
+}
+
+/* === Button Styling === */
+.btn-primary {
+  background: linear-gradient(to right, #ff8c42, #ffa85c);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #e67e2c, #ff944d);
+  transform: scale(1.05);
+}

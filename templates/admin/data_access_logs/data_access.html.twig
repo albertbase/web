@@ -1,0 +1,125 @@
+{# templates/admin/system/dashboard.html.twig #}
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}System Dashboard{% endblock %}
+
+{% block body %}
+<style>
+.dashboard-flex {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.data-access {
+  flex: 1; /* smaller column */
+}
+
+.activity-logs {
+  flex: 2;          /* wider column */
+  margin-top: 6rem; /* adds spacing above logs */
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.card {
+  background: #f9f9ff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+.dashboard-grid {
+    flex: 2;          /* wider column */
+  margin-top: 3rem;
+}
+.section-description {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #555;
+}
+.section-description ul {
+  margin: 0.5rem 0 0 1.5rem;
+}
+
+
+</style>
+<h1>📊 System Data Access & Logs</h1>
+
+<div class="dashboard-grid">
+  <!-- Left Column: Data Access -->
+  <div class="data-access">
+    <h2>🔑 Full Data Access</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>Products</h3>
+        <a href="{{ path('admin_products') }}" class="btn btn-primary">Manage</a>
+      </div>
+      <div class="card">
+        <h3>Orders</h3>
+        <a href="{{ path('admin_orders') }}" class="btn btn-primary">Manage</a>
+      </div>
+      {# <div class="card">
+        <h3>Customers</h3>
+        <a href="{{ path('admin_customers') }}" class="btn btn-primary">Manage</a>
+      </div>
+      <div class="card">
+        <h3>Core Data</h3>
+        <a href="{{ path('admin_pages') }}" class="btn btn-primary">Manage</a>
+      </div>
+    </div> #}
+  </div>
+
+  <!-- Right Column: Activity Logs -->
+  <div class="activity-logs">
+    <h2>📜 Activity Logs (Admin Only Access)</h2>
+
+    <!-- Filter Form -->
+    <form method="get" class="filter-form">
+      <input type="text" name="user" placeholder="Filter by User">
+      <select name="action">
+        <option value="">Filter by Action</option>
+        <option value="create">Create</option>
+        <option value="update">Update</option>
+        <option value="delete">Delete</option>
+        <option value="login">Login</option>
+        <option value="logout">Logout</option>
+      </select>
+      <input type="date" name="date">
+      <button type="submit" class="btn btn-secondary">Filter</button>
+    </form>
+
+    <!-- Logs Table -->
+    <table class="table pastel-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Action</th>
+          <th>Affected Data</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log.username }}</td>
+            <td><span class="badge role-badge">{{ log.role }}</span></td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.entity }}</td>
+            <td>{{ log.timestamp|date('Y-m-d H:i') }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="5">No logs found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

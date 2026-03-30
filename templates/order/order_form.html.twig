@@ -1,0 +1,235 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block body %}
+<h2 class="fw-bold mb-4">{{ is_edit ? 'Edit Order' : 'Create Order' }}</h2>
+
+<div class="card p-4 shadow-lg border-0 rounded-4">
+
+    {{ form_start(form) }}
+
+    {# ✅ Customer Info #}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            {{ form_row(form.customerName, {'attr': {'class': 'form-control shadow-sm'}}) }}
+        </div>
+        <div class="col-md-4">
+            {{ form_row(form.customerPhone, {'attr': {'class': 'form-control shadow-sm'}}) }}
+        </div>
+    </div>
+
+    <h3 class="fw-semibold mt-4 mb-3">🛍 Select Products</h3>
+
+    {# ✅ Product Grid #}
+    <div class="product-grid mb-4">
+        {% for product in products %}
+            <div class="product-card shadow-sm"
+                 data-id="{{ product.id }}"
+                 data-name="{{ product.name }}"
+                 data-price="{{ product.price }}">
+
+                <img src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product.name }}">
+
+                <h4 class="fw-semibold">{{ product.name }}</h4>
+                <p class="text-muted small">{{ product.description }}</p>
+
+                <strong class="text-success">₱{{ product.price }}</strong>
+
+                <button type="button" class="add-to-order mt-2">
+                    <i class="bi bi-plus-circle"></i> Add
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="order-items"></div>
+
+    {# ✅ Order Summary #}
+    <h4 class="fw-semibold mt-4">🧾 Order Summary</h4>
+    <ul id="order-summary" class="order-summary-list mt-3"></ul>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <h4 class="fw-bold">Total:</h4>
+        <h4 id="order-total" class="fw-bold text-primary">₱0.00</h4>
+    </div>
+
+    <div class="mt-4">
+        {{ form_row(form.status, {'attr': {'class': 'form-select shadow-sm'}}) }}
+    </div>
+
+    <button class="btn btn-primary mt-4 px-4 py-2 shadow-sm">
+        <i class="bi bi-check-circle"></i> Save Order
+    </button>
+
+    {{ form_end(form) }}
+</div>
+
+<script>
+let order = [];
+
+function updateSummary() {
+    const summary = document.querySelector('#order-summary');
+    const totalDisplay = document.querySelector('#order-total');
+    const container = document.querySelector('#order-items');
+
+    summary.innerHTML = '';
+    container.innerHTML = '';
+
+    let total = 0;
+
+    order.forEach((item, index) => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+
+        summary.insertAdjacentHTML('beforeend', `
+            <li class="summary-item">
+                <div>
+                    <strong>${item.name}</strong>
+                    <div class="text-muted small">₱${item.price.toFixed(2)} each</div>
+                </div>
+
+                <div class="qty-controls">
+                    <button type="button" onclick="changeQty(${index}, -1)">−</button>
+                    <span>${item.qty}</span>
+                    <button type="button" onclick="changeQty(${index}, 1)">+</button>
+                </div>
+
+                <strong class="subtotal">₱${subtotal.toFixed(2)}</strong>
+
+                <button type="button" class="remove-btn" onclick="removeItem(${index})">×</button>
+            </li>
+        `);
+
+        container.insertAdjacentHTML('beforeend', `
+            <input type="hidden" name="items[${index}][product_id]" value="${item.id}">
+            <input type="hidden" name="items[${index}][quantity]" value="${item.qty}">
+        `);
+    });
+
+    totalDisplay.textContent = '₱' + total.toFixed(2);
+}
+
+function changeQty(index, amount) {
+    order[index].qty += amount;
+    if (order[index].qty <= 0) order.splice(index, 1);
+    updateSummary();
+}
+
+function removeItem(index) {
+    order.splice(index, 1);
+    updateSummary();
+}
+
+document.querySelectorAll('.add-to-order').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const card = e.target.closest('.product-card');
+        const id = card.dataset.id;
+        const name = card.dataset.name;
+        const price = parseFloat(card.dataset.price);
+
+        const existing = order.find(item => item.id === id);
+
+        if (existing) {
+            existing.qty++;
+        } else {
+            order.push({ id, name, price, qty: 1 });
+        }
+
+        updateSummary();
+    });
+});
+</script>
+
+<style>
+/* ✅ Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 18px;
+}
+
+/* ✅ Product Card */
+.product-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+    transition: 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.product-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* ✅ Add Button */
+.add-to-order {
+    background: #ff6b81;
+    border: none;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.add-to-order:hover {
+    background: #ff4757;
+}
+
+/* ✅ Order Summary */
+.order-summary-list {
+    list-style: none;
+    padding: 0;
+}
+
+.summary-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.qty-controls button {
+    background: #e9ecef;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.qty-controls button:hover {
+    background: #ced4da;
+}
+
+.qty-controls span {
+    margin: 0 8px;
+    font-weight: bold;
+}
+
+.remove-btn {
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    font-size: 22px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.remove-btn:hover {
+    color: #b02a37;
+}
+</style>
+
+{% endblock %}

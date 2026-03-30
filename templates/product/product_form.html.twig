@@ -1,0 +1,198 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}
+    {{ is_edit ? 'Edit Product' : 'Add Product' }}
+{% endblock %}
+
+{% block body %}
+<div class="container py-4 sweetoria-fade">
+
+      {# ✅ If editing, enforce PRODUCT_EDIT permission #}
+    {% if is_edit %}
+        {% if not is_granted('PRODUCT_EDIT', product) %}
+            <div class="alert alert-danger mt-4">
+                You do not have permission to edit this product.
+            </div>
+            {# {% endblock %}
+            {% return %} #}
+        {% endif %}
+    {% endif %}
+
+    <div class="sweetoria-form-card shadow-lg">
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-purple mb-1">
+                    {{ is_edit ? '✏️ Edit Product' : '🛒 Add New Product' }}
+                </h2>
+                <p class="text-muted small">
+                    {{ is_edit ? 'Modify product details and update inventory.' : 'Create a new product for your Sweetoria catalog.' }}
+                </p>
+            </div>
+
+            <a href="{{ path('admin_products') }}" class="btn btn-outline-secondary btn-sm sweetoria-back-btn">
+                ← Back to List
+            </a>
+        </div>
+
+        {{ form_start(form, {
+            'action': is_edit 
+                ? path('admin_products_edit', {'id': product.id}) 
+                : path('admin_products_new'),
+            'attr': {'enctype': 'multipart/form-data'}
+        }) }}
+
+        <div class="row g-4">
+
+            <!-- Product Name -->
+            <div class="col-md-6 sweetoria-floating">
+                {{ form_widget(form.name, { attr: { class: 'form-control sweetoria-input', placeholder: ' ' } }) }}
+                <label class="form-label">Product Name</label>
+                {{ form_errors(form.name) }}
+            </div>
+
+            <!-- Price -->
+            <div class="col-md-6 sweetoria-floating">
+                {{ form_widget(form.price, { attr: { class: 'form-control sweetoria-input', placeholder: ' ' } }) }}
+                <label class="form-label">Price (₱)</label>
+                {{ form_errors(form.price) }}
+            </div>
+
+            <!-- Description -->
+            <div class="col-md-12 sweetoria-floating">
+                {{ form_widget(form.description, { attr: { class: 'form-control sweetoria-input', placeholder: ' ' } }) }}
+                <label class="form-label">Description</label>
+                {{ form_errors(form.description) }}
+            </div>
+
+            <!-- Category -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Category</label>
+                {{ form_widget(form.category, { attr: { class: 'form-select sweetoria-select' } }) }}
+                {{ form_errors(form.category) }}
+            </div>
+
+            <!-- Stock -->
+            <div class="col-md-6 sweetoria-floating">
+                {{ form_widget(form.stock, { attr: { class: 'form-control sweetoria-input', placeholder: ' ' } }) }}
+                <label class="form-label">Stock Quantity</label>
+                {{ form_errors(form.stock) }}
+            </div>
+
+            <!-- Image Upload -->
+            <div class="col-md-12">
+                <label class="form-label fw-semibold">Upload Image</label>
+                {{ form_widget(form.image, { attr: { class: 'form-control sweetoria-file' } }) }}
+                {{ form_errors(form.image) }}
+
+                {% if is_edit and product.image %}
+                    <div class="mt-3">
+                        <p class="text-muted small mb-1">Current Image:</p>
+                        <img src="{{ asset('uploads/products/' ~ product.image) }}"
+                             class="img-thumbnail sweetoria-preview">
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mt-4 text-end">
+            <button type="submit" class="btn sweetoria-btn-primary px-4 py-2">
+                {{ is_edit ? 'Update Product' : 'Save Product' }}
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+</div>
+
+<style>
+/* Fade animation */
+.sweetoria-fade {
+    animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card */
+.sweetoria-form-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 18px;
+}
+
+/* Purple accent */
+.text-purple { color: #6f42c1; }
+
+/* Floating labels */
+.sweetoria-floating {
+    position: relative;
+}
+.sweetoria-floating .form-label {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    color: #888;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+.sweetoria-floating input:focus + .form-label,
+.sweetoria-floating textarea:focus + .form-label,
+.sweetoria-floating input:not(:placeholder-shown) + .form-label,
+.sweetoria-floating textarea:not(:placeholder-shown) + .form-label {
+    top: -8px;
+    left: 10px;
+    font-size: 0.75rem;
+    background: #fff;
+    padding: 0 4px;
+    color: #6f42c1;
+}
+
+/* Inputs */
+.sweetoria-input,
+.sweetoria-select,
+.sweetoria-file {
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.25s ease;
+}
+.sweetoria-input:focus,
+.sweetoria-select:focus,
+.sweetoria-file:focus {
+    border-color: #6f42c1;
+    box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
+}
+
+/* Buttons */
+.sweetoria-btn-primary {
+    background: #6f42c1;
+    color: #fff;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+.sweetoria-btn-primary:hover {
+    background: #5a34a3;
+    transform: translateY(-2px);
+}
+
+/* Back button */
+.sweetoria-back-btn:hover {
+    background: #f0e6ff;
+}
+
+/* Image preview */
+.sweetoria-preview {
+    max-width: 180px;
+    border-radius: 10px;
+    border: 2px solid #eee;
+}
+</style>
+
+{% endblock %}

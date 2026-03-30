@@ -1,0 +1,42 @@
+  .profile-card {
+        max-width: 520px;
+        border-radius: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .avatar-circle {
+        width: 70px;
+        height: 70px;
+        background: #6f42c1;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .profile-value {
+        font-size: 1.05rem;
+        font-weight: 500;
+    }
+
+    .profile-btn {
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: background 0.25s ease, transform 0.15s ease;
+    }
+
+    .profile-btn:hover {
+        background: #5a34a3;
+        transform: translateY(-2px);
+    }

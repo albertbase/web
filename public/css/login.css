@@ -1,0 +1,118 @@
+/* GLOBAL */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #fff;
+}
+
+/* ANIMATIONS */
+.fade-in { animation: fadeIn 0.8s ease forwards; opacity: 0; }
+.fade-up { animation: fadeUp 0.8s ease forwards; opacity: 0; transform: translateY(20px); }
+.delay-1 { animation-delay: 0.3s; }
+.delay-2 { animation-delay: 0.6s; }
+
+.slide-in-left { animation: slideLeft 0.8s ease forwards; opacity: 0; }
+.slide-in-right { animation: slideRight 0.8s ease forwards; opacity: 0; }
+
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+@keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+
+/* CONTAINER */
+.sweetoria-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* LEFT PANEL */
+.sweetoria-left {
+    flex: 1;
+    background: #fff7f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.sweetoria-logo {
+    width: 120px;
+    height: auto;
+    animation: fadeIn 1s ease;
+}
+
+/* FLOATING LABELS */
+.form-floating label {
+    color: #a0522d;
+}
+
+.form-floating input {
+    border-radius: 8px;
+    border: 1px solid #d8c1b0;
+}
+
+/* BUTTON */
+.login-btn {
+    background-color: #d2691e !important;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #b85c1a !important;
+    transform: translateY(-2px);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(210,105,30,0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(210,105,30,0); }
+    100% { box-shadow: 0 0 0 0 rgba(210,105,30,0); }
+}
+
+/* RIGHT PANEL */
+.sweetoria-right {
+    flex: 1;
+    background: linear-gradient(135deg, #ff9aa2, #ffb6b9, #fcd5ce);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 40px;
+    position: relative;
+}
+
+/* Animated gradient */
+.gradient-animate {
+    background-size: 300% 300%;
+    animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* SIGNUP BUTTON */
+.signup-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: white;
+    color: #d2691e;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.signup-btn:hover {
+    background: #ffe8e8;
+    transform: translateY(-3px);
+}

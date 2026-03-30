@@ -1,0 +1,154 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block body %}
+
+<style>
+    /* Center the entire page */
+    .center-wrapper {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    /* Smooth fade + slide animation */
+    .fade-slide {
+        animation: fadeSlide .35s ease forwards;
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    @keyframes fadeSlide {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card hover micro-interaction */
+    .profile-edit-card {
+        transition: transform .25s ease, box-shadow .25s ease;
+        border-radius: 14px;
+    }
+    .profile-edit-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    /* Floating label container */
+    .floating-group {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    /* Input styling (bigger) */
+    .floating-input {
+        width: 100%;
+        padding: 18px 14px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        transition: all .25s ease;
+        background: white;
+    }
+
+    .floating-input:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.15rem rgba(78,115,223,0.25);
+        outline: none;
+    }
+
+    /* Floating label */
+    .floating-label {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        transform: translateY(-50%);
+        font-size: 1.1rem;
+        color: #6c757d;
+        pointer-events: none;
+        transition: all .25s ease;
+        background: white;
+        padding: 0 6px;
+    }
+
+    /* When input has value OR is focused */
+    .floating-input:focus + .floating-label,
+    .floating-input:not(:placeholder-shown) + .floating-label {
+        top: -10px;
+        font-size: 0.8rem;
+        color: #4e73df;
+    }
+
+    /* Button animation (bigger) */
+    .btn-animate {
+        transition: all .25s ease;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 1.1rem;
+    }
+    .btn-animate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(78,115,223,0.3);
+    }
+
+    /* Title styling (bigger) */
+    .edit-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    /* Divider animation */
+    .divider {
+        height: 1px;
+        background: #e9ecef;
+        margin: 1.5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .divider::after {
+        content: "";
+        position: absolute;
+        width: 40%;
+        height: 100%;
+        background: #4e73df;
+        left: -40%;
+        animation: slideLine 2.5s infinite ease;
+    }
+    @keyframes slideLine {
+        0% { left: -40%; }
+        50% { left: 100%; }
+        100% { left: -40%; }
+    }
+</style>
+
+<div class="center-wrapper fade-slide">
+
+    <div class="card p-5 shadow-sm profile-edit-card" style="max-width: 650px; width: 100%;">
+        <h1 class="edit-title">Edit Profile</h1>
+        <div class="divider"></div>
+
+        {{ form_start(form) }}
+
+        <!-- Interactive Floating Label Username Field -->
+        <div class="floating-group">
+            {{ form_widget(form.username, {
+                'attr': {
+                    'class': 'floating-input',
+                    'placeholder': ' '
+                }
+            }) }}
+            <label class="floating-label">Username</label>
+            {{ form_errors(form.username) }}
+        </div>
+
+        <button class="btn btn-primary w-100 btn-animate">
+            Save Changes
+        </button>
+
+        {{ form_end(form) }}
+    </div>
+
+</div>
+
+{% endblock %}

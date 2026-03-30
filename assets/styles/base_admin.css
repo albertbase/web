@@ -1,0 +1,114 @@
+:root {
+  --bakery-cream: #fff3e0;
+  --bakery-caramel: #ff8c42;
+  --bakery-choco: #5c3d2e;
+  --bakery-gold: #ffe8d0;
+  --bakery-shadow: rgba(92, 61, 46, 0.15);
+}
+
+/* === Background === */
+body {
+  background: linear-gradient(135deg, var(--bakery-cream), var(--bakery-gold));
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* === Layout === */
+.admin-layout {
+  display: block;
+  min-height: 100vh;
+}
+
+/* === Sidebar === */
+/* .sidebar {
+  width: 240px;
+  background-color: var(--bakery-choco);
+  color: #fff;
+  padding: 20px;
+  box-shadow: 0 0 10px var(--bakery-shadow);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+} */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background-color: var(--bakery-choco);
+  color: #fff;
+  padding: 20px;
+  box-shadow: 0 0 10px var(--bakery-shadow);
+  overflow-y: auto;
+  z-index: 1000; /* ensures it stays above other content */
+}
+
+
+.logo img {
+  max-width: 160px;
+  margin-bottom: 30px;
+}
+
+/* === Sidebar Navigation === */
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 15px;
+}
+
+.sidebar-btn {
+  display: block;
+  padding: 12px 20px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.sidebar-btn:hover {
+  background-color: var(--bakery-caramel);
+  color: #fff;
+}
+
+.sidebar-btn.active {
+  background-color: #fff;
+  color: var(--bakery-choco);
+  font-weight: bold;
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.3);
+}
+
+/* === Main Content === */
+.main-content {
+  margin-left: 240px;
+  flex-grow: 1;
+  padding: 40px;
+  background-color: #fff;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  box-shadow: -4px 0 12px var(--bakery-shadow);
+}
+
+/* === Flash Messages === */
+.alert {
+  animation: slideIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

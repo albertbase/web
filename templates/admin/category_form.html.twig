@@ -1,0 +1,9 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Add Category{% endblock %}
+{% block body %}
+<h2>Add New Category</h2>
+{{ form_start(form) }}
+  {{ form_row(form.name) }}
+  <button type="submit">Save</button>
+{{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Activity Logs{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Activity Logs</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="action" class="form-label">Action</label>
+                    <select name="action" id="action" class="form-select">
+                        <option value="">All Actions</option>
+                        <option value="LOGIN" {{ action == 'LOGIN' ? 'selected' : '' }}>Login</option>
+                        <option value="LOGOUT" {{ action == 'LOGOUT' ? 'selected' : '' }}>Logout</option>
+                        <option value="CREATE" {{ action == 'CREATE' ? 'selected' : '' }}>Create</option>
+                        <option value="UPDATE" {{ action == 'UPDATE' ? 'selected' : '' }}>Update</option>
+                        <option value="DELETE" {{ action == 'DELETE' ? 'selected' : '' }}>Delete</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" value="{{ username }}" placeholder="Filter by username">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Filter</button>
+                    <a href="{{ path('admin_logs') }}" class="btn btn-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                            <th>Entity Type</th>
+                            <th>Entity ID</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.timestamp|date('Y-m-d H:i:s') }}</td>
+                            <td>{{ log.username ?: 'N/A' }}</td>
+                            <td>{{ log.userRole ?: 'N/A' }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if log.action == 'LOGIN' %}badge-success
+                                    {% elseif log.action == 'LOGOUT' %}badge-warning
+                                    {% elseif log.action == 'CREATE' %}badge-primary
+                                    {% elseif log.action == 'UPDATE' %}badge-info
+                                    {% elseif log.action == 'DELETE' %}badge-danger
+                                    {% else %}badge-secondary{% endif %}">
+                                    {{ log.action }}
+                                </span>
+                            </td>
+                            <td>{{ log.entityType ?: 'N/A' }}</td>
+                            <td>{{ log.entityId ?: 'N/A' }}</td>
+                            <td>{{ log.details ?: 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if logs is empty %}
+                <p class="text-muted text-center mt-3">No activity logs found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

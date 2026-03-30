@@ -1,0 +1,179 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block body %}
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">👥 Staff Accounts</h2>
+
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin_staff_new') }}" class="btn btn-success sweetoria-add-btn">
+                <i class="bi bi-person-plus"></i> New Account
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive sweetoria-table-wrapper">
+        <table class="table sweetoria-table align-middle">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Date Created</th>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <th class="text-center">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for user in staff %}
+                <tr class="sweetoria-row">
+
+                    <!-- Username -->
+                    <td>
+                        <strong>{{ user.username }}</strong>
+                    </td>
+
+                    <!-- Role -->
+                    <td>
+                        {% if 'ROLE_ADMIN' in user.roles %}
+                            <span class="badge sweetoria-role-admin">Admin</span>
+                        {% elseif 'ROLE_STAFF' in user.roles %}
+                            <span class="badge sweetoria-role-staff">Staff</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                        {% if user.isActive == 'active' %}
+                            <span class="sweetoria-status active">Active</span>
+                        {% else %}
+                            <span class="sweetoria-status disabled">Disabled</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Date -->
+                    <td>{{ user.createdAt|date('M d, Y') }}</td>
+
+                    <!-- Actions -->
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <td class="text-center">
+                        <a href="{{ path('admin_staff_edit', {id: user.id}) }}" 
+                           class="btn btn-sm sweetoria-btn-edit">
+                            ✏️
+                        </a>
+
+                        <form method="post" action="{{ path('admin_staff_delete', {id: user.id}) }}" 
+                              style="display:inline-block"
+                              onsubmit="return confirm('Delete this account?');">
+                            <button class="btn btn-sm sweetoria-btn-delete">🗑️</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<style>
+/* Header Button */
+.sweetoria-add-btn {
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+    transition: transform 0.2s ease;
+}
+.sweetoria-add-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Table Wrapper */
+.sweetoria-table-wrapper {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* Table */
+.sweetoria-table thead {
+    background: #6f42c1;
+    color: white;
+}
+.sweetoria-table thead th {
+    padding: 14px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.sweetoria-table tbody tr {
+    transition: background 0.2s ease;
+}
+.sweetoria-table tbody tr:hover {
+    background: #f8f3ff;
+}
+
+/* Role Badges */
+.sweetoria-role-admin {
+    background: #dc3545;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+.sweetoria-role-staff {
+    background: #0dcaf0;
+    color: #003b4d;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+/* Status Chips */
+.sweetoria-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.sweetoria-status.active {
+    background: #d1f7d6;
+    color: #0f7a1f;
+}
+.sweetoria-status.disabled {
+    background: #ffe0e0;
+    color: #a30000;
+}
+
+/* Action Buttons */
+.sweetoria-btn-edit,
+.sweetoria-btn-delete {
+    border-radius: 8px;
+    padding: 6px 10px;
+    transition: all 0.2s ease;
+}
+
+.sweetoria-btn-edit {
+    background: #ffe8a3;
+    border: none;
+}
+.sweetoria-btn-edit:hover {
+    background: #ffdd7a;
+}
+
+.sweetoria-btn-delete {
+    background: #ffb3b3;
+    border: none;
+}
+.sweetoria-btn-delete:hover {
+    background: #ff8a8a;
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+  {# ✅ Header Section #}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold">🧾 Order #{{ order.id }}</h2>
+
+      <a href="{{ path('admin_orders') }}" class="btn btn-outline-secondary shadow-sm">
+        <i class="bi bi-arrow-left-circle"></i> Back to Orders
+      </a>
+  </div>
+
+  {# ✅ Order Summary Card #}
+  <div class="card shadow-sm mb-4">
+      <div class="card-body">
+
+          <div class="row mb-3">
+              <div class="col-md-6">
+                  <p class="mb-1 text-muted">Customer</p>
+                  <h5 class="fw-semibold">{{ order.customerName }}</h5>
+              </div>
+
+              <div class="col-md-6 text-md-end">
+                  <p class="mb-1 text-muted">Created</p>
+                  <h6>{{ order.createdAt|date('Y-m-d H:i') }}</h6>
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-md-4">
+                  <p class="mb-1 text-muted">Total Amount</p>
+                  <h4 class="fw-bold text-success">₱{{ order.totalAmount|number_format(2) }}</h4>
+              </div>
+
+              <div class="col-md-4">
+                  <p class="mb-1 text-muted">Status</p>
+
+                  {% set badgeClass = {
+                      'Pending': 'bg-warning text-dark',
+                      'Paid': 'bg-info text-dark',
+                      'Shipped': 'bg-primary',
+                      'Delivered': 'bg-success'
+                  }[order.status] %}
+
+                  <span class="badge {{ badgeClass }} px-3 py-2 fs-6">
+                      {{ order.status }}
+                  </span>
+              </div>
+
+              <div class="col-md-4">
+                  <p class="mb-1 text-muted">Status (Read‑only)</p>
+                  <input type="text" class="form-control bg-light" value="{{ order.status }}" readonly>
+              </div>
+          </div>
+
+      </div>
+  </div>
+
+  {# ✅ Items Table #}
+  <div class="card shadow-sm">
+      <div class="card-header bg-light">
+          <h5 class="mb-0 fw-semibold">🛒 Order Items</h5>
+      </div>
+
+      <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+              <thead class="table-dark">
+                  <tr>
+                      <th>Product</th>
+                      <th class="text-center">Quantity</th>
+                      <th class="text-end">Subtotal</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for item in order.orderItems %}
+                      <tr class="order-item-row">
+                          <td class="fw-semibold">{{ item.product.name }}</td>
+                          <td class="text-center">{{ item.quantity }}</td>
+                          <td class="text-end">₱{{ item.subtotal|number_format(2) }}</td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>
+  </div>
+
+</div>
+
+{# ✅ Interactive Hover Styling #}
+<style>
+  .order-item-row:hover {
+      background: #f8f9fa;
+      transition: 0.2s ease-in-out;
+  }
+
+  .card {
+      border-radius: 12px;
+  }
+
+  .table-hover tbody tr:hover {
+      background-color: #f1f3f5 !important;
+  }
+</style>
+
+{% endblock %}

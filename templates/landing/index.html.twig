@@ -3,24 +3,8 @@
 {% block title %}Bakery Landing{% endblock %}
 
 {% block body %}
-<link rel="stylesheet" href="{{ asset('css/all.css') }}">
+{# <link rel="stylesheet" href="{{ asset('css/all.css') }}"> #}
 
-<header class="navbar">
-    <div class="logo">
-        <img src="{{ asset('image/logo.png') }}" alt="Brand Logo">
-    </div>
-    <nav class="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Menu</a>
-        <a href="#">Category</a>
-        <a href="#">About Us</a>
-        <a href="#">Contact Us</a>
-    </nav>
-    <div class="cart-menu">
-        <span class="cart">🛒</span>
-        <span class="menu">☰</span>
-    </div>
-</header>
 
 <section class="hero">
     <div class="hero-text">
@@ -28,8 +12,11 @@
         <h1>SWEETORIA</h1>
         <p>A Sweet escape in every bite</p>
         <div class="hero-buttons">
-            <button class="order-btn">Order Now</button>
-            <button class="explore-btn">Explore More →</button>
+        {# <a href="{{ path('product_list') }}" class="order-btn">Buy Now</a> #}
+            {# <button class="order-btn" href="{{ path('product_list')}}">Buy Now</button> #}
+            <button class="order-btn" onclick="window.location.href='{{ path('product_list') }}'">Buy Now</button>
+
+            {# <button class="explore-btn">Explore More →</button> #}
         </div>
         {# <div class="stats">
             <div>100% Organic →</div>
@@ -43,8 +30,11 @@
         <img src="{{ asset('image/bakery.png') }}" alt="Basket of bread" class='basket'>
     </div>
 </section>
-
+            <div>
+                <h1 class = "text-center" style = "font-family:'Playfair Display', serif; font-weight: 600">Our Menu</h1>    
+            </div>
 <section class="food-section">
+    
         <div class="food-card">
             <img src="{{ asset('image/breakfast.jpg') }}" alt="Breakfast">
             <h3 class="highlight">Bread</h3>
@@ -70,7 +60,7 @@
 
     
 {# --- Footer Section --- #}
-<footer class="footer">
+{# <footer class="footer">
     <div class="footer-container">
 
         <!-- Logo & About -->
@@ -115,6 +105,7 @@
     <div class="footer-bottom">
         <p>&copy; {{ "now"|date("Y") }} MyBakery. All rights reserved.</p>
     </div>
-</footer>
+</footer> #}
+
 
 {% endblock %}

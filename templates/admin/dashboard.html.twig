@@ -1,0 +1,188 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Sweetoria Dashboard{% endblock %}
+
+{% block body %}
+
+<div class="dashboard-container sweetoria-fade">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="display-5 fw-bold text-dark">Dashboard</h1>
+        <p class="text-muted">Overview of Sweetoria’s operations and recent activity.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mt-2">
+        <div class="col-md-3">
+            <div class="sweet-card stat-card">
+                <h6 class="text-muted">Products</h6>
+                <p class="stat-value">{{ totalProducts }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="sweet-card stat-card">
+                <h6 class="text-muted">Users</h6>
+                <p class="stat-value">{{ totalUsers }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="sweet-card stat-card">
+                <h6 class="text-muted">Staff</h6>
+                <p class="stat-value">{{ totalStaff }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="sweet-card stat-card">
+                <h6 class="text-muted">Orders</h6>
+                <p class="stat-value">{{ totalOrders }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock & Value -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-6">
+            <div class="sweet-card stat-card">
+                <h6 class="text-muted">Total Stock</h6>
+                <p class="stat-value">{{ totalStock }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sweet-card stat-card">
+                <h6 class="text-muted">Total Value</h6>
+                <p class="stat-value">₱{{ totalValue|number_format(2, '.', ',') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Products -->
+    <div class="sweet-card mt-5">
+        <h5 class="fw-bold mb-3">Recent Products</h5>
+
+        <div class="table-responsive">
+            <table class="table sweet-table align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in recentProducts %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.stock }}</td>
+                            <td>₱{{ product.price|number_format(2) }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-muted text-center py-3">No recent products</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Activity Logs -->
+    <div class="sweet-card mt-4">
+        <h5 class="fw-bold mb-3">Recent Activity</h5>
+
+        <div class="table-responsive">
+            <table class="table sweet-table align-middle">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                        <th>Entity</th>
+                        <th>Details</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recentLogs %}
+                        <tr>
+                            <td>{{ log.username }}</td>
+                            <td>{{ log.userRole }}</td>
+                            <td>{{ log.action }}</td>
+                            <td>
+                                {% if log.entityType %}
+                                    {{ log.entityType }} #{{ log.entityId }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ log.details ?? '—' }}</td>
+                            <td>{{ log.timestamp|date('Y-m-d H:i') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-muted text-center py-3">No recent activity</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+/* Fade animation */
+.sweetoria-fade {
+    animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card styling */
+.sweet-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.6rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.sweet-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+/* Stat cards */
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #6f42c1;
+}
+
+/* Tables */
+.sweet-table thead {
+    background: #f7f1ff;
+}
+.sweet-table thead th {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+.sweet-table tbody tr:hover {
+    background: #faf5ff;
+}
+
+/* Dashboard container */
+.dashboard-container {
+    padding-bottom: 40px;
+}
+</style>
+
+{% endblock %}

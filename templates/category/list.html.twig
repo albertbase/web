@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+{% block title %}All Categories{% endblock %}
+
+{% block body %}
+
+ {# <link rel="stylesheet" href="{{ asset('css/category_list.css') }}"> #}
+
+<div class="container mt-4">
+  <h2 class="mb-4 text-center fw-bold">🍞 All Categories</h2>
+
+  {% for category in categories %}
+    <h4 class="mt-5">
+      {{ category.name|lower == 'bread' ? '🥖' :
+         category.name|lower == 'cupcake' ? '🧁' :
+         category.name|lower == 'dessert' ? '🍨' :
+         category.name|lower == 'cakes' ? '🎂' :
+         '🍩' }} {{ category.name }}
+    </h4>
+
+    {% if category.products is not empty %}
+      <div class="row">
+        {% for product in category.products %}
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 product-card border-0 shadow-sm">
+              {% if product.image %}
+                <img src="{{ asset('uploads/products/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
+              {% else %}
+                <img src="{{ asset('images/no-image.png') }}" class="card-img-top" alt="No image">
+              {% endif %}
+              <div class="card-body bg-gradient-bakery">
+                <h5 class="card-title text-center fw-bold">{{ product.name }}</h5>
+                <p class="card-text text-center small">
+                  {{ product.description|length > 100 ? product.description|slice(0, 100) ~ '…' : product.description }}
+                </p>
+                <p class="card-text fw-bold text-center fs-5">₱{{ product.price|number_format(2) }}</p>
+                <p class="card-text text-muted text-center">Stock: {{ product.stock }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">No products in this category.</p>
+    {% endif %}
+  {% endfor %}
+</div>
+
+
+
+
+{% endblock %}

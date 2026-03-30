@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+{% block title %}Welcome to the Bakery{% endblock %}
+
+{% block body %}
+<div class="hero-section text-center d-flex flex-column justify-content-center align-items-center"
+     style="background-image: url('{{ asset('image/hero-bakery.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            height: 75vh;
+            width: 100%;
+            margin: 0;
+            padding: 0;">
+  <h1 class="fw-bold"
+      style="color: #ffffffff; font-size: 7rem; text-shadow: 5px 5px 0px rgba(0, 0, 0, 0.88);">
+    ABOUT US
+  </h1>
+  <p class="lead"
+     style="color: #ffffffff; font-size: 4rem; text-shadow: 1px 20px 10px rgba(2, 2, 2, 0.5);">
+    Come discover why we are City's favorite bakery.
+  </p>
+</div>
+
+
+
+<div class="container py-5">
+  <h2 class="text-center mb-4" style="font-size: 4.5rem; font-weight: bold;">Our Story</h2>
+  <p class="text-center" style="font-size: 2rem; max-width: 800px; margin: 0 auto;">
+    Welcome to Sweetoria, where every bite tells a story!
+Born from a passion for baking and creativity, Sweetoria started as a small kitchen dream in the heart of Dumaguete City. What began as a love for homemade pastries soon grew into a vision — to bring warmth, sweetness, and artistry into every celebration.
+
+At Sweetoria, we blend tradition and technology. Our innovative online platform allows customers to customize their own cakes, order freshly baked pastries, and have them delivered right to their doorstep — all with a few taps. Whether it’s a birthday, wedding, or just a craving for something sweet, Sweetoria makes sure every moment is made extra special.
+
+Our commitment goes beyond baking — we aim to create experiences worth sharing, powered by fresh ingredients, modern design, and heartfelt service. Because for us, it’s not just about cakes — it’s about creating happiness one sweet story at a time.
+  </p>
+</div>
+
+
+
+
+{% endblock %}

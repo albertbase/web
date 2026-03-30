@@ -1,7 +1,7 @@
 body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #ffe8d0;
+  margin: 0;
+  font-family: 'EB Garamond', serif;
+  background-color: #ffe8d0;
 }
 
 .navbar {
@@ -13,7 +13,7 @@ body {
     font-size: 18px;
     font-weight: 600;
 }
-
+/* 
 .nav-links a {
     margin: 0 10px;
     text-decoration: none;
@@ -29,9 +29,9 @@ body {
 .nav-links a:hover{
     transform: scale(1.5);
    color: black;
-}
+} */
 
-.logo img {
+/* .logo img {
     height: 50px;
     transition: transform 0.3s ease;
     display: inline-block;
@@ -39,7 +39,7 @@ body {
 
 .logo img:hover{
     transform: scale(1.5);
-}
+} */
 .logo1 img {
     height: 100px;
     
@@ -52,12 +52,60 @@ body {
     overflow: hidden;
 } */
 
+.cart-icon {
+  transition: color 0.3s ease;
+  color: black;
+}
+
+.cart-icon.active {
+  color: red;
+}
+
+.badge.pop {
+  animation: pop 0.3s ease-in-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* 
+.cart-icon.active {
+  animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+  0% { color: red; transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { color: red; transform: scale(1); }
+} */
+
+
 .cart-menu {
     font-size: 24px;
     cursor: pointer;
+    position: relative;
     
 }
 
+.cart-menu .cart {
+  display: inline-block;
+  position: relative;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.3em 0.5em;
+  animation: pop 0.3s ease-in-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
 
 
 
@@ -351,4 +399,221 @@ span.menu:hover{
     grid-template-columns: 1fr;
     text-align: center;
   }
+}
+
+
+body.bakery-body {
+  background-color: #ecbe86;
+  font-family: 'Poppins', sans-serif;
+}
+
+.bakery-form-container {
+  background-color: #ecb679;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.bakery-form-container h1 {
+  color: #6b4e2e;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.bakery-form-container .form-control {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.bakery-form-container button {
+  background-color: #d7a86e;
+  border: none;
+}
+
+.bakery-form-container button:hover {
+  background-color: #c88b4d;
+}
+
+/* Make all placeholders italic */
+input::placeholder,
+textarea::placeholder {
+  font-style: italic;
+  
+}
+
+
+.content-wrapper {
+  max-width: 1800px;  /* limit width */
+  margin: 0 auto;     /* center horizontally */
+  padding: 20px;
+  font-size: 25px;      /* optional inner spacing */
+  padding-top: 120px;
+}
+
+
+.create-wrapper {
+   /* horizontally center inline elements */
+  margin-top: 20px;   /* space above button */
+  margin: 0 auto;
+}
+
+
+.table-light-brown {
+  background-color: #d8b286; /* light brown */
+  border-radius: 10px;
+  overflow: hidden; /* keeps rounded corners */
+}
+
+
+table {
+    font-family: 'EB Garamond', serif;
+    font-size: 25px;
+    
+    
+}
+
+.btn {
+  font-family: 'EB Garamond', serif; /* keep your font */
+    font-size: 20px; /* increase this number as needed */
+    font-weight: 600; /* optional: make text bolder */
+    padding: 10px 20px; /* optional: add more space inside buttons */
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* ✅ Sticky, solid-colored navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: rgba(253, 246, 236, 0.8); /* semi-transparent beige */
+  backdrop-filter: blur(0px); /* default: no blur */
+  -webkit-backdrop-filter: blur(0px);
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease;
+  border-bottom: 1px solid #e8d8c3;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.navbar * {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: #5c3d2e;
+}
+
+.nav-link.active {
+  color: #8B4513;
+  font-weight: 600;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #8B4513;
+  border-radius: 1px;
+}
+
+/* === Logo === */
+.logo img {
+  height: 70px;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.logo img:hover {
+  transform: scale(1.5);
+}
+
+/* === Navigation Links === */
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #5c3d2e;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  transition: transform 0.3s ease, color 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.nav-links a:hover {
+  transform: scale(1.2);
+  color: #a0522d;
+}
+
+.nav-links a.active {
+  color: #8B4513;
+}
+
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #8B4513;
+  border-radius: 1px;
+}
+
+/* === Cart Menu === */
+.cart-menu {
+  font-size: 24px;
+  cursor: pointer;
+  position: relative;
+}
+
+.cart-icon {
+  font-size: 1.8rem;
+  color: #5a2e0f;
+  text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.cart-icon:hover {
+  transform: scale(1.1);
+  color: #a0522d;
+}
+
+/* === Cart Badge === */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.5em;
+  border-radius: 50%;
+  background-color: #dc3545;
+  color: white;
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  animation: pop 0.3s ease-in-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* === Content Wrapper === */
+.content-wrapper {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-size: 25px;
 }

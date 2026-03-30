@@ -1,0 +1,158 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block body %}
+<link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+
+<style>
+    /* Smooth fade + slide */
+    .fade-slide {
+        animation: fadeSlide .4s ease forwards;
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    @keyframes fadeSlide {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card hover elevation */
+    .profile-card {
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .profile-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    /* Avatar animation */
+    .avatar-circle {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: bold;
+        color: white;
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .avatar-circle:hover {
+        transform: scale(1.08);
+        box-shadow: 0 6px 18px rgba(78,115,223,0.4);
+    }
+
+    /* Section label */
+    .profile-section-title {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    /* Value text */
+    .profile-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #343a40;
+    }
+
+    /* Button animations */
+    .profile-btn, .btn-outline-primary {
+        transition: all .25s ease;
+    }
+    .btn-outline-primary:hover {
+        background: #4e73df;
+        color: white;
+        border-color: #4e73df;
+        transform: translateY(-2px);
+    }
+    .profile-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(78,115,223,0.3);
+    }
+
+    /* Divider animation */
+    .divider {
+        height: 1px;
+        background: #e9ecef;
+        margin: 1.5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .divider::after {
+        content: "";
+        position: absolute;
+        width: 40%;
+        height: 100%;
+        background: #4e73df;
+        left: -40%;
+        animation: slideLine 2.5s infinite ease;
+    }
+    @keyframes slideLine {
+        0% { left: -40%; }
+        50% { left: 100%; }
+        100% { left: -40%; }
+    }
+</style>
+
+<div class="container py-5 fade-slide">
+
+    <div class="profile-header text-center mb-4">
+        <h1 class="fw-bold mb-1">Your Profile</h1>
+        {# <p class="text-muted">Manage your account information and security</p> #}
+    </div>
+
+    <div class="card profile-card shadow-sm border-0 mx-auto" style="max-width: 520px;">
+        <div class="card-body p-4">
+
+            <!-- Avatar + Name -->
+            <div class="d-flex align-items-center mb-4">
+                <div class="profile-avatar me-3">
+                    <div class="avatar-circle">
+                        {{ user.username|first|upper }}
+                    </div>
+                </div>
+                <div>
+                    <h4 class="mb-0">{{ user.username }}</h4>
+                    <small class="text-muted">Account Owner</small>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Username -->
+            <div class="mb-3">
+                <div class="profile-section-title">Username</div>
+                <p class="profile-value">{{ user.username }}</p>
+            </div>
+
+            <!-- Roles -->
+            <div class="mb-4">
+                <div class="profile-section-title">Roles</div>
+                <p class="profile-value">
+                    {% for role in user.roles %}
+                        <span class="badge bg-primary me-1">{{ role }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-2">
+                <a href="{{ path('user_profile_edit') }}" class="btn btn-outline-primary w-50">
+                    Change Username
+                </a>
+                <a href="{{ path('user_change_password') }}" class="btn btn-primary w-50 profile-btn">
+                    Change Password
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

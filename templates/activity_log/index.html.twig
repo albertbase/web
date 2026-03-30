@@ -1,0 +1,358 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Activity Logs | Sweetoria Admin{% endblock %}
+
+{% block body %}
+
+<div class="page-title mb-4 sweetoria-fade">
+    <h1 class="h3 fw-bold">📜 Activity Logs</h1>
+    <p class="text-muted">System-wide activity history. Read-only.</p>
+</div>
+
+{# ============================
+   FILTERS CARD
+   ============================ #}
+<div class="card sweet-card shadow-sm mb-4 sweetoria-expand">
+    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <strong class="text-purple">Filters</strong>
+        <span class="toggle-icon"><i class="bi bi-chevron-down"></i></span>
+    </div>
+
+    <div class="card-body filter-body">
+        <form method="get" class="row g-3">
+
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">User</label>
+                <input type="text" name="user" value="{{ user_filter }}"
+                       class="form-control sweet-input"
+                       placeholder="Search username…">
+            </div>
+
+            {# ======================
+               INTERACTIVE ACTION FILTER
+               ====================== #}
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Action</label>
+
+                <div class="d-flex flex-wrap gap-2">
+                    {% set actions = ['CREATE','UPDATE','DELETE','LOGIN','LOGOUT'] %}
+
+                    {% for action in actions %}
+                        {% set active = action_filter is iterable and action in action_filter %}
+
+                        <label class="sweetoria-action-toggle {{ active ? 'active' : '' }}">
+                            <input type="checkbox" name="action[]" value="{{ action }}" {{ active ? 'checked' }}>
+                            {{ action|capitalize }}
+                        </label>
+                    {% endfor %}
+                </div>
+
+                <small class="text-muted">Click buttons to toggle filters</small>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Date From</label>
+                <input type="date" name="date_from" value="{{ date_from }}"
+                       class="form-control sweet-input">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Date To</label>
+                <input type="date" name="date_to" value="{{ date_to }}"
+                       class="form-control sweet-input">
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="d-flex gap-2 w-100">
+                    <button class="btn btn-sweet-primary w-50">Apply</button>
+                    <a href="{{ path('admin_activity_logs_index') }}"
+                       class="btn btn-outline-secondary w-50">Reset</a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{# ============================
+   LOGS TABLE
+   ============================ #}
+<div class="card sweet-card shadow-sm sweetoria-fade">
+    <div class="card-header bg-white border-0 d-flex justify-content-between sticky-top" style="z-index: 20;">
+        <strong class="text-purple">Logs</strong>
+        <span class="text-muted small">{{ logs|length }} record(s)</span>
+    </div>
+
+    <div class="table-responsive sweet-table-wrapper" style="max-height: 70vh; overflow-y: auto;">
+        <table class="table sweet-table align-middle">
+            <thead class="sticky-header">
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                    <th>Affected Data</th>
+                    <th>Timestamp</th>
+                    <th class="text-center">View</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for log in logs %}
+                {% set color =
+                    log.action == 'CREATE' ? 'success' :
+                    log.action == 'UPDATE' ? 'primary' :
+                    log.action == 'DELETE' ? 'danger' :
+                    'secondary'
+                %}
+
+                <tr class="sweetoria-row interactive-row">
+                    <td class="fw-semibold">{{ log.username }}</td>
+
+                    <td>
+                        {% include 'partials/role_badge.html.twig' with { role: log.userRole } %}
+                    </td>
+
+                    <td>
+                        <span class="badge sweetoria-action bg-{{ color }}">{{ log.action }}</span>
+                    </td>
+
+                    <td>
+                        <span class="text-truncate d-inline-block" style="max-width: 260px;">
+                            {{ log.summary ?? log.details|u.truncate(60, '...') }}
+                        </span>
+                    </td>
+
+                    <td>{{ log.Timestamp|date('Y-m-d H:i:s') }}</td>
+
+                    <td class="text-center">
+                        <button class="btn btn-sm sweetoria-view-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#logModal{{ log.id }}">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+
+                {# MODAL #}
+                <div class="modal fade sweet-modal-animate" id="logModal{{ log.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content sweet-modal">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Log Details</h5>
+                                <button class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <dl class="row">
+                                    <dt class="col-sm-3">Username</dt>
+                                    <dd class="col-sm-9">{{ log.username }}</dd>
+
+                                    <dt class="col-sm-3">Role</dt>
+                                    <dd class="col-sm-9">
+                                        {% include 'partials/role_badge.html.twig' with { role: log.userRole } %}
+                                    </dd>
+
+                                    <dt class="col-sm-3">Action</dt>
+                                    <dd class="col-sm-9">
+                                        <span class="badge bg-{{ color }}">{{ log.action }}</span>
+                                    </dd>
+
+                                    <dt class="col-sm-3">Affected Data</dt>
+                                    <dd class="col-sm-9">
+                                        <pre class="sweet-pre">{{ log.details|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                    </dd>
+
+                                    <dt class="col-sm-3">Timestamp</dt>
+                                    <dd class="col-sm-9">{{ log.Timestamp|date('Y-m-d H:i:s') }}</dd>
+                                </dl>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        No logs found.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+/* Fade animation */
+.sweetoria-fade {
+    animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Expandable filter card */
+.sweetoria-expand .filter-body {
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+}
+.sweetoria-expand.collapsed .filter-body {
+    max-height: 0;
+}
+.toggle-icon {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+.sweetoria-expand.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+}
+
+/* Action toggle buttons */
+.sweetoria-action-toggle {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid #cbb7ff;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.25s ease;
+    font-size: 0.85rem;
+    color: #6f42c1;
+    background: #ffffff;
+    display: inline-block;
+}
+.sweetoria-action-toggle:hover {
+    background: #f3eaff;
+}
+.sweetoria-action-toggle.active {
+    background: #6f42c1;
+    color: white;
+    border-color: #6f42c1;
+    box-shadow: 0 0 6px rgba(111, 66, 193, 0.4);
+}
+.sweetoria-action-toggle input {
+    display: none;
+}
+
+/* Sticky table header */
+.sweet-table thead.sticky-header th {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: #f7f1ff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Table wrapper scroll shadow */
+.sweet-table-wrapper {
+    position: relative;
+}
+.sweet-table-wrapper:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.sweet-table-wrapper.scrolled:after {
+    opacity: 1;
+}
+
+/* Interactive rows */
+.interactive-row {
+    transition: background 0.25s ease, transform 0.15s ease;
+}
+.interactive-row:hover {
+    background: #f8f2ff;
+    transform: scale(1.01);
+}
+
+/* Modal */
+.sweet-modal-animate .modal-dialog {
+    animation: modalPop 0.25s ease;
+}
+@keyframes modalPop {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.sweet-input {
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: all 0.25s ease;
+}
+.sweet-input:focus {
+    border-color: #6f42c1;
+    box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
+}
+
+.sweet-table thead {
+    background: #f7f1ff;
+}
+.sweet-table thead th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sweetoria-action {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.sweetoria-view-btn {
+    border-radius: 8px;
+    padding: 6px 10px;
+    transition: all 0.2s ease;
+}
+.sweetoria-view-btn:hover {
+    background: #e8e0ff;
+    border-color: #cbb7ff;
+}
+
+.sweet-modal {
+    border-radius: 14px;
+}
+.sweet-pre {
+    background: #f8f3ff;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+</style>
+
+<script>
+/* Toggle filter card */
+document.querySelectorAll('.sweetoria-expand .card-header').forEach(header => {
+    header.addEventListener('click', () => {
+        header.parentElement.classList.toggle('collapsed');
+    });
+});
+
+/* Add shadow when table scrolls */
+document.querySelectorAll('.sweet-table-wrapper').forEach(wrapper => {
+    wrapper.addEventListener('scroll', () => {
+        wrapper.classList.toggle('scrolled', wrapper.scrollTop > 0);
+    });
+});
+
+/* Auto-submit when action toggle is clicked */
+document.querySelectorAll('.sweetoria-action-toggle input').forEach(box => {
+    box.addEventListener('change', () => {
+        box.closest('form').submit();
+    });
+});
+</script>
+
+{% endblock %}

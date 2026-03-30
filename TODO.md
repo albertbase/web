@@ -1,0 +1,2 @@
+- [x] Update AdminStaffController.php to render the correct template 'admin_staff/edit.html.twig'
+- [x] Modify UserType.php to set 'multiple' => true for the 'roles' field
