@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class LandingController extends AbstractController
 {
+    #[Route('/', name: 'app_home')]
     #[Route('/landing', name: 'app_landing')]
     public function index(SessionInterface $session): Response
     {

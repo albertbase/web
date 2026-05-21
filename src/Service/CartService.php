@@ -20,15 +20,48 @@ class CartService
         $this->session->set('cart', $cart);
     }
 
+    public function addCustomItem(array $customItem): void
+    {
+        $cart = $this->session->get('cart', []);
+        $key = 'custom_'.uniqid();
+        $cart[$key] = [
+            'type' => 'custom',
+            'customization' => $customItem,
+            'quantity' => $customItem['quantity'] ?? 1,
+        ];
+
+        $this->session->set('cart', $cart);
+    }
+
     public function getCart(): array
     {
         return $this->session->get('cart', []);
     }
 
-    public function remove(int $productId): void
+    public function updateQuantity(string|int $key, int $quantity): void
     {
         $cart = $this->session->get('cart', []);
-        unset($cart[$productId]);
+        if (!isset($cart[$key])) {
+            return;
+        }
+
+        if ($quantity <= 0) {
+            unset($cart[$key]);
+        } else {
+            if (is_array($cart[$key]) && ($cart[$key]['type'] ?? null) === 'custom') {
+                $cart[$key]['quantity'] = $quantity;
+            } else {
+                $cart[$key] = $quantity;
+            }
+        }
+
+        $this->session->set('cart', $cart);
+    }
+
+    public function remove(string|int $key): void
+    {
+        $cart = $this->session->get('cart', []);
+        unset($cart[$key]);
         $this->session->set('cart', $cart);
     }
 

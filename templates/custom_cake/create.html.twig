@@ -1,0 +1,1092 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Build Your Own Cake{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .builder-shell {
+            display: grid;
+            grid-template-columns: 1.2fr 0.9fr;
+            gap: 2.5rem;
+            padding: 2rem 0;
+        }
+
+        .builder-card,
+        .summary-card {
+            border-radius: 24px;
+            box-shadow: 0 16px 48px rgba(121, 65, 39, 0.06);
+            background: #ffffff;
+            border: 1px solid #efe7df;
+            transition: all 0.3s ease;
+        }
+
+        .builder-card {
+            padding: 2.5rem;
+        }
+
+        .summary-card {
+            padding: 2rem;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #4a2c20;
+            margin-bottom: 1.2rem;
+            border-left: 4px solid #8d4f37;
+            padding-left: 0.75rem;
+            font-weight: 700;
+        }
+
+        .preview-panel {
+            background: linear-gradient(180deg, #fffcf9 0%, #fcf3ee 100%);
+            border: 1px solid #f1ded4;
+            border-radius: 28px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .cake-preview {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto 1.5rem;
+            border-radius: 40px;
+            min-height: 380px;
+            position: relative;
+            background: linear-gradient(180deg, #fff7f2 0%, #f6dfd3 100%);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            box-shadow: inset 0 4px 18px rgba(255,255,255,0.8), 0 24px 50px rgba(121, 65, 39, 0.14);
+            padding-top: 40px;
+            cursor: crosshair;
+            transition: all 0.3s ease;
+        }
+
+        .cake-plate {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120%;
+            height: 30px;
+            background: radial-gradient(ellipse at center, #ffffff 0%, #d8cfc4 60%, #a89f94 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.9), 0 12px 28px rgba(67, 38, 25, 0.25);
+            z-index: 1;
+            border-bottom: 3px solid #8e857b;
+        }
+
+        /* 3D Tiered Cylinder Styling */
+        .cake-layer {
+            margin: 0 auto -20px;
+            border-radius: 100px / 24px;
+            transition: background 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
+            position: relative;
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            /* Gives a volumetric 3D lighting feel */
+            background-image: linear-gradient(to right, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(0,0,0,0.15) 100%);
+            box-shadow: 0 10px 22px rgba(67, 38, 25, 0.16), inset 0 -6px 12px rgba(0,0,0,0.1);
+        }
+
+        /* 3D Cylinder Top Facets */
+        .cake-layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 22px;
+            border-radius: 50%;
+            background: inherit;
+            filter: brightness(1.08) saturate(1.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            z-index: 3;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        }
+
+        #layer-top {
+            width: 50%;
+            height: 60px;
+            margin-top: 50px;
+            z-index: 10;
+        }
+
+        #layer-middle {
+            width: 68%;
+            height: 68px;
+            z-index: 9;
+        }
+
+        #layer-bottom {
+            width: 86%;
+            height: 78px;
+            z-index: 8;
+        }
+
+        .cake-message {
+            font-size: 1.1rem;
+            color: #5e3b2f;
+            margin-top: 1.2rem;
+            min-height: 2.2rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .option-card {
+            border: 1px solid #f1d9c8;
+            border-radius: 18px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            background: #faf6f2;
+            transition: border-color 0.25s ease;
+        }
+
+        .option-card:hover {
+            border-color: #dcbca6;
+        }
+
+        .option-card label {
+            cursor: pointer;
+            font-weight: 500;
+            color: #55413c;
+        }
+
+        .option-card input[type="radio"],
+        .option-card input[type="checkbox"] {
+            margin-right: 0.75rem;
+            accent-color: #8d4f37;
+            transform: scale(1.1);
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .summary-list li {
+            padding: 0.95rem 0;
+            border-bottom: 1px solid #f4e6de;
+            display: flex;
+            justify-content: space-between;
+            color: #55413c;
+        }
+
+        .summary-list li:last-child {
+            border-bottom: none;
+        }
+
+        .btn-build {
+            background: linear-gradient(135deg, #a05f47 0%, #8d4f37 100%);
+            border: none;
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 999px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(141, 79, 55, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .btn-build:hover {
+            background: linear-gradient(135deg, #8d4f37 0%, #763f2a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(141, 79, 55, 0.35);
+        }
+
+        .decoration-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            margin-top: 1.2rem;
+        }
+
+        .decoration-chip {
+            border: 1px solid #e8d2c0;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #6f3f2b;
+            padding: 0.65rem 1.15rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 10px rgba(121, 65, 39, 0.05);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+        }
+
+        .decoration-chip:hover {
+            transform: translateY(-2.5px);
+            background: #fff8f5;
+            border-color: #d1b49e;
+            box-shadow: 0 6px 14px rgba(121, 65, 39, 0.1);
+        }
+
+        .decoration-chip.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+        }
+
+        .decoration-chip.selected {
+            background: linear-gradient(135deg, #a05f47 0%, #8d4f37 100%);
+            color: #ffffff;
+            border-color: #79412d;
+            box-shadow: 0 6px 15px rgba(141, 79, 55, 0.25);
+        }
+
+        .decorations-instructions {
+            font-size: 0.9rem;
+            color: #8c6a5a;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .cake-preview::after {
+            content: '👇 Drag & Drop Decorations Directly Onto Cake';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #7c5746;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0.75;
+            pointer-events: none;
+            z-index: 10;
+            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 4px 12px;
+            border-radius: 99px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .preview-decorations {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 20;
+            overflow: hidden;
+        }
+
+        .cake-preview {
+            overflow: hidden;
+        }
+
+        /* 3D Dragged Elements Stylings */
+        .cake-decoration {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 25;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cake-decoration-sprinkles {
+            width: 12px;
+            height: 12px;
+        }
+
+        .cake-decoration-fruits {
+            width: 22px;
+            height: 22px;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18));
+        }
+
+        .cake-decoration-candles {
+            width: 8px;
+            height: 32px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.22));
+        }
+
+        .cake-decoration-chocolate_chips {
+            width: 14px;
+            height: 14px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+        }
+
+        .cake-decoration-flowers {
+            width: 22px;
+            height: 22px;
+            filter: drop-shadow(0 3px 6px rgba(233,30,99,0.2));
+        }
+
+        /* Flickering Candle Flame Animation */
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-1.5deg); opacity: 0.95; }
+            50% { transform: scale(1.12) rotate(2deg); opacity: 1; filter: drop-shadow(0 0 10px #ffc107); }
+            100% { transform: scale(0.92) rotate(-0.5deg); opacity: 0.9; }
+        }
+
+        .candle-flame {
+            position: absolute;
+            width: 10px;
+            height: 14px;
+            background: radial-gradient(ellipse at bottom, #ffffff 10%, #ffeb3b 40%, #ff5722 80%, rgba(255,87,34,0) 100%);
+            border-radius: 50% 50% 35% 35%;
+            top: -12px;
+            left: -1px;
+            transform-origin: bottom center;
+            animation: flicker 0.15s infinite alternate;
+            box-shadow: 0 0 10px #ff8f00, 0 0 18px #ff5722;
+        }
+
+        .cake-drop-active {
+            box-shadow: inset 0 0 0 4px #8d4f37, 0 24px 50px rgba(141, 79, 55, 0.2);
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 1024px) {
+            .builder-shell {
+                grid-template-columns: 1fr;
+            }
+            .summary-card {
+                position: static;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="fw-bold d-flex align-items-center gap-2">
+        <span style="font-size: 2.2rem;">🎂</span> Build Your Own Cake
+      </h1>
+      <p class="text-muted">Create a signature cake with custom sizing, flavors, and interactive decorations.</p>
+    </div>
+    {% if app.user %}
+      <a href="{{ path('cart_show') }}" class="btn btn-outline-secondary">View Cart</a>
+    {% endif %}
+  </div>
+
+  <div class="builder-shell">
+    <div class="builder-card">
+      {{ form_start(form, {'attr': {'id': 'cake-builder-form'}}) }}
+
+      <div class="section-title">1. Select your cake size</div>
+      <div class="option-card">
+        {{ form_widget(form.size) }}
+      </div>
+
+      <div class="section-title">2. Choose your flavor</div>
+      <div class="option-card">
+        {{ form_widget(form.flavor) }}
+      </div>
+
+      <div class="section-title">3. Add decorations</div>
+      <div class="option-card">
+        {{ form_widget(form.decorations) }}
+        <div class="decorations-instructions">Drag a decoration onto the cake preview, or tap a decoration chip to drop it in a custom place.</div>
+
+        <div style="display:flex;gap:0.75rem;align-items:center;margin:0.75rem 0;">
+          <label style="display:flex;align-items:center;gap:0.5rem;">
+            <input type="checkbox" id="realistic-mode" checked />
+            <span style="font-size:0.95rem;color:#6f3f2b;">Realistic mode</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:0.5rem;color:#6f3f2b;">Density
+            <input id="decoration-density" type="range" min="1" max="3" step="1" value="2" style="width:140px;margin-left:0.5rem;" />
+          </label>
+        </div>
+
+        <div class="decoration-toolbar" id="decoration-toolbar">
+          {% for label, value in decorations %}
+            <button type="button" class="decoration-chip" draggable="true" data-decoration="{{ value }}">
+              {% if value == 'sprinkles' %}🌈{% elseif value == 'fruits' %}🍓{% elseif value == 'candles' %}🕯️{% elseif value == 'chocolate_chips' %}🍫{% elseif value == 'flowers' %}🌸{% else %}✨{% endif %}
+              {{ label }}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="section-title">6. Personalize your message</div>
+      <div class="option-card">
+        {{ form_widget(form.message) }}
+        <small class="text-muted">Maximum 60 characters.</small>
+      </div>
+
+      <div class="section-title">7. Quantity</div>
+      <div class="option-card d-flex align-items-center gap-3">
+        {{ form_widget(form.quantity) }}
+      </div>
+
+      <div class="mt-4 text-end">
+        {% if app.user %}
+          <button type="submit" class="btn btn-build">Add Custom Cake to Cart</button>
+        {% else %}
+          <a href="{{ path('app_login') }}" class="btn btn-build">Sign in first to buy</a>
+        {% endif %}
+      </div>
+
+      {{ form_end(form) }}
+    </div>
+
+    <aside class="summary-card">
+      <div class="preview-panel">
+        <div class="cake-preview" id="cake-preview">
+          <div class="preview-decorations" id="preview-decorations"></div>
+          <div class="cake-layer" id="layer-top"></div>
+          <div class="cake-layer" id="layer-middle"></div>
+          <div class="cake-layer" id="layer-bottom"></div>
+          <div class="cake-plate"></div>
+        </div>
+        <div class="cake-message" id="preview-message">Your custom message appears here.</div>
+      </div>
+
+      <div class="mt-4">
+        <h3 class="fw-semibold">Order Summary</h3>
+        <ul class="summary-list" id="summary-list">
+          <li><strong>Size:</strong> <span id="summary-size">Medium</span></li>
+          <li><strong>Flavor:</strong> <span id="summary-flavor">Chocolate</span></li>
+          <li><strong>Decorations:</strong> <span id="summary-decorations">None</span></li>
+          <li><strong>Message:</strong> <span id="summary-message">None</span></li>
+          <li><strong>Quantity:</strong> <span id="summary-quantity">1</span></li>
+        </ul>
+
+        <div class="mt-4">
+          <p class="mb-1 text-muted">Estimated Price</p>
+          <h2 class="fw-bold">PHP <span id="summary-price">0.00</span></h2>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+  const sizeInputs = document.querySelectorAll('#cake-builder-form input[name$="[size]"]');
+  const flavorInputs = document.querySelectorAll('#cake-builder-form input[name$="[flavor]"]');
+  const decorationInputs = document.querySelectorAll('#cake-builder-form input[name$="[decorations][]"]');
+  const messageInput = document.querySelector('#cake-builder-form textarea');
+  const quantityInput = document.querySelector('#cake-builder-form input[name$="[quantity]"]');
+  const dragButtons = document.querySelectorAll('.decoration-chip');
+  const previewArea = document.getElementById('cake-preview');
+  const previewDecorations = document.getElementById('preview-decorations');
+  const realisticToggle = document.getElementById('realistic-mode');
+  const densityInput = document.getElementById('decoration-density');
+
+  // Restore persisted settings
+  if (realisticToggle) {
+    const saved = localStorage.getItem('cake_realistic');
+    if (saved !== null) realisticToggle.checked = saved === '1';
+    realisticToggle.addEventListener('change', e => {
+      localStorage.setItem('cake_realistic', e.target.checked ? '1' : '0');
+      updatePreview();
+    });
+  }
+  if (densityInput) {
+    const savedD = localStorage.getItem('cake_density');
+    if (savedD !== null) densityInput.value = savedD;
+    densityInput.addEventListener('input', e => {
+      localStorage.setItem('cake_density', e.target.value);
+      updatePreview();
+    });
+  }
+
+  let placedDecorationsList = [];
+
+  const summary = {
+    size: document.getElementById('summary-size'),
+    flavor: document.getElementById('summary-flavor'),
+    decorations: document.getElementById('summary-decorations'),
+    message: document.getElementById('summary-message'),
+    quantity: document.getElementById('summary-quantity'),
+    price: document.getElementById('summary-price'),
+  };
+
+  const preview = {
+    top: document.getElementById('layer-top'),
+    middle: document.getElementById('layer-middle'),
+    bottom: document.getElementById('layer-bottom'),
+    message: document.getElementById('preview-message'),
+  };
+
+  const pricing = {
+    small: 1200,
+    medium: 1700,
+    large: 2400,
+    decorations: {
+      sprinkles: 80,
+      fruits: 140,
+      candles: 120,
+      chocolate_chips: 130,
+      flowers: 180,
+    }
+  };
+
+  function updatePreview() {
+    const selectedSize = document.querySelector('#cake-builder-form input[name$="[size]"]:checked');
+    const selectedFlavor = document.querySelector('#cake-builder-form input[name$="[flavor]"]:checked');
+
+    const selectedDecorations = Array.from(decorationInputs)
+      .filter(input => input.checked)
+      .map(input => input.parentElement.textContent.trim().replace(/^[^\w]*/, ''));
+
+    const size = selectedSize ? selectedSize.value : 'medium';
+    const flavor = selectedFlavor ? selectedFlavor.value : 'chocolate';
+    const message = messageInput.value.trim() || 'Your custom message appears here.';
+    const quantity = Number(quantityInput.value) || 1;
+
+    summary.size.textContent = capitalize(size);
+    summary.flavor.textContent = capitalize(flavor);
+    summary.decorations.textContent = selectedDecorations.length ? selectedDecorations.join(', ') : 'None';
+    summary.message.textContent = messageInput.value.trim() || 'None';
+    summary.quantity.textContent = quantity;
+
+    preview.message.textContent = messageInput.value.trim() ? messageInput.value : 'Your custom message appears here.';
+
+    const basePrice = pricing[size] || pricing.medium;
+    const extras = Array.from(decorationInputs)
+      .filter(input => input.checked)
+      .reduce((sum, input) => sum + (pricing.decorations[input.value] || 0), 0);
+
+    const price = (basePrice + extras) * quantity;
+    summary.price.textContent = price.toFixed(2);
+
+    // Size presets for responsive cake tiers
+    const sizePresets = {
+      small: {
+        top: { w: '46%', h: 46, mt: 38 },
+        middle: { w: '62%', h: 56 },
+        bottom: { w: '78%', h: 66 },
+        scale: 0.92
+      },
+      medium: {
+        top: { w: '50%', h: 60, mt: 50 },
+        middle: { w: '68%', h: 68 },
+        bottom: { w: '86%', h: 78 },
+        scale: 1
+      },
+      large: {
+        top: { w: '58%', h: 74, mt: 62 },
+        middle: { w: '76%', h: 84 },
+        bottom: { w: '92%', h: 96 },
+        scale: 1.08
+      }
+    };
+
+    // Flavor color maps (base -> mid -> highlight)
+    const flavorColors = {
+      chocolate: ['#5d3a2e', '#7a4d3f', '#9a6b54'],
+      vanilla: ['#fff5e1', '#ffe9b8', '#ffdca3'],
+      strawberry: ['#ff758f', '#ff9aa8', '#ffc6d1'],
+      red_velvet: ['#6d1b1b', '#9b2b2b', '#c95b5b'],
+      lemon: ['#fff7c2', '#fff1a8', '#ffe88a']
+    };
+
+    const preset = sizePresets[size] || sizePresets.medium;
+
+    // Apply sizes
+    preview.top.style.width = preset.top.w;
+    preview.top.style.height = preset.top.h + 'px';
+    preview.top.style.marginTop = (preset.top.mt || 50) + 'px';
+    preview.middle.style.width = preset.middle.w;
+    preview.middle.style.height = preset.middle.h + 'px';
+    preview.bottom.style.width = preset.bottom.w;
+    preview.bottom.style.height = preset.bottom.h + 'px';
+    document.getElementById('cake-preview').style.transform = `scale(${preset.scale})`;
+
+    // Determine colors from the selected flavor
+    const fColors = flavorColors[flavor] || flavorColors.chocolate;
+    // Apply layered gradient to each tier to keep the 3D look
+    preview.top.style.background = `linear-gradient(90deg, ${fColors[0]}, ${fColors[1]})`;
+    preview.middle.style.background = `linear-gradient(90deg, ${fColors[1]}, ${fColors[2]})`;
+    preview.bottom.style.background = `linear-gradient(90deg, ${fColors[2]}, ${fColors[1]})`;
+
+    renderPreviewDecorations();
+  }
+
+  function syncPlacedDecorations() {
+    const activeTypes = Array.from(decorationInputs)
+      .filter(input => input.checked)
+      .map(input => input.value);
+
+    // Keep only decorations of types that are checked in the form
+    placedDecorationsList = placedDecorationsList.filter(item => activeTypes.includes(item.type));
+
+    // If an active type has no placements, generate appropriate realistic placements
+    const density = Number(densityInput ? densityInput.value : 2);
+    const realistic = realisticToggle ? realisticToggle.checked : true;
+
+    activeTypes.forEach(type => {
+      const count = placedDecorationsList.filter(item => item.type === type).length;
+      if (count === 0) {
+        if (type === 'sprinkles') {
+          // Lots of sprinkles spread across tiers, scaled by density
+          const base = realistic ? 60 : 24;
+          const total = Math.round(base * density);
+          for (let i = 0; i < total; i++) {
+            const pos = getRandomCakePosition();
+            placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+          }
+        } else if (type === 'chocolate_chips') {
+          const base = realistic ? 40 : 16;
+          const total = Math.round(base * density);
+          for (let i = 0; i < total; i++) {
+            const pos = getRandomCakePosition();
+            placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+          }
+        } else if (type === 'fruits') {
+          const base = realistic ? 10 : 4;
+          const total = Math.round(base * Math.max(1, density/1.5));
+          for (let i = 0; i < total; i++) {
+            const pos = getRandomCakePosition();
+            placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+          }
+        } else if (type === 'flowers') {
+          const base = realistic ? 8 : 3;
+          const total = Math.round(base * Math.max(1, density/1.2));
+          for (let c = 0; c < total; c++) {
+            const pos = getRandomCakePosition();
+            placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+          }
+        } else if (type === 'candles') {
+          // Candles only on the top tier; align if realistic
+          const selectedSize = document.querySelector('#cake-builder-form input[name$="[size]"]:checked');
+          const size = selectedSize ? selectedSize.value : 'medium';
+          const counts = { small: 3, medium: 5, large: 8 };
+          const total = counts[size] || 5;
+          if (realistic) {
+            // align evenly across top tier
+            const spacing = 60 / (total + 1); // percent width span
+            for (let i = 1; i <= total; i++) {
+              const x = 20 + spacing * i + (Math.random()-0.5) * 4; // jitter
+              const pos = getRandomCakePosition(0);
+              const y = pos.y + (Math.random()-0.5) * 4;
+              placedDecorationsList.push({ type, x: Math.max(12, Math.min(88, x)), y: Math.max(12, Math.min(80, y)) });
+            }
+          } else {
+            for (let i = 0; i < total; i++) {
+              const pos = getRandomCakePosition(0);
+              placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+            }
+          }
+        } else {
+          // Generic fallback: few decorative placements
+          const total = realistic ? 3 * density : 2;
+          for (let i = 0; i < total; i++) {
+            const pos = getRandomCakePosition();
+            placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+          }
+        }
+      }
+    });
+  }
+
+  function getRandomCakePosition() {
+    // If a tier is provided (0=top,1=middle,2=bottom) return coords within that tier
+    const tierArg = arguments[0];
+    const tier = typeof tierArg === 'number' ? tierArg : Math.floor(Math.random() * 3);
+    let x, y;
+
+    if (tier === 0) { // Top Tier
+      x = 35 + Math.random() * 30; // 35% to 65% width
+      y = 16 + Math.random() * 10; // 16% to 26% height
+    } else if (tier === 1) { // Middle Tier
+      x = 24 + Math.random() * 52; // 24% to 76% width
+      y = 34 + Math.random() * 12; // 34% to 46% height
+    } else { // Bottom Tier
+      x = 14 + Math.random() * 72; // 14% to 86% width
+      y = 52 + Math.random() * 18; // 52% to 70% height
+    }
+
+    return { x, y };
+  }
+
+  function clampToCakePosition(type, x, y) {
+    const tierBounds = [
+      { yMin: 16, yMax: 28, xMin: 25, xMax: 75 },
+      { yMin: 34, yMax: 48, xMin: 16, xMax: 84 },
+      { yMin: 52, yMax: 70, xMin: 7, xMax: 93 }
+    ];
+
+    let tier;
+    if (type === 'candles') {
+      tier = 0;
+    } else if (y <= 30) {
+      tier = 0;
+    } else if (y <= 50) {
+      tier = 1;
+    } else {
+      tier = 2;
+    }
+
+    const bounds = tierBounds[tier];
+    const clampedX = Math.max(bounds.xMin, Math.min(bounds.xMax, x));
+    const clampedY = Math.max(bounds.yMin, Math.min(bounds.yMax, y));
+    return { x: clampedX, y: clampedY };
+  }
+
+  function renderPreviewDecorations() {
+    if (!previewDecorations) {
+      return;
+    }
+
+    previewDecorations.innerHTML = '';
+    
+    syncPlacedDecorations();
+
+    placedDecorationsList.forEach(item => {
+      const decorationElement = createDecorationElement(item.type, { top: `${item.y}%`, left: `${item.x}%` });
+      previewDecorations.appendChild(decorationElement);
+    });
+
+    dragButtons.forEach(button => {
+      const value = button.dataset.decoration;
+      const isActive = Array.from(decorationInputs).some(input => input.value === value && input.checked);
+      button.classList.toggle('selected', isActive);
+    });
+  }
+
+  function createDecorationElement(type, position) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `cake-decoration cake-decoration-${type}`;
+    wrapper.style.top = position.top;
+    wrapper.style.left = position.left;
+
+    switch (type) {
+      case 'sprinkles': {
+        const colors = ['#ff4081', '#4caf50', '#00bcd4', '#ffeb3b', '#e040fb', '#ff5722', '#f06292'];
+        const count = 1; // this element represents a single sprinkle instance
+        for (let i = 0; i < count; i++) {
+          const sprinkle = document.createElement('span');
+          sprinkle.style.position = 'absolute';
+          sprinkle.style.width = '2px';
+          sprinkle.style.height = `${6 + Math.floor(Math.random()*6)}px`;
+          sprinkle.style.borderRadius = '99px';
+          sprinkle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          sprinkle.style.left = `${-3 + Math.random() * 6}px`;
+          sprinkle.style.top = `${-3 + Math.random() * 6}px`;
+          sprinkle.style.transform = `rotate(${Math.random() * 360}deg)`;
+          sprinkle.style.boxShadow = '0 1px 1px rgba(0,0,0,0.12)';
+          wrapper.appendChild(sprinkle);
+        }
+        break;
+      }
+      case 'fruits': {
+        const berry = document.createElement('span');
+        berry.style.position = 'absolute';
+        const size = 12 + Math.floor(Math.random()*8);
+        berry.style.width = `${size}px`;
+        berry.style.height = `${size}px`;
+        berry.style.borderRadius = '50% 50% 45% 45%';
+        berry.style.backgroundColor = '#e91e63';
+        berry.style.backgroundImage = 'radial-gradient(circle at 30% 30%, #ff6f98 0%, #ad1457 90%)';
+        berry.style.boxShadow = '0 3px 6px rgba(0,0,0,0.16)';
+        berry.style.left = `${-Math.round(size/2)}px`;
+        berry.style.top = `${-Math.round(size/2)}px`;
+
+        const stem = document.createElement('span');
+        stem.style.position = 'absolute';
+        stem.style.width = `${Math.max(2, Math.round(size*0.18))}px`;
+        stem.style.height = `${Math.max(4, Math.round(size*0.35))}px`;
+        stem.style.backgroundColor = '#4caf50';
+        stem.style.borderRadius = '50% 50% 0 0';
+        stem.style.top = `${-Math.max(3, Math.round(size*0.25))}px`;
+        stem.style.left = `${Math.round(size*0.55)}px`;
+        stem.style.transform = `rotate(${5 + Math.random()*20}deg)`;
+        
+        berry.appendChild(stem);
+        wrapper.appendChild(berry);
+        break;
+      }
+      case 'candles': {
+        // Anchor wrapper so the candle base sits on the cake surface
+        wrapper.style.transform = 'translate(-50%, 0)';
+        wrapper.style.top = position.top;
+
+        const wax = document.createElement('span');
+        wax.style.position = 'absolute';
+        const w = 6;
+        const h = 20;
+        wax.style.width = `${w}px`;
+        wax.style.height = `${h}px`;
+        wax.style.background = 'linear-gradient(180deg,#fff,#ffdcdc)';
+        wax.style.borderRadius = '2px';
+        wax.style.boxShadow = '0 2px 4px rgba(0,0,0,0.15)';
+        wax.style.left = `-${Math.round(w/2)}px`;
+        wax.style.bottom = '0px';
+
+        const flame = document.createElement('span');
+        flame.className = 'candle-flame';
+
+        wax.appendChild(flame);
+        wrapper.appendChild(wax);
+        break;
+      }
+      case 'chocolate_chips': {
+        // single chip instance; multiple chips are created by multiple placed elements
+        const chip = document.createElement('span');
+        chip.style.position = 'absolute';
+        const size = 5 + Math.floor(Math.random()*4);
+        chip.style.width = `${size}px`;
+        chip.style.height = `${size}px`;
+        chip.style.backgroundColor = '#3e2723';
+        chip.style.borderRadius = '50% 50% 30% 30%';
+        chip.style.left = `${-Math.round(size/2)}px`;
+        chip.style.top = `${-Math.round(size/2)}px`;
+        chip.style.transform = `rotate(${Math.random()*40-20}deg)`;
+        chip.style.boxShadow = '0 1px 2px rgba(0,0,0,0.12)';
+        wrapper.appendChild(chip);
+        break;
+      }
+      case 'flowers': {
+        const petals = 5;
+        const petalColor = ['#ff80ab','#ff6090','#ff9bb3'][Math.floor(Math.random()*3)];
+        const size = 8 + Math.floor(Math.random()*8);
+        for (let i = 0; i < petals; i++) {
+          const petal = document.createElement('span');
+          petal.style.position = 'absolute';
+          petal.style.width = `${Math.round(size*0.6)}px`;
+          petal.style.height = `${size}px`;
+          petal.style.borderRadius = '50%';
+          petal.style.backgroundColor = petalColor;
+          petal.style.left = `-${Math.round(size*0.3)}px`;
+          petal.style.top = `-${Math.round(size*0.6)}px`;
+          petal.style.transformOrigin = 'bottom center';
+          petal.style.transform = `rotate(${i * (360/petals)}deg)`;
+          petal.style.boxShadow = '0 2px 4px rgba(0,0,0,0.12)';
+          wrapper.appendChild(petal);
+        }
+        const center = document.createElement('span');
+        center.style.position = 'absolute';
+        center.style.width = `${Math.round(size*0.4)}px`;
+        center.style.height = `${Math.round(size*0.4)}px`;
+        center.style.backgroundColor = '#ffeb3b';
+        center.style.borderRadius = '50%';
+        center.style.left = `-${Math.round(size*0.2)}px`;
+        center.style.top = `-${Math.round(size*0.2)}px`;
+        wrapper.appendChild(center);
+        break;
+      }
+      default: {
+        const dot = document.createElement('div');
+        dot.className = 'cake-decoration-dot';
+        wrapper.appendChild(dot);
+        break;
+      }
+    }
+
+    return wrapper;
+  }
+
+  function addPlacedDecoration(type, x, y) {
+    const input = Array.from(decorationInputs).find(item => item.value === type);
+    if (input) {
+      input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    const realistic = realisticToggle ? realisticToggle.checked : true;
+    const density = Number(densityInput ? densityInput.value : 2);
+
+    // Enforce realistic placement rules
+    if (type === 'candles') {
+      // force onto top tier and align neatly if realistic mode
+      const selectedSize = document.querySelector('#cake-builder-form input[name$="[size]"]:checked');
+      const size = selectedSize ? selectedSize.value : 'medium';
+      const counts = { small: 3, medium: 5, large: 8 };
+      const total = counts[size] || 5;
+      if (realistic) {
+        // compute centered row across cake top
+        const spacing = 60 / (total + 1);
+        for (let i = 1; i <= total; i++) {
+          const px = 20 + spacing * i + (Math.random()-0.5) * 3;
+          const pos = getRandomCakePosition(0);
+          const py = pos.y + (Math.random()-0.5) * 3;
+          const clamped = clampToCakePosition('candles', px, py);
+          placedDecorationsList.push({ type, x: clamped.x, y: clamped.y });
+        }
+      } else {
+        const pos = getRandomCakePosition(0);
+        placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+      }
+    } else if (type === 'sprinkles') {
+      // add a small cluster where user clicked (or distributed if programmatic)
+      const factor = realistic ? (10 * (density || 2)) : 6;
+      for (let i = 0; i < factor; i++) {
+        const jitterX = x + (Math.random() - 0.5) * 8;
+        const jitterY = y + (Math.random() - 0.5) * 8;
+        const pos = clampToCakePosition(type, jitterX, jitterY);
+        placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+      }
+    } else if (type === 'chocolate_chips') {
+      // chips scattered around clicked point
+      const chips = realistic ? Math.round(6 * density) : 4;
+      for (let i = 0; i < chips; i++) {
+        const jitterX = x + (Math.random() - 0.5) * 12;
+        const jitterY = y + (Math.random() - 0.5) * 12;
+        const pos = clampToCakePosition(type, jitterX, jitterY);
+        placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+      }
+    } else if (type === 'fruits') {
+      // fruits: handful placed around chosen cylinder and across tiers
+      const fruitsCount = realistic ? Math.round(4 * density) : 3;
+      for (let i = 0; i < fruitsCount; i++) {
+        const tier = Math.floor(Math.random() * 3);
+        const pos = getRandomCakePosition(tier);
+        const jitterX = pos.x + (Math.random()-0.5)*8;
+        const jitterY = pos.y + (Math.random()-0.5)*8;
+        const clamped = clampToCakePosition(type, jitterX, jitterY);
+        placedDecorationsList.push({ type, x: clamped.x, y: clamped.y });
+      }
+    } else if (type === 'flowers') {
+      // floral clusters
+      const flowerCount = realistic ? Math.round(3 * density) : 2;
+      for (let i = 0; i < flowerCount; i++) {
+        const pos = getRandomCakePosition(Math.floor(Math.random() * 3));
+        const jitterX = pos.x + (Math.random()-0.5)*10;
+        const jitterY = pos.y + (Math.random()-0.5)*10;
+        const clamped = clampToCakePosition(type, jitterX, jitterY);
+        placedDecorationsList.push({ type, x: clamped.x, y: clamped.y });
+      }
+    } else {
+      const pos = clampToCakePosition(type, x, y);
+      placedDecorationsList.push({ type, x: pos.x, y: pos.y });
+    }
+
+    renderPreviewDecorations();
+  }
+
+  function toggleDecoration(value) {
+    const input = Array.from(decorationInputs).find(item => item.value === value);
+    if (!input) {
+      return;
+    }
+
+    input.checked = !input.checked;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function handleDecorationDrag(button) {
+    button.addEventListener('dragstart', event => {
+      event.dataTransfer.setData('text/plain', button.dataset.decoration);
+      event.dataTransfer.effectAllowed = 'copy';
+      button.classList.add('dragging');
+    });
+
+    button.addEventListener('dragend', () => {
+      button.classList.remove('dragging');
+    });
+
+    button.addEventListener('click', () => toggleDecoration(button.dataset.decoration));
+  }
+
+  if (previewArea) {
+    previewArea.addEventListener('dragover', event => {
+      event.preventDefault();
+      previewArea.classList.add('cake-drop-active');
+    });
+
+    previewArea.addEventListener('dragleave', () => {
+      previewArea.classList.remove('cake-drop-active');
+    });
+
+    previewArea.addEventListener('drop', event => {
+      event.preventDefault();
+      previewArea.classList.remove('cake-drop-active');
+      const decoration = event.dataTransfer.getData('text/plain');
+      if (decoration) {
+        const rect = previewArea.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 100;
+        const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+        const pos = clampToCakePosition(decoration, x, y);
+        addPlacedDecoration(decoration, pos.x, pos.y);
+      }
+    });
+  }
+
+  const interactiveFields = [
+    ...sizeInputs,
+    ...flavorInputs,
+    ...decorationInputs,
+  ];
+
+  if (messageInput) {
+    interactiveFields.push(messageInput);
+  }
+
+  if (quantityInput) {
+    interactiveFields.push(quantityInput);
+  }
+
+  interactiveFields.forEach(element => {
+    element.addEventListener('change', updatePreview);
+    if (element.tagName === 'TEXTAREA' || element.type === 'text' || element.type === 'number') {
+      element.addEventListener('input', updatePreview);
+    }
+  });
+
+  dragButtons.forEach(button => handleDecorationDrag(button));
+
+  updatePreview();
+
+  function capitalize(value) {
+    return value
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  // Utility to lighten/darken hex colors by percent (-100..100)
+  function shadeColor(hex, percent) {
+    try {
+      const cleaned = hex.replace('#', '');
+      const num = parseInt(cleaned, 16);
+      let r = (num >> 16) + Math.round(255 * (percent / 100));
+      let g = ((num >> 8) & 0x00FF) + Math.round(255 * (percent / 100));
+      let b = (num & 0x0000FF) + Math.round(255 * (percent / 100));
+      r = Math.max(0, Math.min(255, r));
+      g = Math.max(0, Math.min(255, g));
+      b = Math.max(0, Math.min(255, b));
+      return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+    } catch (e) {
+      return hex;
+    }
+  }
+
+  const builderForm = document.getElementById('cake-builder-form');
+  if (builderForm) {
+    builderForm.addEventListener('submit', async function (event) {
+      const submitter = event.submitter;
+      if (!submitter || submitter.type !== 'submit') {
+        return;
+      }
+
+      event.preventDefault();
+
+      let previewInput = builderForm.querySelector('input[name="preview_image"]');
+      if (!previewInput) {
+        previewInput = document.createElement('input');
+        previewInput.type = 'hidden';
+        previewInput.name = 'preview_image';
+        builderForm.appendChild(previewInput);
+      }
+
+      const captureTarget = document.getElementById('cake-preview');
+      if (typeof html2canvas === 'function' && captureTarget) {
+        try {
+          const canvas = await html2canvas(captureTarget, {
+            backgroundColor: '#fffcf9',
+            scale: 1,
+            logging: false,
+          });
+          previewInput.value = canvas.toDataURL('image/png', 0.85);
+        } catch (error) {
+          previewInput.value = '';
+        }
+      } else {
+        previewInput.value = '';
+      }
+
+      builderForm.submit();
+    });
+  }
+</script>
+{% endblock %}

@@ -15,6 +15,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\OrderItem; 
 use App\Repository\ProductRepository;
 
+#[IsGranted('ROLE_STAFF')]
 final class OrderController extends AbstractController
 {
     #[IsGranted('ROLE_STAFF')]
@@ -90,17 +91,32 @@ public function editOrder(int $id, OrderRepository $orderRepository, Request $re
         $newStatus = $request->request->get('status');
         $order->setStatus($newStatus);
 
-        // ✅ ✅ RECALCULATE TOTALS HERE
-        $total = 0;
+        // ✅ Update item quantities if submitted
+        $submittedItems = $request->request->all('items');
+        $itemsById = [];
+        foreach ($order->getOrderItems() as $item) {
+            $itemsById[$item->getId()] = $item;
+        }
 
-        foreach ($order->getItems() as $item) {
+        foreach ($submittedItems as $itemId => $itemData) {
+            $itemId = (int) $itemId;
+            if (!isset($itemsById[$itemId])) {
+                continue;
+            }
+
+            $quantity = isset($itemData['quantity']) ? max(1, (int) $itemData['quantity']) : $itemsById[$itemId]->getQuantity();
+            $itemsById[$itemId]->setQuantity($quantity);
+        }
+
+        // ✅ Recalculate totals from current item quantities
+        $total = 0;
+        foreach ($order->getOrderItems() as $item) {
             $item->setCustomerOrder($order);
             $item->setSubtotal($item->getProduct()->getPrice() * $item->getQuantity());
             $total += $item->getSubtotal();
         }
 
         $order->setTotalAmount($total);
-        // ✅ ✅ END OF TOTAL CALCULATION
 
         $em->flush();
 
@@ -256,6 +272,3 @@ public function delete(int $id, OrderRepository $orderRepository, Order $order, 
 
 
     }
-
-
-

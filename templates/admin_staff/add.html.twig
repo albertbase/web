@@ -1,166 +1,77 @@
 {% extends 'base_admin.html.twig' %}
 
+{% block title %}Add Staff | Sweetoria{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin_staff.css') }}">
+{% endblock %}
+
 {% block body %}
-<div class="sweetoria-panel">
+<div class="staff-workspace staff-form-page">
+    <header class="staff-hero">
+        <div class="staff-hero-content">
+            <p class="staff-kicker">Team Operations</p>
+            <h1 class="staff-title">Add Staff Account</h1>
+            <p class="staff-subtitle">Create a new team login with role and status settings for the Sweetoria admin workspace.</p>
+        </div>
+        <a href="{{ path('admin_staff_index') }}" class="staff-btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Staff
+        </a>
+    </header>
 
-    <div class="sweetoria-header text-center mb-4">
-        <h1 class="sweetoria-title fw-bold">Add Staff Account</h1>
-        <p class="sweetoria-subtext text-muted">Create a new staff login with role and status settings.</p>
-    </div>
-
-    <div class="sweetoria-form-card shadow-lg">
-
+    <div class="staff-form-card">
         {{ form_start(form, {
             action: path('admin_staff_new'),
             method: 'POST',
-            attr: { class: 'sweetoria-form' }
+            attr: { class: 'staff-form' }
         }) }}
 
         {{ form_errors(form) }}
 
-        <div class="form-grid two-column">
-
-            <!-- Username -->
-            <div class="form-group sweetoria-floating">
-                {{ form_widget(form.username, { attr: { class: 'form-input sweetoria-input', placeholder: ' ' } }) }}
-                <label class="form-label">{{ form.username.vars.label }}</label>
+        <div class="staff-form-grid">
+            <div class="staff-field">
+                {{ form_label(form.username) }}
+                {{ form_widget(form.username, { attr: { class: 'form-control', placeholder: 'username@example.com' } }) }}
                 {{ form_errors(form.username) }}
             </div>
 
-            <!-- Password -->
-            <div class="form-group sweetoria-floating">
-                {{ form_widget(form.plainPassword, { attr: { class: 'form-input sweetoria-input', placeholder: ' ' } }) }}
+            <div class="staff-field">
                 <label class="form-label">Password</label>
+                {{ form_widget(form.plainPassword, { attr: { class: 'form-control', placeholder: 'Secure password' } }) }}
                 {{ form_errors(form.plainPassword) }}
             </div>
 
-            <!-- Role -->
-            <div class="form-group">
-                <label class="form-label">{{ form.roles.vars.label }}</label>
-                {{ form_widget(form.roles, { attr: { class: 'form-select sweetoria-select' } }) }}
+            <div class="staff-field" style="grid-column: 1 / -1;">
+                {{ form_label(form.roles) }}
+                <div class="staff-role-pills">
+                    {% for child in form.roles %}
+                        <label class="staff-role-pill">
+                            {{ form_widget(child) }}
+                            <span>{{ child.vars.label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
                 {{ form_errors(form.roles) }}
             </div>
 
-            <!-- Status -->
-            <div class="form-group">
-                <label class="form-label">{{ form.status.vars.label }}</label>
-                {{ form_widget(form.status, { attr: { class: 'form-select sweetoria-select' } }) }}
+            <div class="staff-field">
+                {{ form_label(form.status) }}
+                {{ form_widget(form.status, { attr: { class: 'form-select' } }) }}
                 {{ form_errors(form.status) }}
             </div>
-
-            <!-- Active Checkbox -->
-            <div class="form-group checkbox-group d-flex align-items-center gap-2 mt-2">
-                {# {{ form_widget(form.isActive, { attr: { class: 'form-checkbox sweetoria-checkbox' } }) }} #}
-                {# <label class="form-label inline">{{ form.isActive.vars.label }}</label>
-                {{ form_errors(form.isActive) }} #}
-            </div>
-
         </div>
 
         {{ form_widget(form._token) }}
 
-        <div class="form-actions mt-4">
-            <button class="sweetoria-btn primary w-100">Create Staff Account</button>
+        <div class="staff-form-actions">
+            <button type="submit" class="staff-btn-primary">
+                <i class="bi bi-person-plus-fill"></i> Create Staff Account
+            </button>
+            <a href="{{ path('admin_staff_index') }}" class="staff-btn-secondary">Cancel</a>
         </div>
 
         {{ form_end(form, { render_rest: false }) }}
-
     </div>
 </div>
-
-<style>
-/* Card */
-.sweetoria-form-card {
-    background: #fff;
-    padding: 2.2rem;
-    border-radius: 18px;
-    max-width: 720px;
-    margin: 0 auto;
-    animation: fadeIn 0.5s ease-out;
-}
-
-/* Fade animation */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Grid */
-.form-grid.two-column {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.4rem;
-}
-@media (max-width: 768px) {
-    .form-grid.two-column {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Floating Labels */
-.sweetoria-floating {
-    position: relative;
-}
-.sweetoria-floating .form-label {
-    position: absolute;
-    top: 12px;
-    left: 14px;
-    color: #888;
-    transition: all 0.2s ease;
-    pointer-events: none;
-}
-.sweetoria-floating input:focus + .form-label,
-.sweetoria-floating input:not(:placeholder-shown) + .form-label {
-    top: -8px;
-    left: 10px;
-    font-size: 0.75rem;
-    background: #fff;
-    padding: 0 4px;
-    color: #6f42c1;
-}
-
-/* Inputs */
-.sweetoria-input,
-.sweetoria-select {
-    border-radius: 10px;
-    padding: 12px 14px;
-    border: 2px solid #e0e0e0;
-    transition: all 0.25s ease;
-}
-.sweetoria-input:focus,
-.sweetoria-select:focus {
-    border-color: #6f42c1;
-    box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
-}
-
-/* Checkbox */
-.sweetoria-checkbox {
-    width: 18px;
-    height: 18px;
-    accent-color: #6f42c1;
-}
-
-/* Button */
-.sweetoria-btn.primary {
-    background: #6f42c1;
-    color: #fff;
-    padding: 12px;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.25s ease;
-}
-.sweetoria-btn.primary:hover {
-    background: #5a34a3;
-    transform: translateY(-2px);
-}
-
-/* Header */
-.sweetoria-title {
-    font-size: 1.9rem;
-    color: #6f42c1;
-}
-.sweetoria-subtext {
-    font-size: 0.95rem;
-}
-</style>
 {% endblock %}

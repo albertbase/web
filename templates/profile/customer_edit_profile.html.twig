@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/user_profile.css') }}">
+{% endblock %}
+
+{% block body %}
+<section class="account-profile-page">
+    <header class="account-hero account-hero-compact">
+        <p class="account-kicker">My Account</p>
+        <h1 class="account-title">Edit Customer Profile</h1>
+        <p class="account-subtitle">Update your personal information used when shopping at Sweetoria.</p>
+    </header>
+
+    <article class="account-form-card">
+        {{ form_start(form, { attr: { class: 'account-form' } }) }}
+
+        {{ form_errors(form) }}
+
+        <div class="account-field-group">
+            {{ form_label(form.name, 'Display Name', { label_attr: { class: 'account-field-label' } }) }}
+            {{ form_widget(form.name, { attr: { class: 'account-field-input', placeholder: 'How you want your name displayed' } }) }}
+            {{ form_errors(form.name) }}
+        </div>
+
+        <div class="account-field-group">
+            {{ form_label(form.username, 'Username', { label_attr: { class: 'account-field-label' } }) }}
+            {{ form_widget(form.username, { attr: { class: 'account-field-input', placeholder: 'Your login username' } }) }}
+            {{ form_errors(form.username) }}
+        </div>
+
+        <div class="account-form-actions">
+            <a href="{{ path('customer_profile') }}" class="account-btn account-btn-outline">Back to Profile</a>
+            <button type="submit" class="account-btn account-btn-primary">Save Changes</button>
+        </div>
+
+        {{ form_end(form) }}
+    </article>
+</section>
+{% endblock %}

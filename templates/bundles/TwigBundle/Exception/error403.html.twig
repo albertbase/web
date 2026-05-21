@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Access Denied (403){% endblock %}
+
+{% block body %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+          <h1 class="display-4">403</h1>
+          <p class="lead">Access denied. You do not have permission to view this page.</p>
+          <p class="mb-4">If you believe this is an error, please contact your administrator or sign in with an account that has the appropriate permissions.</p>
+          <a href="{{ path('app_landing') }}" class="btn btn-primary me-2">Return Home</a>
+          {% if app.user is not null %}
+            <a href="{{ path(is_granted('ROLE_STAFF') ? 'staff_profile' : 'customer_profile') }}" class="btn btn-outline-secondary">My Account</a>
+          {% else %}
+            <a href="{{ path('app_login') }}" class="btn btn-outline-secondary">Sign In</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -7,20 +7,23 @@
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
         {# <link rel="stylesheet" href="{{ asset('css/admin.css') }}"> #}
         
 
 
         
         <link rel="stylesheet" href="{{ asset('css/all.css') }}">
-
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/site.css') }}">
 
         {# <a href="{{ path('admin_categories') }}">Manage Categories</a> #}
 
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
+
+        <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
@@ -45,9 +48,9 @@
 
         <!-- Logo & About -->
         <div class="footer-col">
-            <div class="logo1">
-            <img src="{{ asset('image/logo.png') }}" alt="Brand Logo">
-            </div>
+            <a href="{{ path('app_landing') }}" class="logo1" aria-label="Sweetoria home">
+                <img src="{{ asset('image/logo.png') }}" alt="Sweetoria logo">
+            </a>
             <p>Indulge in Sweetoria: A little sweetness, a lot of joy.</p>
         </div>
 
@@ -55,11 +58,12 @@
         <div class="footer-col">
             <h3>Quick Links</h3>
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Menu</a></li>
-                <li><a href="#">Category</a></li>
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">Contact Us</a></li>
+                <li><a href="{{ path('app_landing') }}">Home</a></li>
+                <li><a href="{{ path('app_menu') }}">Menu</a></li>
+                <li><a href="{{ path('custom_cake_builder') }}">Build Cake</a></li>
+                <li><a href="{{ path('category_list') }}">Category</a></li>
+                <li><a href="{{ path('home') }}">About Us</a></li>
+                <li><a href="{{ path('app_contact') }}">Contact Us</a></li>
             </ul>
         </div>
 
@@ -67,23 +71,33 @@
         <div class="footer-col">
             <h3>Contact Us</h3>
             <p>📍 123 Bakery St, Sweet City</p>
-            <p>📞 +63 900 123 4567</p>
-            <p>✉️ hello@mybakery.com</p>
+            <p>📞 <a href="tel:+639001234567">+63 900 123 4567</a></p>
+            <p>✉️ <a href="mailto:albertbase09675695595@gmail.com">albertbase09675695595@gmail.com</a></p>
         </div>
 
         <!-- Social Media -->
         <div class="footer-col">
             <h3>Follow Us</h3>
+            <p class="footer-social-text">Stay updated with our latest treats and bakery news.</p>
             <div class="social-icons">
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="https://www.facebook.com/sweetoria.bakery" target="_blank" rel="noopener noreferrer" aria-label="Follow Sweetoria on Facebook">
+                    <i class="bi bi-facebook" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.instagram.com/sweetoria.bakery" target="_blank" rel="noopener noreferrer" aria-label="Follow Sweetoria on Instagram">
+                    <i class="bi bi-instagram" aria-hidden="true"></i>
+                </a>
+                <a href="https://x.com/sweetoria_bakery" target="_blank" rel="noopener noreferrer" aria-label="Follow Sweetoria on X">
+                    <i class="bi bi-twitter-x" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.tiktok.com/@sweetoria.bakery" target="_blank" rel="noopener noreferrer" aria-label="Follow Sweetoria on TikTok">
+                    <i class="bi bi-tiktok" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
     </div>
 
     <div class="footer-bottom">
-        <p>&copy; {{ "now"|date("Y") }} MyBakery. All rights reserved.</p>
+        <p>&copy; {{ "now"|date("Y") }} Sweetoria. All rights reserved.</p>
     </div>
 </footer>
 

@@ -49,14 +49,45 @@ class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return array<int, array{category: Category, productCount: int}>
+     */
+    public function findAllWithProductCounts(): array
+    {
+        $rows = $this->createQueryBuilder('c')
+            ->select('c AS category, COUNT(p.id) AS productCount')
+            ->leftJoin('c.products', 'p')
+            ->groupBy('c.id')
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return array_map(static function (array $row): array {
+            return [
+                'category' => $row['category'],
+                'productCount' => (int) $row['productCount'],
+            ];
+        }, $rows);
+    }
+
+    public function findOneByNormalizedName(string $name): ?Category
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('LOWER(c.name) = :name')
+            ->setParameter('name', strtolower(trim($name)))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findUsedByProducts(): array
-{
-    return $this->createQueryBuilder('c')
-        ->innerJoin('c.products', 'p') // assuming Category has a OneToMany to Product
-        ->groupBy('c.id')
-        ->getQuery()
-        ->getResult();
-}
+    {
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.products', 'p')
+            ->groupBy('c.id')
+            ->getQuery()
+            ->getResult();
+    }
 
 
 }

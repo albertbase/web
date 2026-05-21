@@ -1,32 +1,33 @@
-  .order-confirmation {
-    max-width: 700px;
-  }
+.confirmation-page {
+  max-width: 760px;
+}
 
-  .confirmation-card {
-    background-color: #f8f9fa;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  }
+.confirmation-page .confirmation-card {
+  background-color: #fff;
+  padding: 1.75rem;
+  border-radius: 16px;
+  border: 1px solid #eadccf;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
 
-  .text-brown {
-    color: #8B4513;
-    font-weight: bold;
-  }
+.confirmation-page .text-brown {
+  color: #7b4426;
+  font-weight: 700;
+}
 
-  .list-group-item {
-    font-size: 1.05rem;
-    padding: 0.75rem 1rem;
-    border: none;
-    border-bottom: 1px solid #ddd;
-  }
+.confirmation-page .list-group-item {
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-bottom: 1px solid #ece1d5;
+}
 
-  .list-group-item:last-child {
-    border-bottom: none;
-  }
+.confirmation-page .list-group-item:last-child {
+  border-bottom: 0;
+}
 
-  .badge.bg-success {
-    background-color: #28a745;
-    font-size: 0.95rem;
-    padding: 0.4em 0.6em;
-  }
+.confirmation-page .badge.bg-success {
+  background-color: #2f8f63 !important;
+  font-size: 0.85rem;
+  padding: 0.38em 0.62em;
+}

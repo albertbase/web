@@ -1,0 +1,43 @@
+{# Expects: cart (array), total (float), compact (bool, optional) #}
+{% set compact = compact|default(false) %}
+
+<div class="order-summary-list {{ compact ? 'order-summary-list-compact' : '' }}">
+  {% for item in cart %}
+    <div class="order-summary-item">
+      <div class="order-summary-thumb">
+        {% if item.type == 'product' and item.product.image %}
+          <img src="{{ asset('uploads/products/' ~ item.product.image) }}" alt="{{ item.product.name }}">
+        {% elseif item.type == 'custom' and item.customization.previewImage is defined and item.customization.previewImage %}
+          <img src="{{ asset('uploads/cake-previews/' ~ item.customization.previewImage) }}" alt="Custom cake preview">
+        {% else %}
+          <img src="{{ asset('image/logo.png') }}" alt="Item" class="order-summary-thumb-placeholder">
+        {% endif %}
+      </div>
+      <div class="order-summary-info">
+        {% if item.type == 'product' %}
+          <p class="order-summary-name mb-1">{{ item.product.name }}</p>
+          <p class="order-summary-meta text-muted small mb-0">
+            {{ item.quantity }} &times; PHP {{ item.product.price|number_format(2) }}
+          </p>
+        {% else %}
+          <p class="order-summary-name mb-1">Custom Cake</p>
+          <p class="order-summary-meta text-muted small mb-0">
+            {{ item.customization.size|capitalize }} &bull;
+            {{ item.customization.flavor|replace({'_': ' '})|capitalize }}
+            &bull; Qty {{ item.quantity }}
+          </p>
+          {% if item.customization.message %}
+            <p class="order-summary-meta text-muted small mb-0">"{{ item.customization.message }}"</p>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="order-summary-line-total">
+        PHP {{ item.subtotal|number_format(2) }}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+<div class="order-summary-total-row">
+  <span>Order total</span>
+  <strong>PHP {{ total|number_format(2) }}</strong>
+</div>

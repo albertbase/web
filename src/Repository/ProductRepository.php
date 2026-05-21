@@ -16,83 +16,72 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    //    /**
-    //     * @return Product[] Returns an array of Product objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Product
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
-
-  public function findByMenuFilters(?string $searchTerm, ?string $categoryName): array
+    /**
+     * @return Product[]
+     */
+    public function findByMenuFilters(?string $searchTerm, ?string $categoryName): array
     {
         $qb = $this->createQueryBuilder('p')
-            ->leftJoin('p.category', 'c');
+            ->leftJoin('p.category', 'c')
+            ->addSelect('c')
+            ->orderBy('p.createdAt', 'DESC');
 
         if ($searchTerm) {
             $qb->andWhere('LOWER(p.name) LIKE :search')
-               ->setParameter('search', '%' . strtolower($searchTerm) . '%');
+                ->setParameter('search', '%'.strtolower(trim($searchTerm)).'%');
         }
 
         if ($categoryName) {
-            $qb->andWhere('c.name = :category')
-               ->setParameter('category', $categoryName);
+            $qb->andWhere('LOWER(c.name) = :category')
+                ->setParameter('category', strtolower(trim($categoryName)));
         }
 
         return $qb->getQuery()->getResult();
     }
 
-
-    // src/Repository/ProductRepository.php
-
-public function findByFilters(?string $searchTerm, ?string $categoryName): array
-{
-    $qb = $this->createQueryBuilder('p')
-        ->leftJoin('p.category', 'c');
-
-    if ($searchTerm) {
-        $qb->andWhere('LOWER(p.name) LIKE :search')
-           ->setParameter('search', '%' . strtolower($searchTerm) . '%');
+    /**
+     * @return Product[]
+     */
+    public function findByFilters(?string $searchTerm, ?string $categoryName): array
+    {
+        return $this->findByMenuFilters($searchTerm, $categoryName);
     }
 
-    if ($categoryName) {
-        $qb->andWhere('c.name = :category')
-           ->setParameter('category', $categoryName);
+    public function findWithCreator(int $id): ?Product
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('createdBy', 'category')
+            ->leftJoin('p.createdBy', 'createdBy')
+            ->leftJoin('p.category', 'category')
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
-    return $qb->getQuery()->getResult();
-}
+    /**
+     * @return Product[]
+     */
+    public function findForAdminList(?string $search, ?int $categoryId, int $limit, int $offset): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->addSelect('c', 'createdBy')
+            ->leftJoin('p.category', 'c')
+            ->leftJoin('p.createdBy', 'createdBy')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
 
-public function findWithCreator(int $id): ?Product
-{
-    return $this->createQueryBuilder('p')
-        ->addSelect('createdBy')
-        ->leftJoin('p.createdBy', 'createdBy')
-        ->andWhere('p.id = :id')
-        ->setParameter('id', $id)
-        ->getQuery()
-        ->getOneOrNullResult();
-}
+        if ($search !== null && trim($search) !== '') {
+            $qb->andWhere('LOWER(p.name) LIKE :search OR LOWER(p.description) LIKE :search')
+                ->setParameter('search', '%'.strtolower(trim($search)).'%');
+        }
 
+        if ($categoryId !== null) {
+            $qb->andWhere('c.id = :categoryId')
+                ->setParameter('categoryId', $categoryId);
+        }
 
-
-
-
+        return $qb->getQuery()->getResult();
+    }
 }

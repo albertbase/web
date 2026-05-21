@@ -1,14 +1,8 @@
-
 {% extends 'base.html.twig' %}
 {% block title %}Menu{% endblock %}
 
 {% block body %}
-
- {# <link rel="stylesheet" href="{{ asset('css/product_list.css') }}"> #}
-
-<div class="container mt-4">
-
-  {# ✅ Flash messages #}
+<div class="container mt-4 menu-catalog">
   {% for label, messages in app.flashes %}
     {% for message in messages %}
       <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
@@ -18,8 +12,7 @@
     {% endfor %}
   {% endfor %}
 
-  {# ✅ Search bar #}
-  <form method="get" action="{{ path('product_list') }}" class="mb-3">
+  <form method="get" action="{{ path('app_menu') }}" class="mb-3">
     <div class="input-group">
       <input type="text" name="q" class="form-control" placeholder="Search products..." value="{{ search }}">
       {% if selectedCategory %}
@@ -29,30 +22,28 @@
     </div>
   </form>
 
-  <h2 class="mb-4 text-center fw-bold">🍰 Our Menu</h2>
-
-  {# ✅ Dynamic Bakery-Themed Category Filter #}
   <div class="mb-4 text-center">
-    <h5 class="fw-bold mb-3">🥐 Browse by Category</h5>
+    <a href="{{ path('custom_cake_builder') }}" class="btn btn-primary btn-lg shadow-sm">Build Your Own Cake</a>
+  </div>
+
+  <h2 class="mb-4 text-center fw-bold">Our Menu</h2>
+
+  <div class="mb-4 text-center">
+    <h5 class="fw-bold mb-3">Browse by category</h5>
     <div class="d-flex flex-wrap justify-content-center gap-2">
-      <a href="{{ path('product_list', search ? {q: search} : {}) }}"
+      <a href="{{ path('app_menu', search ? {q: search} : {}) }}"
          class="category-pill {{ not selectedCategory ? 'active' : '' }}">
-        🍽️ All
+        All
       </a>
       {% for category in categories %}
-        <a href="{{ path('product_list', search ? {category: category.name, q: search} : {category: category.name}) }}"
+        <a href="{{ path('app_menu', search ? {category: category.name, q: search} : {category: category.name}) }}"
            class="category-pill {{ selectedCategory == category.name ? 'active' : '' }}">
-          {{ category.name|lower == 'bread' ? '🥖' :
-             category.name|lower == 'cupcake' ? '🧁' :
-             category.name|lower == 'dessert' ? '🍨' :
-             category.name|lower == 'cakes' ? '🎂' :
-             '🍩' }} {{ category.name }}
+          {{ category.name }}
         </a>
       {% endfor %}
     </div>
   </div>
 
-  {# ✅ Product cards #}
   <div class="row">
     {% for product in products %}
       <div class="col-md-6 col-lg-4 mb-4">
@@ -60,31 +51,27 @@
           {% if product.image %}
             <img src="{{ asset('uploads/products/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
           {% else %}
-            <img src="{{ asset('images/no-image.png') }}" class="card-img-top" alt="No image">
+            <img src="{{ asset('image/logo.png') }}" class="card-img-top" alt="No image available">
           {% endif %}
 
           <div class="card-body d-flex flex-column justify-content-between bg-gradient-bakery">
             <div>
               <h5 class="card-title text-center fw-bold">{{ product.name }}</h5>
               <p class="card-text text-center small">
-                {{ product.description|length > 100 ? product.description|slice(0, 100) ~ '…' : product.description }}
+                {{ product.description|length > 100 ? product.description|slice(0, 100) ~ '...' : product.description }}
               </p>
             </div>
 
             <div class="text-center mt-2">
-              <p class="mb-1 fw-bold fs-5">₱{{ product.price|number_format(2) }}</p>
+              <p class="mb-1 fw-bold fs-5">PHP {{ product.price|number_format(2) }}</p>
               <p class="text-muted small">Stock: {{ product.stock }}</p>
             </div>
 
-            <form method="post" action="{{ path('cart_add', {id: product.id}) }}" class="mt-3">
-              <input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
-              <div class="d-grid">
-                <button type="submit" class="btn btn-light fw-bold"
-                  {% if product.stock == 0 %}disabled{% endif %}>
-                  🛒 Add to Cart
-                </button>
-              </div>
-            </form>
+            {% include 'partials/_product_purchase_buttons.html.twig' with {
+              product: product,
+              buy_btn_class: 'btn-primary',
+              add_btn_class: 'btn-light'
+            } %}
           </div>
         </div>
       </div>
@@ -93,9 +80,4 @@
     {% endfor %}
   </div>
 </div>
-
-
-
-{# ✅ Styles #}
-
 {% endblock %}

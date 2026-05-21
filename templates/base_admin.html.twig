@@ -2,115 +2,187 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}Sweetoria{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sweetoria Admin{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/sweetoria_admin.css') }}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-  
-
-
-
+  {% block stylesheets %}{% endblock %}
 </head>
-
 <body>
-<div class="d-flex">
+{% set currentRoute = app.request.attributes.get('_route') %}
+<div class="admin-shell">
+  <aside class="sidebar sidebar--bakery" id="sidebar" aria-label="Admin navigation">
+    <div class="sidebar-radiant sidebar-radiant--top" aria-hidden="true"></div>
+    <div class="sidebar-radiant sidebar-radiant--bottom" aria-hidden="true"></div>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-    <img src="{{ asset('image/logo.png') }}" alt="Brand Logo" class="brand-logo">
-    <span class="brand-name">Sweetoria</span>
-</div>
+    <div class="sidebar-brand">
+      <a href="{{ is_granted('ROLE_ADMIN') ? path('admin_dashboard') : path('admin_products') }}" class="sidebar-brand-link">
+        <div class="sidebar-brand-frame">
+          <img src="{{ asset('image/logo.png') }}" alt="Sweetoria" class="brand-logo">
+        </div>
+        <div class="sidebar-brand-text">
+          <span class="sidebar-brand-name">Sweetoria</span>
+          <span class="sidebar-brand-tagline">Bakery Admin</span>
+        </div>
+      </a>
+    </div>
 
-    
-    <nav class="nav flex-column">
+    {% if app.user %}
+      <div class="sidebar-profile">
+        <div class="sidebar-profile-avatar">{{ (app.user.name ?? app.user.username)|slice(0, 1)|upper }}</div>
+        <div class="sidebar-profile-meta">
+          <span class="sidebar-profile-name">{{ app.user.name ?? app.user.username }}</span>
+          <span class="sidebar-profile-role {{ 'ROLE_ADMIN' in app.user.roles ? 'is-admin' : 'is-staff' }}">
+            {{ 'ROLE_ADMIN' in app.user.roles ? 'Administrator' : 'Staff' }}
+          </span>
+        </div>
+      </div>
+    {% endif %}
+
+    <nav class="sidebar-nav flex-column">
+      {% if is_granted('ROLE_ADMIN') %}
+        <p class="sidebar-section-label"><span>Overview</span></p>
+        <a class="sidebar-link {{ currentRoute == 'admin_dashboard' ? 'is-active' : '' }}"
+           href="{{ path('admin_dashboard') }}">
+          <span class="sidebar-link-icon"><i class="bi bi-speedometer2"></i></span>
+          <span class="sidebar-link-label">Dashboard</span>
+        </a>
+      {% endif %}
+
+      {% if is_granted('ROLE_STAFF') %}
+        <p class="sidebar-section-label"><span>Operations</span></p>
+        <a class="sidebar-link {{ currentRoute starts with 'admin_product' ? 'is-active' : '' }}"
+           href="{{ path('admin_products') }}">
+          <span class="sidebar-link-icon"><i class="bi bi-box-seam-fill"></i></span>
+          <span class="sidebar-link-label">Products</span>
+        </a>
+        <a class="sidebar-link {{ currentRoute starts with 'admin_order' ? 'is-active' : '' }}"
+           href="{{ path('admin_orders') }}">
+          <span class="sidebar-link-icon"><i class="bi bi-bag-heart-fill"></i></span>
+          <span class="sidebar-link-label">Orders</span>
+        </a>
+      {% endif %}
 
       {% if is_granted('ROLE_ADMIN') %}
-      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_dashboard' %}active{% endif %}"
-         href="{{ path('admin_dashboard') }}">
-        <i class="bi bi-speedometer2"></i> Dashboard
-      </a>
+        <p class="sidebar-section-label"><span>Team</span></p>
+        <a class="sidebar-link {{ currentRoute starts with 'admin_staff' ? 'is-active' : '' }}"
+           href="{{ path('admin_staff_index') }}">
+          <span class="sidebar-link-icon"><i class="bi bi-people-fill"></i></span>
+          <span class="sidebar-link-label">Staff</span>
+        </a>
+        <a class="sidebar-link {{ currentRoute starts with 'admin_activity' ? 'is-active' : '' }}"
+           href="{{ path('admin_activity_logs_index') }}">
+          <span class="sidebar-link-icon"><i class="bi bi-clock-history"></i></span>
+          <span class="sidebar-link-label">Activity Logs</span>
+        </a>
       {% endif %}
 
-      <a class="nav-link {% if app.request.attributes.get('_route') == 'products' %}active{% endif %}"
-         href="{{ path('admin_products') }}">
-        <i class="bi bi-box-seam"></i> Products
+      <p class="sidebar-section-label"><span>Account</span></p>
+      <a class="sidebar-link {{ currentRoute in ['staff_profile', 'staff_profile_edit', 'staff_change_password'] ? 'is-active' : '' }}"
+         href="{{ path('staff_profile') }}">
+        <span class="sidebar-link-icon"><i class="bi bi-person-circle"></i></span>
+        <span class="sidebar-link-label">My Account</span>
       </a>
-
-      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_orders' %}active{% endif %}"
-         href="{{ path('admin_orders') }}">
-        <i class="bi bi-cart-check"></i> Order
-      </a>
-        {% if is_granted('ROLE_ADMIN') %}
-      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_staff_index' %}active{% endif %}"
-         href="{{ path('admin_staff_index') }}">
-        <i class="bi bi-people"></i> User Management
-      </a>
-      {% endif %}
-
-      {% if is_granted('ROLE_ADMIN') %}
-      <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_activity_logs_index' %}active{% endif %}"
-         href="{{ path('admin_activity_logs_index') }}">
-        <i class="bi bi-clock-history"></i> Activity Logs
-      </a>
-      {% endif %}
-
-      <a class="nav-link {% if app.request.attributes.get('_route') == 'user_profile' %}active{% endif %}"
-         href="{{ path('user_profile') }}">
-        <i class="bi bi-person-circle"></i> Profile
-      </a>
-
-      <a class="nav-link" href="{{ path('app_logout') }}">
-        <i class="bi bi-box-arrow-right"></i> Logout
-      </a>
-
     </nav>
+
+    <div class="sidebar-footer">
+      <form method="post" action="{{ path('app_logout') }}" class="m-0">
+        <button type="submit" class="sidebar-link sidebar-link--logout w-100">
+          <span class="sidebar-link-icon"><i class="bi bi-box-arrow-right"></i></span>
+          <span class="sidebar-link-label">Log Out</span>
+        </button>
+      </form>
+    </div>
   </aside>
 
-  <!-- Main content -->
-  <main class="flex-grow-1 p-4">
+  <main class="admin-main flex-grow-1">
     <div class="main-content">
-
-      <!-- Header bar -->
       <div class="header-bar">
-        <p class="welcome">Welcome, {{ app.user.username ?? 'Guest' }} 👋</p>
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="header-bar-main">
+          <p class="welcome mb-1">Welcome, {{ app.user.name ?? app.user.username ?? 'Guest' }}</p>
+          {% if app.user %}
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <span class="role-badge {{ 'ROLE_ADMIN' in app.user.roles ? 'role-badge-admin' : 'role-badge-staff' }}">
+                {{ 'ROLE_ADMIN' in app.user.roles ? 'Administrator' : 'Staff' }}
+              </span>
+              <span class="user-chip">
+                <i class="bi bi-cake2-fill"></i>
+                {{ app.user.name ?? app.user.username }}
+              </span>
+            </div>
+          {% endif %}
+        </div>
 
         <div class="dropdown">
-          <a href="#" class="text-decoration-none dropdown-toggle" id="profileDropdown"
-             data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-circle fs-3 profile-icon"></i>
+          <a href="#" class="header-profile-toggle dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
           </a>
-
           <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-            <li><h6 class="dropdown-header">Logged in as {{ app.user.username ?? 'Guest' }}</h6></li>
-            <li><a class="dropdown-item" href="{{ path('user_profile') }}"><i class="bi bi-person"></i> My Account</a></li>
+            <li><h6 class="dropdown-header">Logged in as {{ app.user.name ?? app.user.username ?? 'Guest' }}</h6></li>
+            <li><a class="dropdown-item" href="{{ path('staff_profile') }}"><i class="bi bi-person"></i> My Account</a></li>
             <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="{{ path('app_logout') }}" class="px-3 py-1 m-0">
+                <button type="submit" class="dropdown-item border-0 bg-transparent w-100 text-start px-0">
+                  <i class="bi bi-box-arrow-right"></i> Log Out
+                </button>
+              </form>
+            </li>
           </ul>
         </div>
       </div>
 
-      {% block body %}{% endblock %}
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="alert alert-{{ label }} admin-flash">{{ message }}</div>
+        {% endfor %}
+      {% endfor %}
 
+      {% block body %}{% endblock %}
     </div>
   </main>
-
 </div>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.getElementById('sidebarToggle').addEventListener('click', () => {
-    const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
 
-    // Desktop collapse
-    if (window.innerWidth > 768) {
+  const adminShell = document.querySelector('.admin-shell');
+
+  if (sidebarToggle && sidebar && sidebarBackdrop) {
+    const syncSidebarLayout = () => {
+      if (!adminShell) return;
+      adminShell.classList.toggle('sidebar-is-collapsed', sidebar.classList.contains('collapsed'));
+    };
+
+    sidebarToggle.addEventListener('click', () => {
+      if (window.innerWidth > 768) {
         sidebar.classList.toggle('collapsed');
-    } 
-    // Mobile slide-in
-    else {
+        syncSidebarLayout();
+      } else {
         sidebar.classList.toggle('open');
-    }
-});
-</script>
+        sidebarBackdrop.classList.toggle('show');
+      }
+    });
 
+    syncSidebarLayout();
+
+    sidebarBackdrop.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarBackdrop.classList.remove('show');
+    });
+  }
+</script>
 </body>
 </html>

@@ -33,6 +33,24 @@
       font-size: 0.85em;
       font-weight: bold;
     }
+
+    .verified-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(40, 167, 69, 0.12);
+      color: #1f7a36;
+      font-size: 0.8em;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .verified-badge.unverified {
+      background: rgba(108, 117, 125, 0.12);
+      color: #5f666d;
+    }
 </style>
 
 <h2>Sweetoria Account Management</h2>
@@ -85,6 +103,7 @@
         {# <th>Name</th> #}
         <th>Username</th>
         <th>Roles</th>
+        <th>Verification</th>
         <th>Status</th>
         <th>Created At</th>
         <th>Operation</th>
@@ -101,6 +120,18 @@
                 <span class="badge role-badge">{{ label }}</span>
             {% endfor %}
             </td>
+
+          <td>
+            {% if user.isVerified %}
+              <span class="verified-badge">
+                <i class="fa fa-check-circle"></i> Verified
+              </span>
+            {% else %}
+              <span class="verified-badge unverified">
+                <i class="fa fa-clock-o"></i> Pending
+              </span>
+            {% endif %}
+          </td>
 
           <td>
             {% if user.isActive %}
@@ -123,7 +154,7 @@
         </tr>
       {% else %}
         <tr>
-          <td colspan="7">No staff found.</td>
+          <td colspan="8">No staff found.</td>
         </tr>
       {% endfor %}
     </tbody>

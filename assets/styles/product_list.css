@@ -1,161 +1,84 @@
- /* === Product Card === */
-  .product-card {
-    position: relative;
-    background-color: #aaa18b;
-    border-radius: 15px;
-    border: 2px solid #e8d8c3;
-    box-shadow: 0 6px 16px rgba(92, 61, 46, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  /* ✨ Overlay tint */
-  .product-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(92, 61, 46, 0.08);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-  }
-
-  .product-card:hover::before {
-    opacity: 1;
-  }
-
-  /* ✨ Hover interaction */
-  .product-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 12px 36px rgba(92, 61, 46, 0.35);
-    border-color: #ff8c42;
-    z-index: 3;
-    border: 2px solid #ff8c42;
-  }
-
-  /* === Product Image === */
-  .card-img-top {
-    height: 250px;
-    object-fit: cover;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    position: relative;
-    z-index: 2;
-    transition: transform 0.3s ease;
-  }
-
-  .product-card:hover .card-img-top {
-    transform: scale(1.05);
-  }
-
-  /* === Card Body === */
-.bg-gradient-bakery {
-  background-color: #f3b97e; /* earthy Sweetoria tone */
-  color: #5a2e0f;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  padding: 1rem;
+.menu-catalog .product-card {
   position: relative;
-  z-index: 2;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 16px;
+  border: 1px solid #ead9c5;
+  box-shadow: 0 10px 24px rgba(92, 61, 46, 0.14);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  overflow: hidden;
 }
 
-/* ✨ Hover effect for body */
-.product-card:hover .bg-gradient-bakery {
-  background-color: #fff6eb; /* slightly darker on hover */
-  transform: translateY(-2px);
-  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+.menu-catalog .product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(92, 61, 46, 0.2);
 }
 
-  /* === Product Title === */
-  .card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.25rem;
-    color: #5c3d2e;
-    transition: color 0.3s ease;
-  }
-  .card-title,
-.card-text {
-  transition: color 0.3s ease, text-shadow 0.3s ease;
+.menu-catalog .product-card .card-img-top {
+  height: 230px;
+  object-fit: cover;
 }
 
-.product-card:hover .card-title {
-  color: #3e2414;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+.menu-catalog .bg-gradient-bakery {
+  background: linear-gradient(180deg, #fff9f3 0%, #f8eadb 100%);
+  color: #5a2e0f;
 }
 
-.product-card:hover .card-text {
-  color: #4a2f1c;
+.menu-catalog .card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  color: #4a2c1d;
 }
 
+.menu-catalog .card-text {
+  font-size: 0.92rem;
+  color: #6d5444;
+}
 
-  .product-card:hover .card-title {
-    color: #a0522d;
-  }
+.menu-catalog .fs-5 {
+  color: #5c3d2e;
+  font-weight: 800;
+}
 
-  /* === Product Description === */
-  .card-text {
-    font-size: 0.9rem;
-    color: #6b4e2e;
-    transition: color 0.3s ease;
-  }
+.menu-catalog .text-muted {
+  color: #7f6758 !important;
+}
 
-  .product-card:hover .card-text {
-    color: #5a2e0f;
-  }
+.menu-catalog .btn-light {
+  background-color: #fff;
+  color: #6e3f22;
+  border: 1px solid #ddbfa3;
+  font-weight: 700;
+}
 
-  /* === Price & Stock === */
-  .fs-5 {
-    color: #5c3d2e;
-    font-weight: bold;
-  }
+.menu-catalog .btn-light:hover {
+  background-color: #fef1e4;
+  color: #5a2e0f;
+}
 
-  .text-muted {
-    color: #8b6f5a !important;
-  }
+.menu-catalog .btn-light:disabled {
+  background-color: #f3e5d5;
+  color: #ab927f;
+  border-color: #e6d5c3;
+}
 
-  /* === Add to Cart Button === */
-  .btn-light {
-    background-color: #fff3e0;
-    color: #8B4513;
-    border: none;
-    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-  }
+.menu-catalog .category-pill {
+  display: inline-block;
+  padding: 0.46rem 0.9rem;
+  background-color: #fff;
+  color: #7a4b2c;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid #ead9c5;
+}
 
-  .btn-light:hover {
-    background-color: #ffe4c4;
-    color: #5a2e0f;
-    transform: scale(1.05);
-  }
+.menu-catalog .category-pill:hover {
+  background-color: #fff3e7;
+  color: #5a2e0f;
+}
 
-  .btn-light:disabled {
-    background-color: #f0e0d0;
-    color: #aaa;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
-
-  /* === Category Pills === */
-  .category-pill {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background-color: #fff3e0;
-    color: #8B4513;
-    border-radius: 50px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    border: 1px solid #e8d8c3;
-  }
-
-  .category-pill:hover {
-    background-color: #ffe4c4;
-    color: #5a2e0f;
-  }
-
-  .category-pill.active {
-    background-color: #8B4513;
-    color: #fff;
-    border-color: #8B4513;
-  }
+.menu-catalog .category-pill.active {
+  background: linear-gradient(135deg, #7b4426, #b46938);
+  color: #fff;
+  border-color: transparent;
+}

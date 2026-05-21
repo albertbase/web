@@ -1,0 +1,230 @@
+/* --- About page styles for Sweetoria --- */
+:root {
+    --bakery-brown: #5c3d2e;
+    --bakery-gold: #b86d3a;
+    --bakery-light: #fdfaf7;
+    --bakery-text: #3f2a1d;
+    --bakery-blush: #fde7df;
+    --bakery-cream: #fff6ea;
+    --bakery-pistachio: #f2efe3;
+}
+
+.about-page {
+    color: var(--bakery-text);
+    background:
+        radial-gradient(circle at top left, rgba(255, 226, 206, 0.42), transparent 26%),
+        linear-gradient(180deg, #fffdf9 0%, #fcf7f1 100%);
+    padding: 1.25rem 0 2rem;
+}
+
+.about-page .about-hero,
+.about-page .about-story,
+.about-page .about-team {
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(92, 61, 46, 0.08);
+    box-shadow: 0 18px 45px rgba(92, 61, 46, 0.08);
+}
+
+.about-page .about-hero {
+    background:
+        radial-gradient(circle at top right, rgba(255, 238, 225, 0.95), transparent 34%),
+        linear-gradient(135deg, #fff8f1 0%, #fdf1e5 100%);
+}
+
+.about-page .about-story {
+    background:
+        radial-gradient(circle at left center, rgba(253, 231, 223, 0.9), transparent 32%),
+        linear-gradient(135deg, #fff5ec 0%, #fffdf8 100%);
+}
+
+.about-page .about-team {
+    background:
+        radial-gradient(circle at top left, rgba(242, 239, 227, 0.95), transparent 30%),
+        linear-gradient(135deg, #fffdf8 0%, #f7f0e6 100%);
+}
+
+.about-page .about-hero {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+}
+
+.about-page .about-kicker,
+.about-page .section-label {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--bakery-gold);
+}
+
+.about-page .about-dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f2b36d, var(--bakery-gold));
+    box-shadow: 0 0 0 6px rgba(184, 109, 58, 0.12);
+}
+
+.about-page .lead,
+.about-page p {
+    font-size: 1.03rem;
+    line-height: 1.75;
+}
+
+/* --- CARDS & PANELS --- */
+.about-page .about-hero-card,
+.about-page .about-story-card,
+.about-page .story-highlight,
+.about-page .team-card {
+    border: 1px solid rgba(92, 61, 46, 0.12);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 14px 40px rgba(92, 61, 46, 0.08);
+}
+
+.about-page .about-hero-card { padding: 1rem; }
+.about-page .about-story-card { padding: 2rem; }
+.about-page .story-highlight { padding: 1.5rem; min-height: 100%; }
+
+.about-page .about-hero-card img {
+    box-shadow: 0 10px 28px rgba(92, 61, 46, 0.12);
+}
+
+.about-page .story-highlight strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--bakery-brown);
+}
+
+/* --- TEAM SECTION (EDGE-TO-EDGE IMAGES) --- */
+.about-page .team-card {
+    text-align: center;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.about-page .team-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(92, 61, 46, 0.15);
+}
+
+.about-page .team-avatar {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background:
+        linear-gradient(135deg, rgba(255, 244, 234, 0.95), rgba(242, 239, 227, 0.95));
+    overflow: hidden;
+}
+
+.about-page .team-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Padding for text inside the cards */
+.about-page .team-card h3,
+.about-page .team-card .team-role,
+.about-page .team-card .text-content {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.about-page .team-role {
+    color: var(--bakery-gold);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.about-page .text-content {
+    padding-bottom: 2rem;
+}
+
+@media (max-width: 991.98px) {
+    .about-page {
+        padding: 1rem 0 1.5rem;
+    }
+
+    .about-page .about-hero,
+    .about-page .about-story,
+    .about-page .about-team {
+        padding: 1.5rem;
+        border-radius: 26px;
+    }
+
+    .about-page .about-hero-card,
+    .about-page .about-story-card,
+    .about-page .story-highlight,
+    .about-page .team-card {
+        border-radius: 20px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .about-page .about-hero,
+    .about-page .about-story,
+    .about-page .about-team {
+        margin-bottom: 1rem;
+        padding: 1.15rem;
+    }
+
+    .about-page .about-hero {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .about-page h1,
+    .about-page h2,
+    .about-page h3 {
+        line-height: 1.15;
+    }
+
+    .about-page .lead,
+    .about-page p {
+        font-size: 0.96rem;
+    }
+
+    .about-page .about-story-card {
+        padding: 1.25rem;
+    }
+
+    .about-page .story-highlight {
+        padding: 1.1rem;
+    }
+
+    .about-page .team-card h3,
+    .about-page .team-card .team-role,
+    .about-page .team-card .text-content {
+        padding-left: 1.1rem;
+        padding-right: 1.1rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .about-page .about-hero,
+    .about-page .about-story,
+    .about-page .about-team {
+        border-radius: 18px;
+    }
+
+    .about-page .about-hero-card,
+    .about-page .about-story-card,
+    .about-page .story-highlight,
+    .about-page .team-card {
+        border-radius: 16px;
+    }
+
+    .about-page .team-avatar {
+        aspect-ratio: 4 / 3;
+    }
+}

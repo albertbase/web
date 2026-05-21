@@ -10,7 +10,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class LoginController extends AbstractController
 {
-    #[Route(path: '/', name: 'app_login')]
+    #[Route(path: '/login', name: 'app_login')]
     public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
 
@@ -18,7 +18,17 @@ class LoginController extends AbstractController
 
         
         if ($this->getUser()) {
-            return $this->redirectToRoute('admin_dashboard');
+            $user = $this->getUser();
+
+            if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+                return $this->redirectToRoute('admin_dashboard');
+            }
+
+            if (in_array('ROLE_STAFF', $user->getRoles(), true)) {
+                return $this->redirectToRoute('admin_products');
+            }
+
+            return $this->redirectToRoute('app_landing');
         }
 
         // get the login error if there is one

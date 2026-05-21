@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/user_profile.css') }}">
+{% endblock %}
+
+{% block body %}
+<section class="account-profile-page">
+    <header class="account-hero">
+        <p class="account-kicker">My Account</p>
+        <h1 class="account-title">Customer Profile</h1>
+        <p class="account-subtitle">Manage your personal details and account security for shopping at Sweetoria.</p>
+    </header>
+
+    <div class="account-layout-grid">
+        <article class="account-card">
+            <div class="account-card-head">
+                {% set displayName = user.name is not empty ? user.name : user.username %}
+                <div class="account-avatar">{{ displayName|first|upper }}</div>
+                <div>
+                    <h2 class="account-name">{{ displayName }}</h2>
+                    <p class="account-username">@{{ user.username }}</p>
+                </div>
+            </div>
+
+            <dl class="account-detail-grid">
+                <div class="account-detail-item">
+                    <dt>Display Name</dt>
+                    <dd>{{ user.name is not empty ? user.name : 'Not set' }}</dd>
+                </div>
+                <div class="account-detail-item">
+                    <dt>Username</dt>
+                    <dd>{{ user.username }}</dd>
+                </div>
+                <div class="account-detail-item">
+                    <dt>Joined</dt>
+                    <dd>{{ user.createdAt|date('F j, Y') }}</dd>
+                </div>
+                <div class="account-detail-item">
+                    <dt>Status</dt>
+                    <dd>
+                        <span class="account-status {{ user.isOnline ? 'online' : 'offline' }}">
+                            {{ user.presenceLabel }}
+                        </span>
+                    </dd>
+                </div>
+                <div class="account-detail-item">
+                    <dt>Account</dt>
+                    <dd>
+                        <span class="account-status {{ user.isActive ? 'active' : 'disabled' }}">
+                            {{ user.isActive ? 'Active' : 'Disabled' }}
+                        </span>
+                    </dd>
+                </div>
+            </dl>
+        </article>
+
+        <aside class="account-card">
+            <h3 class="account-side-title">Quick Actions</h3>
+            <div class="account-action-list">
+                <a href="{{ path('customer_profile_edit') }}" class="account-btn account-btn-outline">Edit Profile</a>
+                <a href="{{ path('customer_change_password') }}" class="account-btn account-btn-primary">Change Password</a>
+                <a href="{{ path('app_menu') }}" class="account-btn account-btn-outline">Browse Menu</a>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

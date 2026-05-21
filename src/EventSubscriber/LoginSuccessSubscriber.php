@@ -4,14 +4,17 @@ namespace App\EventSubscriber;
 
 use App\Entity\User;
 use App\Service\LogService;
-
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 class LoginSuccessSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private LogService $logService) {}
+    public function __construct(
+        private LogService $logService,
+        private EntityManagerInterface $entityManager,
+    ) {}
 
     public static function getSubscribedEvents(): array
     {
@@ -30,6 +33,10 @@ class LoginSuccessSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $user->markSessionStarted();
+        $user->setLastLogin(new \DateTimeImmutable());
+        $this->entityManager->flush();
+
         $this->logService->logAndFlush(
             'LOGIN',
             'User',
@@ -42,10 +49,15 @@ class LoginSuccessSubscriber implements EventSubscriberInterface
     {
         $user = $event->getToken()?->getUser();
 
+        $event->getRequest()->getSession()->remove('cart');
+
         // ✅ Ensure it's your User entity
         if (!$user instanceof User) {
             return;
         }
+
+        $user->markSessionEnded();
+        $this->entityManager->flush();
 
         $this->logService->logAndFlush(
             'LOGOUT',

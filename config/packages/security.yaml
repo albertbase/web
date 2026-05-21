@@ -1,13 +1,11 @@
 security:
     role_hierarchy:
-        ROLE_ADMIN: [ROLE_STAFF]
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+        ROLE_ADMIN: [ROLE_STAFF, ROLE_USER]
+        ROLE_STAFF: [ROLE_USER]
     password_hashers:
         App\Entity\User:
             algorithm: auto
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
             entity:
                 class: App\Entity\User
@@ -16,6 +14,12 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            custom_authenticators:
+                - App\Security\ApiTokenAuthenticator
         main:
             lazy: true
             provider: app_user_provider
@@ -28,63 +32,45 @@ security:
                 enable_csrf: true
                 csrf_token_id: authenticate
 
-            custom_authenticators: 
+            custom_authenticators:
                 - App\Security\LoginAuthenticator
+                - App\Security\GoogleAuthenticator
 
             logout:
                 path: app_logout
-                # where to redirect after logout
-                # target: app_any_route
+                invalidate_session: true
 
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
-                # by default, the feature is enabled by checking a checkbox in the
-                # login form, uncomment the following line to always enable it.
-                #always_remember_me: true
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/api/(login|register|auth/google)$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/admin/users, roles: ROLE_ADMIN }
+        - { path: ^/api/admin/orders, roles: ROLE_STAFF }
+        - { path: ^/api/admin/(categories|products), roles: ROLE_STAFF }
+        - { path: ^/api/users, roles: ROLE_ADMIN }
+        - { path: ^/api/data, roles: ROLE_ADMIN }
+        - { path: ^/api/products, roles: ROLE_STAFF }
+        - { path: ^/api/profile, roles: ROLE_USER }
+        - { path: ^/api/customer, roles: ROLE_USER }
+        - { path: ^/api/me, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/admin/(staff|users|logs|system|activity-logs|categories|pages|settings), roles: ROLE_ADMIN }
+        - { path: ^/admin/dashboard$, roles: ROLE_ADMIN }
         - { path: ^/admin$, roles: ROLE_ADMIN }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        #  - { path: ^/products, roles: ROLE_STAFF }
-        # - { path: ^/admin/orders, roles: ROLE_STAFF }
-        # - { path: ^/profile, roles: ROLE_STAFF }
-        # ✅ Admin-only sections
-        # - { path: ^/admin/logs, roles: ROLE_ADMIN }
-        # - { path: ^/admin/users, roles: ROLE_ADMIN }
-        # - { path: ^/admin/?, roles: ROLE_ADMIN } # admin dashboard root
-
-        # # ✅ Staff + Admin can manage products
-        # - { path: ^/admin/products, roles: [ROLE_ADMIN, ROLE_STAFF] }
-
-        # # ✅ Staff + Admin can manage orders
-        # - { path: ^/admin/orders, roles: [ROLE_ADMIN, ROLE_STAFF] }
-
-        # # ✅ Staff + Admin can manage categories (if allowed)
-        # - { path: ^/admin/categories, roles: [ROLE_ADMIN, ROLE_STAFF] }
-
-        # ✅ Profile for all authenticated users
-        # - { path: ^/admin/profile, roles: ROLE_USER }
-        # - { path: ^/admin/change-password, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_STAFF }
+        - { path: ^/cart, roles: ROLE_USER }
+        - { path: ^/checkout, roles: ROLE_USER }
+        - { path: ^/order/confirmation, roles: ROLE_USER }
+        - { path: ^/(profile|profile/edit|change-password|orders), roles: ROLE_USER }
 
 when@test:
     security:
         password_hashers:
-            # By default, password hashers are resource intensive and take time. This is
-            # important to generate secure password hashes. In tests however, secure hashes
-            # are not important, waste resources and increase test times. The following
-            # reduces the work factor to the lowest possible values.
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
-                cost: 4 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest possible value for argon
-                memory_cost: 10 # Lowest possible value for argon
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

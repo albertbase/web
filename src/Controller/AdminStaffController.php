@@ -15,14 +15,24 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 
 // #[IsGranted('ROLE_ADMIN')]
+#[IsGranted('ROLE_ADMIN')]
 class AdminStaffController extends AbstractController
 {
     #[Route('/admin/staff', name: 'admin_staff_index')]
     public function index(UserRepository $repo)
     {
+        $staff = $repo->findStaffMembersOrderedByNewest();
+        $totalStaff = count($staff);
+        $activeStaff = count(array_filter($staff, static fn (User $user) => $user->isActive()));
+        $adminAccounts = count(array_filter($staff, static fn (User $user) => in_array('ROLE_ADMIN', $user->getRoles(), true)));
+        $recentStaff = array_slice($staff, 0, 5);
+
         return $this->render('admin_staff/index.html.twig', [
-            // 'staff' => $repo->findBy(['status' => ['active', 'disabled']]),
-            'staff' => $repo->findAll(),
+            'staff' => $staff,
+            'totalStaff' => $totalStaff,
+            'activeStaff' => $activeStaff,
+            'adminAccounts' => $adminAccounts,
+            'recentStaff' => $recentStaff,
         ]);
     }
 

@@ -1,0 +1,81 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Staff Account{% endblock %}
+
+{% block body %}
+<div class="staff-profile-page">
+    <div class="panel-card mb-4">
+        <p class="panel-kicker mb-2">Team Account</p>
+        <div class="panel-head flex-wrap">
+            <div>
+                <h1 class="panel-title mb-1">Staff Profile</h1>
+                <p class="page-subtitle mb-0">Manage your workspace identity and account security.</p>
+            </div>
+            {% set displayName = user.name is not empty ? user.name : user.username %}
+            <div class="staff-profile-avatar">{{ displayName|first|upper }}</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="panel-card h-100">
+                <h2 class="h5 mb-3">Account Details</h2>
+                <dl class="staff-profile-details">
+                    <div>
+                        <dt>Display Name</dt>
+                        <dd>{{ user.name is not empty ? user.name : 'Not set' }}</dd>
+                    </div>
+                    <div>
+                        <dt>Username</dt>
+                        <dd>{{ user.username }}</dd>
+                    </div>
+                    <div>
+                        <dt>Joined</dt>
+                        <dd>{{ user.createdAt|date('F j, Y') }}</dd>
+                    </div>
+                    <div>
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="account-status {{ user.isOnline ? 'online' : 'offline' }}">
+                                {{ user.presenceLabel }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Account</dt>
+                        <dd>
+                            <span class="account-status {{ user.isActive ? 'active' : 'disabled' }}">
+                                {{ user.isActive ? 'Active' : 'Disabled' }}
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="panel-card h-100">
+                {% set staffRoles = user.roleLabels|filter(role => role != 'Customer') %}
+                {% if staffRoles is not empty %}
+                    <h2 class="h5 mb-3">Roles</h2>
+                    <div class="hero-badges mb-4">
+                        {% for roleLabel in staffRoles %}
+                            <span class="hero-badge hero-badge-primary">{{ roleLabel }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <h2 class="h5 mb-3">Quick Actions</h2>
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ path('staff_profile_edit') }}" class="btn btn-outline-secondary">Edit Profile</a>
+                    <a href="{{ path('staff_change_password') }}" class="btn btn-primary">Change Password</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('admin_dashboard') }}" class="btn btn-outline-secondary">Admin Dashboard</a>
+                    {% endif %}
+                    <a href="{{ path('admin_orders') }}" class="btn btn-outline-secondary">Manage Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

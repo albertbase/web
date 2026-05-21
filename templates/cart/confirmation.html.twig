@@ -2,11 +2,7 @@
 {% block title %}Order Confirmation{% endblock %}
 
 {% block body %}
-{# <link rel="stylesheet" href="{{ asset('css/confirmation.css') }}"> #}
-
-<div class="container mt-5 order-confirmation">
-
-  {# ✅ Flash messages #}
+<div class="container mt-5 order-confirmation confirmation-page">
   {% for label, messages in app.flashes %}
     {% for message in messages %}
       <div class="alert alert-{{ label }} alert-dismissible fade show mt-3" role="alert">
@@ -17,26 +13,33 @@
   {% endfor %}
 
   <div class="confirmation-card mx-auto">
-    <h2 class="text-center mb-4">🎉 Thank you for your order!</h2>
+    <h2 class="text-center mb-4">Thank you for your order</h2>
 
     <div class="mb-3">
       <p><strong>Name:</strong> {{ order.customerName }}</p>
-      <p><strong>Email:</strong> {{ order.customerEmail }}</p>
+      <p><strong>Phone:</strong> {{ order.customerPhone ?: 'Not provided' }}</p>
       <p><strong>Status:</strong> <span class="badge bg-success">{{ order.status }}</span></p>
-      <p><strong>Total:</strong> <span class="text-brown">₱{{ order.totalAmount|number_format(2) }}</span></p>
+      <p><strong>Total:</strong> <span class="text-brown">PHP {{ order.totalAmount|number_format(2) }}</span></p>
     </div>
 
-    <h4 class="mt-4">🧾 Items:</h4>
+    <h4 class="mt-4">Items</h4>
     <ul class="list-group">
       {% for item in order.orderItems %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          <span>{{ item.quantity }} × {{ item.product.name }}</span>
-          <span>₱{{ item.subtotal|number_format(2) }}</span>
+          <div>
+            {% if item.product %}
+              <span>{{ item.quantity }} x {{ item.product.name }}</span>
+            {% else %}
+              <span>{{ item.quantity }} x Custom Cake</span>
+              <div class="text-muted small">
+                {{ item.cakeCustomization.size|capitalize }} • {{ item.cakeCustomization.flavor|replace({'_':' '})|capitalize }}
+              </div>
+            {% endif %}
+          </div>
+          <span>PHP {{ item.subtotal|number_format(2) }}</span>
         </li>
       {% endfor %}
     </ul>
   </div>
 </div>
-
-
 {% endblock %}

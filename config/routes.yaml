@@ -2,4 +2,12 @@ controllers:
     resource:
         path: ../src/Controller/
         namespace: App\Controller
+        exclude: ../src/Controller/Api/
     type: attribute
+
+api_controllers:
+    resource:
+        path: ../src/Controller/Api/
+        namespace: App\Controller\Api
+    type: attribute
+    prefix: /api

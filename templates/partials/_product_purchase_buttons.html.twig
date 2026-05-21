@@ -1,0 +1,21 @@
+{# Expects: product (Product entity), optional buy_btn_class, add_btn_class #}
+{% if app.user %}
+  <div class="product-purchase-actions d-grid gap-2 mt-3">
+    <form method="post" action="{{ path('cart_buy', {id: product.id}) }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('cart_buy_' ~ product.id) }}">
+      <button type="submit" class="btn {{ buy_btn_class|default('btn-primary') }} fw-bold w-100" {% if product.stock == 0 %}disabled{% endif %}>
+        Buy
+      </button>
+    </form>
+    <form method="post" action="{{ path('cart_add', {id: product.id}) }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
+      <button type="submit" class="btn {{ add_btn_class|default('btn-outline-primary') }} fw-bold w-100" {% if product.stock == 0 %}disabled{% endif %}>
+        Add to Cart
+      </button>
+    </form>
+  </div>
+{% else %}
+  <div class="d-grid mt-3">
+    <a href="{{ path('app_login') }}" class="btn {{ buy_btn_class|default('btn-primary') }} fw-bold">Sign in first to buy</a>
+  </div>
+{% endif %}

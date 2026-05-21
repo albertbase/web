@@ -3,186 +3,264 @@
 {% block title %}Sweetoria Dashboard{% endblock %}
 
 {% block body %}
-
-<div class="dashboard-container sweetoria-fade">
-
-    <!-- Header -->
-    <div class="mb-4">
-        <h1 class="display-5 fw-bold text-dark">Dashboard</h1>
-        <p class="text-muted">Overview of Sweetoria’s operations and recent activity.</p>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="row g-4 mt-2">
-        <div class="col-md-3">
-            <div class="sweet-card stat-card">
-                <h6 class="text-muted">Products</h6>
-                <p class="stat-value">{{ totalProducts }}</p>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="sweet-card stat-card">
-                <h6 class="text-muted">Users</h6>
-                <p class="stat-value">{{ totalUsers }}</p>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="sweet-card stat-card">
-                <h6 class="text-muted">Staff</h6>
-                <p class="stat-value">{{ totalStaff }}</p>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="sweet-card stat-card">
-                <h6 class="text-muted">Orders</h6>
-                <p class="stat-value">{{ totalOrders }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stock & Value -->
-    <div class="row g-4 mt-4">
-        <div class="col-md-6">
-            <div class="sweet-card stat-card">
-                <h6 class="text-muted">Total Stock</h6>
-                <p class="stat-value">{{ totalStock }}</p>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="sweet-card stat-card">
-                <h6 class="text-muted">Total Value</h6>
-                <p class="stat-value">₱{{ totalValue|number_format(2, '.', ',') }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Products -->
-    <div class="sweet-card mt-5">
-        <h5 class="fw-bold mb-3">Recent Products</h5>
-
-        <div class="table-responsive">
-            <table class="table sweet-table align-middle">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Stock</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in recentProducts %}
-                        <tr>
-                            <td>{{ product.id }}</td>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.stock }}</td>
-                            <td>₱{{ product.price|number_format(2) }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="text-muted text-center py-3">No recent products</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Recent Activity Logs -->
-    <div class="sweet-card mt-4">
-        <h5 class="fw-bold mb-3">Recent Activity</h5>
-
-        <div class="table-responsive">
-            <table class="table sweet-table align-middle">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Role</th>
-                        <th>Action</th>
-                        <th>Entity</th>
-                        <th>Details</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in recentLogs %}
-                        <tr>
-                            <td>{{ log.username }}</td>
-                            <td>{{ log.userRole }}</td>
-                            <td>{{ log.action }}</td>
-                            <td>
-                                {% if log.entityType %}
-                                    {{ log.entityType }} #{{ log.entityId }}
-                                {% else %}
-                                    —
-                                {% endif %}
-                            </td>
-                            <td>{{ log.details ?? '—' }}</td>
-                            <td>{{ log.timestamp|date('Y-m-d H:i') }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-muted text-center py-3">No recent activity</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-</div>
-
 <style>
-/* Fade animation */
-.sweetoria-fade {
-    animation: fadeIn 0.5s ease;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    :root {
+        --bakery-rose: #fff0f3;
+        --bakery-rose-dark: #ff85a1;
+        --bakery-mint: #f0fff4;
+        --bakery-mint-dark: #38a169;
+        --bakery-cream: #fffaf0;
+        --bakery-cream-dark: #d69e2e;
+        --bakery-caramel: #fef3e2;
+        --bakery-caramel-dark: #975a16;
+        --surface: #ffffff;
+        --background: #f8f9fa;
+        --text-main: #2d3436;
+        --text-muted: #636e72;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    }
 
-/* Card styling */
-.sweet-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 1.6rem;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-.sweet-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
-}
+    .admin-page {
+        padding: 2.5rem;
+        background-color: var(--background);
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, sans-serif;
+    }
 
-/* Stat cards */
-.stat-card .stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #6f42c1;
-}
+    /* Section Labels */
+    .section-label {
+        margin: 2.5rem 0 1.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+    }
+    .section-label::after {
+        content: "";
+        height: 1px;
+        flex-grow: 1;
+        background: #e0e0e0;
+    }
 
-/* Tables */
-.sweet-table thead {
-    background: #f7f1ff;
-}
-.sweet-table thead th {
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
-}
-.sweet-table tbody tr:hover {
-    background: #faf5ff;
-}
+    /* Hero Section */
+    .admin-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 2rem;
+    }
+    .page-title { font-weight: 850; color: var(--text-main); letter-spacing: -1.5px; }
+    .page-kicker { color: var(--bakery-rose-dark); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; }
 
-/* Dashboard container */
-.dashboard-container {
-    padding-bottom: 40px;
-}
+    /* Quick Nav Cards */
+    .quick-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+    }
+    .quick-nav-card {
+        background: var(--surface);
+        padding: 1.5rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        text-decoration: none !important;
+        color: var(--text-main);
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+    .quick-nav-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+    .quick-nav-icon {
+        width: 50px; height: 50px;
+        border-radius: 15px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+    }
+
+    /* Metric Cards */
+    .metric-card {
+        background: var(--surface);
+        padding: 1.75rem;
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+    }
+    .metric-label { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
+    .metric-value { font-size: 2.2rem; font-weight: 850; display: block; margin: 0.2rem 0; color: var(--text-main); }
+    .metric-icon { position: absolute; right: 1.5rem; top: 1.5rem; font-size: 1.8rem; opacity: 0.1; }
+
+    /* Panel Cards */
+    .panel-card {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0,0,0,0.02);
+        margin-bottom: 2rem;
+    }
+    .panel-title { font-weight: 800; font-size: 1.35rem; letter-spacing: -0.5px; }
+
+    /* Table Styling */
+    .admin-table thead th {
+        background: #fbfbfb;
+        border-bottom: 2px solid #f1f1f1;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--text-muted);
+        padding: 1rem;
+    }
+    .admin-table tbody td { padding: 1.1rem 1rem; border-bottom: 1px solid #f8f9fa; font-size: 0.9rem; }
+
+    /* Status & Action Pills */
+    .status-pill, .action-badge {
+        padding: 0.4rem 0.9rem;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+    .status-active { background: var(--bakery-mint); color: var(--bakery-mint-dark); }
+    .status-pending { background: var(--bakery-caramel); color: var(--bakery-caramel-dark); }
+    .action-badge { background: #eee; color: #555; border: 1px solid #ddd; }
+
+    /* Activity Specifics */
+    .log-user { font-weight: 700; color: var(--text-main); }
+    .log-details { font-family: 'Monaco', 'Consolas', monospace; font-size: 0.8rem; color: #666; }
+
+    /* Utility Colors */
+    .quick-nav-rose .quick-nav-icon, .metric-card-rose .metric-icon { background: var(--bakery-rose); color: var(--bakery-rose-dark); }
+    .quick-nav-caramel .quick-nav-icon, .metric-card-caramel .metric-icon { background: var(--bakery-caramel); color: var(--bakery-caramel-dark); }
+    .quick-nav-cream .quick-nav-icon, .metric-card-cream .metric-icon { background: var(--bakery-cream); color: var(--bakery-cream-dark); }
+    .quick-nav-mint .quick-nav-icon, .metric-card-mint .metric-icon { background: var(--bakery-mint); color: var(--bakery-mint-dark); }
 </style>
 
+<div class="admin-page">
+    <section class="admin-hero">
+        <div class="hero-copy">
+            <p class="page-kicker mb-1">Sweetoria Admin</p>
+            <h1 class="page-title mb-2">Welcome back, Boss</h1>
+            {#<div class="hero-badges">
+                <span class="hero-badge hero-badge-primary px-3 py-1 rounded-pill">
+                    <i class="bi bi-shield-lock me-1"></i>Secure Session
+                </span>
+            </div>#}
+        </div>
+       {# <div class="admin-hero-actions">
+            <a href="{{ path('admin_products') }}" class="btn btn-dark rounded-pill px-4 me-2">Manage Store</a>
+            <a href="{{ path('admin_orders') }}" class="btn btn-outline-dark rounded-pill px-4">Sales Report</a>
+        </div>#}
+    </section>
+
+    <div class="section-label"><span>Quick Navigation</span></div>
+    <section class="quick-nav-grid">
+        <a href="{{ path('admin_products') }}" class="quick-nav-card quick-nav-rose">
+            <span class="quick-nav-icon"><i class="bi bi-box-seam"></i></span>
+            <span><strong>Products</strong><br><small class="text-muted">Inventory</small></span>
+        </a>
+        <a href="{{ path('admin_orders') }}" class="quick-nav-card quick-nav-caramel">
+            <span class="quick-nav-icon"><i class="bi bi-bag-check"></i></span>
+            <span><strong>Orders</strong><br><small class="text-muted">Transactions</small></span>
+        </a>
+        <a href="{{ path('admin_staff_index') }}" class="quick-nav-card quick-nav-cream">
+            <span class="quick-nav-icon"><i class="bi bi-people"></i></span>
+            <span><strong>Staff</strong><br><small class="text-muted">Team Mgmt</small></span>
+        </a>
+        <a href="{{ path('admin_activity_logs_index') }}" class="quick-nav-card quick-nav-mint">
+            <span class="quick-nav-icon"><i class="bi bi-clock-history"></i></span>
+            <span><strong>Activity</strong><br><small class="text-muted">Audit Log</small></span>
+        </a>
+    </section>
+
+    <div class="section-label"><span>Store Pulse</span></div>
+    <section class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-4 mb-4">
+        <div class="col">
+            <div class="metric-card metric-card-rose">
+                <i class="bi bi-box-seam metric-icon"></i>
+                <span class="metric-label">Products</span>
+                <strong class="metric-value">{{ totalProducts }}</strong>
+            </div>
+        </div>
+        <div class="col">
+            <div class="metric-card metric-card-cream">
+                <i class="bi bi-people metric-icon"></i>
+                <span class="metric-label">Users</span>
+                <strong class="metric-value">{{ totalUsers }}</strong>
+            </div>
+        </div>
+        <div class="col">
+            <div class="metric-card metric-card-mint">
+                <i class="bi bi-person-badge metric-icon"></i>
+                <span class="metric-label">Staff</span>
+                <strong class="metric-value">{{ totalStaff }}</strong>
+            </div>
+        </div>
+        <div class="col">
+            <div class="metric-card metric-card-caramel">
+                <i class="bi bi-bag-check metric-icon"></i>
+                <span class="metric-label">Orders</span>
+                <strong class="metric-value">{{ totalOrders }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-label"><span>System Activity Log</span></div>
+    <section class="row">
+        <div class="col-12">
+            <div class="panel-card">
+                <div class="panel-head d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="panel-title mb-0">Recent Changes & Logins</h2>
+                    <a href="{{ path('admin_activity_logs_index') }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">Full Audit</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table admin-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>User / Staff</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                                <th>Entity Affected</th>
+                                <th>Detail Snippet</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for log in recentLogs %}
+                            <tr>
+                                <td><span class="log-user">{{ log.username }}</span></td>
+                                <td><small class="badge bg-light text-dark border">{{ log.userRole }}</small></td>
+                                <td><span class="action-badge">{{ log.action }}</span></td>
+                                <td>
+                                    {% if log.entityType %}
+                                        <span class="text-muted">{{ log.entityType }}</span> 
+                                        <span class="fw-bold text-dark">#{{ log.entityId }}</span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td><div class="log-details text-truncate" style="max-width: 200px;">{{ log.details ?: 'No additional data' }}</div></td>
+                                <td class="text-muted small">{{ log.timestamp|date('M d, H:i') }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted italic">
+                                    <i class="bi bi-inbox d-block fs-2 mb-2"></i>
+                                    No recent activity has been logged yet.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 {% endblock %}

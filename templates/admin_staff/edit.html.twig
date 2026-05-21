@@ -1,148 +1,83 @@
 {% extends 'base_admin.html.twig' %}
 
+{% block title %}Edit Staff | Sweetoria{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin_staff.css') }}">
+{% endblock %}
+
 {% block body %}
-<h1 class="fw-bold mb-4">👤 Edit Staff Account</h1>
-
-<div class="card shadow-lg border-0 rounded-4 p-4">
-
-    {{ form_start(form) }}
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            {{ form_row(form.username, {'attr': {'class': 'form-control shadow-sm'}}) }}
+<div class="staff-workspace staff-form-page">
+    <header class="staff-hero">
+        <div class="staff-hero-content">
+            <p class="staff-kicker">Team Operations</p>
+            <h1 class="staff-title">Edit Staff Account</h1>
+            <p class="staff-subtitle">Update access, credentials, and status for <strong>{{ user.username }}</strong>.</p>
         </div>
-    </div>
+        <a href="{{ path('admin_staff_index') }}" class="staff-btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Staff
+        </a>
+    </header>
 
-    <div class="row">
+    <div class="staff-form-card">
+        {{ form_start(form, { attr: { class: 'staff-form' } }) }}
 
-        <!-- ⭐ Redesigned UI/UX Role Selector -->
-        <div class="col-md-6 mb-3">
-            <label class="form-label fw-semibold">Roles</label>
-
-            <div class="role-pill-group">
-                {% for child in form.roles %}
-                    <label class="role-pill">
-                        {{ form_widget(child, { attr: { class: 'role-checkbox' } }) }}
-                        <span>{{ child.vars.label }}</span>
-                    </label>
-                {% endfor %}
+        <div class="staff-form-grid">
+            <div class="staff-field">
+                {{ form_label(form.username) }}
+                {{ form_widget(form.username, { attr: { class: 'form-control' } }) }}
+                {{ form_errors(form.username) }}
             </div>
 
-            {{ form_errors(form.roles) }}
+            <div class="staff-field">
+                {{ form_label(form.status) }}
+                {{ form_widget(form.status, { attr: { class: 'form-select' } }) }}
+                {{ form_errors(form.status) }}
+            </div>
+
+            <div class="staff-field" style="grid-column: 1 / -1;">
+                <label class="form-label">Roles</label>
+                <div class="staff-role-pills">
+                    {% for child in form.roles %}
+                        <label class="staff-role-pill">
+                            {{ form_widget(child) }}
+                            <span>{{ child.vars.label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                {{ form_errors(form.roles) }}
+            </div>
+
+            <div class="staff-field" style="grid-column: 1 / -1;">
+                {{ form_label(form.plainPassword) }}
+                {{ form_widget(form.plainPassword, { attr: { class: 'form-control', placeholder: 'Leave blank to keep current password' } }) }}
+                {{ form_errors(form.plainPassword) }}
+            </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-            {{ form_row(form.status, {'attr': {'class': 'form-select shadow-sm'}}) }}
+        <div class="staff-form-actions">
+            <button type="submit" class="staff-btn-primary">
+                <i class="bi bi-check-circle-fill"></i> Save Changes
+            </button>
+            <a href="{{ path('admin_staff_index') }}" class="staff-btn-secondary">Cancel</a>
         </div>
 
+        {{ form_end(form) }}
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            {{ form_row(form.plainPassword, {'attr': {'class': 'form-control shadow-sm'}}) }}
-        </div>
-    </div>
-
-    <div class="d-flex gap-2 mt-4">
-        <button class="btn btn-primary px-4 py-2 shadow-sm">
-            <i class="bi bi-check-circle"></i> Save Changes
-        </button>
-
-        <a href="{{ path('admin_staff_index') }}" class="btn btn-outline-secondary px-4 py-2 shadow-sm">
-            <i class="bi bi-x-circle"></i> Cancel
-        </a>
-    </div>
-
-    {{ form_end(form) }}
+    {% if is_granted('ROLE_ADMIN') %}
+        <aside class="staff-danger-zone">
+            <h3><i class="bi bi-exclamation-triangle-fill"></i> Danger Zone</h3>
+            <p>Deleting this staff account is permanent and cannot be undone.</p>
+            <form method="post"
+                  action="{{ path('admin_staff_delete', {id: user.id}) }}"
+                  onsubmit="return confirm('Are you sure you want to delete this account?');">
+                <button type="submit" class="staff-btn-danger">
+                    <i class="bi bi-trash-fill"></i> Delete Account
+                </button>
+            </form>
+        </aside>
+    {% endif %}
 </div>
-
-<!-- ⭐ Danger Zone -->
-<div class="card shadow-sm border-danger mt-4 p-4 rounded-4">
-    <h4 class="text-danger fw-bold mb-3">
-        <i class="bi bi-exclamation-triangle"></i> Danger Zone
-    </h4>
-
-    <p class="text-muted mb-3">Deleting this staff account is permanent and cannot be undone.</p>
-
-    <form method="post"
-          action="{{ path('admin_staff_delete', {id: user.id}) }}"
-          onsubmit="return confirm('Are you sure you want to delete this account?');">
-
-        <button class="btn btn-danger px-4 py-2 shadow-sm">
-            <i class="bi bi-trash"></i> Delete Account
-        </button>
-    </form>
-</div>
-
-<style>
-    .card {
-        border-radius: 14px;
-    }
-
-    .form-control:hover,
-    .form-select:hover {
-        transform: scale(1.01);
-        transition: 0.15s ease-in-out;
-    }
-
-    button.btn-primary:hover,
-    button.btn-danger:hover,
-    a.btn-outline-secondary:hover {
-        transform: translateY(-2px);
-        transition: 0.2s ease;
-    }
-
-    .btn-danger,
-    .btn-primary,
-    .btn-outline-secondary {
-        border-radius: 8px;
-    }
-
-    /* ⭐ Pill-style Role Selector */
-    .role-pill-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .role-pill {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border: 2px solid #d0d0d0;
-        border-radius: 30px;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        background: #fafafa;
-        font-weight: 600;
-        user-select: none;
-    }
-
-    .role-pill:hover {
-        border-color: #6f42c1;
-        background: #f3e8ff;
-        transform: translateY(-2px);
-    }
-
-    .role-pill input[type="checkbox"] {
-        display: none;
-    }
-
-    /* Active pill state */
-    .role-pill input[type="checkbox"]:checked ~ span {
-        background: #6f42c1;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        transition: all 0.25s ease;
-    }
-
-    .role-pill span {
-        transition: all 0.25s ease;
-        padding: 6px 12px;
-        border-radius: 20px;
-    }
-</style>
-
 {% endblock %}

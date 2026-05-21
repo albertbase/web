@@ -77,7 +77,16 @@
               <tbody>
                   {% for item in order.orderItems %}
                       <tr class="order-item-row">
-                          <td class="fw-semibold">{{ item.product.name }}</td>
+                          <td class="fw-semibold">
+                            {% if item.product %}
+                              {{ item.product.name }}
+                            {% else %}
+                              Custom Cake
+                              <div class="text-muted small">
+                                {{ item.cakeCustomization.size|capitalize }} • {{ item.cakeCustomization.flavor|replace({'_':' '})|capitalize }}
+                              </div>
+                            {% endif %}
+                          </td>
                           <td class="text-center">{{ item.quantity }}</td>
                           <td class="text-end">₱{{ item.subtotal|number_format(2) }}</td>
                       </tr>

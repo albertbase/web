@@ -2,24 +2,20 @@
 {% block title %}Checkout{% endblock %}
 
 {% block body %}
-
-{# <link rel="stylesheet" href="{{ asset('css/checkout.css') }}"> #}
-
-<div class="container mt-5 checkout-container">
+<div class="container mt-5 checkout-container checkout-page">
   <div class="text-center mb-4">
-    <h2 class="checkout-title">🧾 Confirm Your Order</h2>
-    <p class="checkout-subtext">Please review your cart and click below to place your order.</p>
+    <h2 class="checkout-title">Confirm Your Order</h2>
+    <p class="checkout-subtext">Review what you are ordering before placing it.</p>
   </div>
 
   <div class="checkout-card mx-auto">
-    <form method="post" action="{{ path('checkout') }}">
+    <h3 class="checkout-summary-heading">Order Summary</h3>
+    {% include 'cart/_cart_summary.html.twig' with { cart: cart, total: total, compact: true } %}
+
+    <form method="post" action="{{ path('checkout') }}" class="checkout-form mt-4">
       <input type="hidden" name="_token" value="{{ csrf_token('checkout') }}">
-      <button type="submit" class="btn btn-checkout w-100">
-        <i class="bi bi-bag-check-fill me-2"></i> Place Order
-      </button>
+      <button type="submit" class="btn btn-checkout w-100">Place Order</button>
     </form>
   </div>
 </div>
-
-
 {% endblock %}

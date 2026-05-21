@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\ProductRepository;
 use App\Repository\CategoryRepository;
 use App\Form\CategoryType;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 
 
@@ -24,6 +25,7 @@ final class CategoryController extends AbstractController
     //     ]);
     // }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/categories', name: 'admin_categories')]
     public function index(EntityManagerInterface $em): Response
     {
@@ -33,19 +35,19 @@ final class CategoryController extends AbstractController
     ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/categories/new', name: 'admin_categories_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
     $category = new Category();
-    $form = $this->createFormBuilder($category)
-        ->add('name')
-        ->getForm();
+    $form = $this->createForm(CategoryType::class, $category);
 
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
         $em->persist($category);
         $em->flush();
+        $this->addFlash('success', sprintf('Category "%s" created successfully.', $category->getName()));
         return $this->redirectToRoute('admin_categories');
     }
 
@@ -57,10 +59,11 @@ final class CategoryController extends AbstractController
     #[Route('/categories', name: 'category_browser')]
     public function categoryPage(Request $request, CategoryRepository $categoryRepo, ProductRepository $productRepo): Response
     {
-        $categories = $categoryRepo->findAll();
+        $categories = $categoryRepo->findAllSorted();
         $selected = $request->query->get('selected');
 
-        $products = $selected ? $productRepo->findBy(['category' => $selected]) : [];
+        $selectedCategory = $selected ? $categoryRepo->findOneBy(['name' => $selected]) : null;
+        $products = $selectedCategory ? $productRepo->findBy(['category' => $selectedCategory]) : [];
 
         return $this->render('category/page.html.twig', [
             'categories' => $categories,
@@ -90,13 +93,14 @@ final class CategoryController extends AbstractController
     #[Route('/categories/list', name: 'category_list')]
 public function list(CategoryRepository $categoryRepo): Response
 {
-    $categories = $categoryRepo->findAll();
+    $categories = $categoryRepo->findAllSorted();
 
     return $this->render('category/list.html.twig', [
         'categories' => $categories,
     ]);
 }
 
+#[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/categories/{id}/edit', name: 'admin_categories_edit')]
 public function edit(Category $category, Request $request, EntityManagerInterface $em): Response
 {
@@ -116,6 +120,7 @@ public function edit(Category $category, Request $request, EntityManagerInterfac
 }
 
 
+#[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/categories/{id}/delete', name: 'admin_categories_delete', methods: ['POST'])]
 public function delete(Category $category, Request $request, EntityManagerInterface $em): Response
 {

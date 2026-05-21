@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact Sweetoria{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/contact.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="contact-page">
+    <section class="contact-hero text-center">
+        <span class="contact-kicker d-inline-flex align-items-center gap-2 mb-3">
+            <span class="contact-dot"></span>
+            Contact Us
+        </span>
+        <h1 class="display-5 fw-bold mb-3">We would love to hear from you.</h1>
+        <p class="lead text-muted mb-0 mx-auto">
+            Send a message to Sweetoria and we'll deliver it straight to the developer inbox via Brevo.
+        </p>
+    </section>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} contact-alert shadow-sm" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <section class="contact-content py-5">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-4">
+                <div class="contact-card h-100">
+                    <h2 class="h4 fw-bold mb-3">Reach us directly</h2>
+                    <div class="contact-item">
+                        <span class="contact-label">Email</span>
+                        <a href="mailto:albertbase09675695595@gmail.com">albertbase09675695595@gmail.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-label">Phone</span>
+                        <a href="tel:+639001234567">+63 900 123 4567</a>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-label">Location</span>
+                        <span>123 Bakery St, Sweet City</span>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-label">Hours</span>
+                        <span>Monday to Saturday, 8:00 AM - 6:00 PM</span>
+                    </div>
+
+                    <div class="contact-note mt-4">
+                        <strong>Note:</strong>
+                        <span>Your form message is sent through Brevo SMTP to the developer Gmail inbox.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="contact-card h-100">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                        <div>
+                            <h2 class="h4 fw-bold mb-0">Send your message here</h2>
+                        </div>
+                    </div>
+
+                    <form method="post" class="contact-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token('contact_form') }}">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="contact_name" class="form-label">Your Name</label>
+                                <input type="text" id="contact_name" name="name" class="form-control" placeholder="Jane Doe" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="contact_email" class="form-label">Your Email</label>
+                                <input type="email" id="contact_email" name="email" class="form-control" placeholder="jane@example.com" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="contact_subject" class="form-label">Subject</label>
+                                <input type="text" id="contact_subject" name="subject" class="form-control" placeholder="Custom cake inquiry" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="contact_message" class="form-label">Message</label>
+                                <textarea id="contact_message" name="message" rows="7" class="form-control" placeholder="Tell us about your inquiry..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-3 align-items-center mt-4">
+                            <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                            <span class="text-muted small">Your message goes to <strong>albertbase09675695595@gmail.com</strong>.</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% if submitted %}
+<script>
+  window.addEventListener('load', () => {
+    const alertBox = document.querySelector('.contact-alert');
+    if (alertBox) {
+      alertBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete('success');
+    window.history.replaceState({}, '', url.toString());
+  });
+</script>
+{% endif %}
+{% endblock %}

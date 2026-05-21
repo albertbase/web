@@ -1,40 +1,122 @@
 {% extends 'base.html.twig' %}
-{% block title %}Welcome to the Bakery{% endblock %}
+
+{% block title %}About Sweetoria{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/about.css') }}">
+{% endblock %}
 
 {% block body %}
-<div class="hero-section text-center d-flex flex-column justify-content-center align-items-center"
-     style="background-image: url('{{ asset('image/hero-bakery.jpg') }}');
-            background-size: cover;
-            background-position: center;
-            height: 75vh;
-            width: 100%;
-            margin: 0;
-            padding: 0;">
-  <h1 class="fw-bold"
-      style="color: #ffffffff; font-size: 7rem; text-shadow: 5px 5px 0px rgba(0, 0, 0, 0.88);">
-    ABOUT US
-  </h1>
-  <p class="lead"
-     style="color: #ffffffff; font-size: 4rem; text-shadow: 1px 20px 10px rgba(2, 2, 2, 0.5);">
-    Come discover why we are City's favorite bakery.
-  </p>
+<div class="about-page">
+    <div class="container">
+        
+        <section class="about-hero" style="background: linear-gradient(135deg, #fff8f1 0%, #fdf1e5 100%); border: 1px solid rgba(92, 61, 46, 0.08); border-radius: 32px; box-shadow: 0 18px 45px rgba(92, 61, 46, 0.08); padding: 2.5rem;">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <span class="about-kicker d-inline-flex align-items-center gap-2 mb-3">
+                        <span class="about-dot"></span>
+                        About Sweetoria
+                    </span>
+                    <h1 class="display-4 fw-bold mb-3">A bakery brand built on warmth, craft, and celebration.</h1>
+                    <p class="lead text-muted">We combine handmade baking with a polished online experience so every visitor can discover something sweet with ease.</p>
+                </div>
+                <div class="col-lg-5">
+                    <div class="about-hero-card">
+                        <img src="{{ asset('image/hero-bakery.jpg') }}" alt="Bakery Interior" class="img-fluid rounded-4">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-story py-5" style="background: linear-gradient(135deg, #fff5ec 0%, #fffdf8 100%); border: 1px solid rgba(92, 61, 46, 0.08); border-radius: 32px; box-shadow: 0 18px 45px rgba(92, 61, 46, 0.08);">
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="about-story-card h-100">
+                        <p class="section-label mb-2">Our Story</p>
+                        <h2 class="fw-bold mb-3">From a small kitchen dream to a modern bakery.</h2>
+                        <p class="mb-0 text-muted">Sweetoria started with a simple goal: make every cake, loaf, and pastry feel memorable. We've grown into a digital storefront that makes browsing as sweet as the treats themselves.</p>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="row h-100 g-3">
+                        <div class="col-sm-6">
+                            <div class="story-highlight">
+                                <strong>Fresh Baking</strong>
+                                <span class="text-muted small">Prepared daily with attention to taste and presentation.</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="story-highlight">
+                                <strong>Modern Ordering</strong>
+                                <span class="text-muted small">Built for smooth browsing across all your devices.</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="story-highlight">
+                                <strong>Local Charm</strong>
+                                <span class="text-muted small">A warm bakery identity that feels like home.</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="story-highlight">
+                                <strong>Special Moments</strong>
+                                <span class="text-muted small">Supporting celebrations of every size with care.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-team py-5" style="background: linear-gradient(135deg, #fffdf8 0%, #f7f0e6 100%); border: 1px solid rgba(92, 61, 46, 0.08); border-radius: 32px; box-shadow: 0 18px 45px rgba(92, 61, 46, 0.08);">
+            <div class="text-center mb-5">
+                <p class="section-label mb-2">Meet the Team</p>
+                <h2 class="fw-bold">The people behind the sweetness</h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <article class="team-card h-100">
+                        <div class="team-avatar">
+                            <img src="{{ asset('image/me2.png') }}" alt="Alyssa B.">
+                        </div>
+                        <h3 class="mt-4 mb-1 fw-bold">Albertas B.</h3>
+                        <p class="team-role mb-3">Founder and Head Baker</p>
+                        <div class="text-content">
+                            <p class="text-muted small mb-0">Oversees recipe development, product quality, and the signature Sweetoria look and feel.</p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <article class="team-card h-100">
+                        <div class="team-avatar">
+                            <img src="{{ asset('image/me.jpg') }}" alt="Carlo M.">
+                        </div>
+                        <h3 class="mt-4 mb-1 fw-bold">Megalodon M.</h3>
+                        <p class="team-role mb-3">Operations Lead</p>
+                        <div class="text-content">
+                            <p class="text-muted small mb-0">Keeps the bakery workflow smooth, from menu updates to order handling and coordination.</p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <article class="team-card h-100">
+                        <div class="team-avatar">
+                            <img src="{{ asset('image/download.jpg') }}" alt="Jessa R.">
+                        </div>
+                        <h3 class="mt-4 mb-1 fw-bold">Jose R.</h3>
+                        <p class="team-role mb-3">Customer Experience</p>
+                        <div class="text-content">
+                            <p class="text-muted small mb-0">Focuses on customer support and making each interaction feel welcoming and clear.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+        
+    </div>
 </div>
-
-
-
-<div class="container py-5">
-  <h2 class="text-center mb-4" style="font-size: 4.5rem; font-weight: bold;">Our Story</h2>
-  <p class="text-center" style="font-size: 2rem; max-width: 800px; margin: 0 auto;">
-    Welcome to Sweetoria, where every bite tells a story!
-Born from a passion for baking and creativity, Sweetoria started as a small kitchen dream in the heart of Dumaguete City. What began as a love for homemade pastries soon grew into a vision — to bring warmth, sweetness, and artistry into every celebration.
-
-At Sweetoria, we blend tradition and technology. Our innovative online platform allows customers to customize their own cakes, order freshly baked pastries, and have them delivered right to their doorstep — all with a few taps. Whether it’s a birthday, wedding, or just a craving for something sweet, Sweetoria makes sure every moment is made extra special.
-
-Our commitment goes beyond baking — we aim to create experiences worth sharing, powered by fresh ingredients, modern design, and heartfelt service. Because for us, it’s not just about cakes — it’s about creating happiness one sweet story at a time.
-  </p>
-</div>
-
-
-
-
 {% endblock %}

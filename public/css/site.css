@@ -1,0 +1,223 @@
+:root {
+  --site-bg: #fffaf5;
+  --site-surface: #ffffff;
+  --site-ink: #3f2a1d;
+  --site-muted: #756153;
+  --site-border: rgba(92, 61, 46, 0.1);
+  --site-shadow: 0 14px 32px rgba(92, 61, 46, 0.08);
+  --site-accent: #b86d3a;
+  --site-accent-dark: #8b4f2a;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--site-ink);
+  background:
+    radial-gradient(circle at top left, rgba(255, 226, 206, 0.34), transparent 32%),
+    linear-gradient(180deg, #fffdf9 0%, var(--site-bg) 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.site-main {
+  flex: 1;
+}
+
+.site-main .container,
+.site-main .container-fluid {
+  max-width: 1160px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #3a2518;
+  letter-spacing: -0.015em;
+}
+
+.section-kicker {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--site-accent);
+}
+
+.card {
+  border: 1px solid var(--site-border);
+  box-shadow: var(--site-shadow);
+}
+
+.form-control,
+.form-select {
+  border-color: rgba(92, 61, 46, 0.16);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgba(184, 109, 58, 0.52);
+  box-shadow: 0 0 0 0.2rem rgba(184, 109, 58, 0.15);
+}
+
+.btn-primary {
+  border-color: var(--site-accent-dark);
+  background: linear-gradient(135deg, var(--site-accent-dark), var(--site-accent));
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  border-color: #7b4222;
+  background: linear-gradient(135deg, #7b4222, #a65d31);
+}
+
+.alert {
+  border: 1px solid rgba(92, 61, 46, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(92, 61, 46, 0.08);
+}
+
+.footer {
+  margin-top: 3rem;
+  background: linear-gradient(180deg, rgba(79, 42, 18, 0.98), rgba(34, 18, 10, 0.98));
+  color: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -16px 42px rgba(0, 0, 0, 0.16);
+}
+
+.footer-container {
+  width: min(1200px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0 2.5rem;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.footer-col h3 {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.footer-col p,
+.footer-col li,
+.footer-col a {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.8;
+}
+
+.footer-col ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.footer-col li {
+  margin-bottom: 0.65rem;
+}
+
+.footer-col a {
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.18);
+  padding-bottom: 1px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.footer-col a:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.36);
+}
+
+.logo1 {
+  display: inline-block;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.logo1:hover {
+  border-bottom: none;
+}
+
+.logo1 img {
+  max-width: 150px;
+  height: auto;
+}
+
+.footer-social-text {
+  margin: 0 0 0.85rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.social-icons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.social-icons a {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.social-icons a:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+  padding: 1.2rem 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 991.98px) {
+  .site-main .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .footer-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575.98px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+}

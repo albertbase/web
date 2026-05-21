@@ -1,0 +1,179 @@
+/* Contact page styles for Sweetoria */
+
+.contact-page {
+  color: #3f2a1d;
+}
+
+.contact-page .contact-hero {
+  padding: 2rem 0 1rem;
+}
+
+.contact-page .contact-kicker,
+.contact-page .section-label {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #b86d3a;
+}
+
+.contact-page .contact-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f2b36d, #b86d3a);
+  box-shadow: 0 0 0 6px rgba(184, 109, 58, 0.12);
+}
+
+.contact-page .lead {
+  font-size: 1.06rem;
+  max-width: 720px;
+}
+
+.contact-page p,
+.contact-page span,
+.contact-page a {
+  font-size: 0.98rem;
+}
+
+.contact-page .contact-alert,
+.contact-page .contact-card {
+  border: 1px solid rgba(92, 61, 46, 0.12);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(92, 61, 46, 0.08);
+}
+
+.contact-page .contact-card {
+  padding: 1.5rem;
+}
+
+.contact-page .contact-item {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(92, 61, 46, 0.08);
+}
+
+.contact-page .contact-item:last-child {
+  border-bottom: 0;
+}
+
+.contact-page .contact-label {
+  display: block;
+  margin-bottom: 0.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: #b86d3a;
+  font-weight: 700;
+}
+
+.contact-page .contact-item a {
+  color: #5c3d2e;
+  text-decoration: none;
+}
+
+.contact-page .contact-item a:hover {
+  text-decoration: underline;
+}
+
+.contact-page .contact-note {
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fff7ef;
+  border: 1px solid rgba(184, 109, 58, 0.16);
+}
+
+.contact-page .contact-embed {
+  min-height: 760px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(92, 61, 46, 0.12);
+  background: #fbf6f1;
+}
+
+.contact-page .contact-form .form-label {
+  font-weight: 700;
+  color: #5c3d2e;
+}
+
+.contact-page .contact-form .form-control {
+  border-radius: 16px;
+  border: 1px solid rgba(92, 61, 46, 0.14);
+  background: #fffdfb;
+  padding: 0.9rem 1rem;
+  box-shadow: none;
+}
+
+.contact-page .contact-form .form-control:focus {
+  border-color: rgba(184, 109, 58, 0.55);
+  box-shadow: 0 0 0 0.2rem rgba(184, 109, 58, 0.12);
+}
+
+.contact-page .contact-form textarea.form-control {
+  resize: vertical;
+  min-height: 180px;
+}
+
+@media (max-width: 991.98px) {
+  .contact-page .contact-embed {
+    min-height: auto;
+  }
+
+  .contact-page .contact-hero {
+    padding-top: 1.5rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .contact-page {
+    padding-inline: 0;
+  }
+
+  .contact-page .contact-content .row {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+  }
+
+  .contact-page .contact-card {
+    padding: 1.15rem;
+  }
+
+  .contact-page .contact-form .form-control {
+    padding: 0.8rem 0.9rem;
+  }
+
+  .contact-page .contact-form textarea.form-control {
+    min-height: 160px;
+  }
+
+  .contact-page .d-flex.flex-wrap.gap-3.align-items-center.mt-4 {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .contact-page .d-flex.flex-wrap.gap-3.align-items-center.mt-4 .btn {
+    width: 100%;
+  }
+
+  .contact-page .contact-card,
+  .contact-page .contact-alert {
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .contact-page .contact-hero {
+    padding: 1.25rem 0 0.75rem;
+  }
+
+  .contact-page .lead,
+  .contact-page p,
+  .contact-page span,
+  .contact-page a {
+    font-size: 0.95rem;
+  }
+
+  .contact-page .contact-note {
+    padding: 0.85rem;
+  }
+}

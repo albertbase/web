@@ -1,179 +1,134 @@
 {% extends 'base_admin.html.twig' %}
 
+{% block title %}Staff Management | Sweetoria{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/admin_staff.css') }}">
+{% endblock %}
+
 {% block body %}
-<div class="container-fluid py-4">
-
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">👥 Staff Accounts</h2>
-
+<div class="staff-workspace">
+    <header class="staff-hero">
+        <div class="staff-hero-content">
+            <p class="staff-kicker">Team Operations</p>
+            <h1 class="staff-title">Staff Management</h1>
+            <p class="staff-subtitle">Oversee team access, roles, and account health in a clear, radiant workspace built for Sweetoria administrators.</p>
+        </div>
         {% if is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('admin_staff_new') }}" class="btn btn-success sweetoria-add-btn">
-                <i class="bi bi-person-plus"></i> New Account
+            <a href="{{ path('admin_staff_new') }}" class="staff-btn-primary">
+                <i class="bi bi-person-plus-fill"></i>
+                Add Team Member
             </a>
         {% endif %}
-    </div>
+    </header>
 
-    <!-- Table -->
-    <div class="table-responsive sweetoria-table-wrapper">
-        <table class="table sweetoria-table align-middle">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Date Created</th>
-                    {% if is_granted('ROLE_ADMIN') %}
-                        <th class="text-center">Actions</th>
-                    {% endif %}
-                </tr>
-            </thead>
+    <section class="staff-metrics" aria-label="Staff overview metrics">
+        <article class="staff-metric">
+            <span class="staff-metric-label">Total Staff</span>
+            <strong class="staff-metric-value">{{ totalStaff }}</strong>
+        </article>
+        <article class="staff-metric">
+            <span class="staff-metric-label">Active Accounts</span>
+            <strong class="staff-metric-value staff-metric-value--mint">{{ activeStaff }}</strong>
+        </article>
+        <article class="staff-metric">
+            <span class="staff-metric-label">Administrators</span>
+            <strong class="staff-metric-value staff-metric-value--coral">{{ adminAccounts }}</strong>
+        </article>
+        <article class="staff-metric">
+            <span class="staff-metric-label">Inactive</span>
+            <strong class="staff-metric-value staff-metric-value--muted">{{ totalStaff - activeStaff }}</strong>
+        </article>
+    </section>
 
-            <tbody>
-                {% for user in staff %}
-                <tr class="sweetoria-row">
+    <section class="staff-panel">
+        <div class="staff-panel-head">
+            <h2 class="staff-panel-title"><i class="bi bi-stars"></i> Recent Onboarding</h2>
+        </div>
+        <div class="staff-onboarding">
+            {% for user in recentStaff %}
+                <article class="staff-onboarding-card">
+                    <div class="staff-avatar">{{ user.username|slice(0, 1)|upper }}</div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="staff-onboarding-name" title="{{ user.username }}">{{ user.username }}</div>
+                        <div class="staff-onboarding-date">{{ user.createdAt|date('M d, Y') }}</div>
+                    </div>
+                    <span class="staff-pill {{ 'ROLE_ADMIN' in user.assignedRoles ? 'staff-pill--admin' : 'staff-pill--staff' }}">
+                        {{ 'ROLE_ADMIN' in user.assignedRoles ? 'Admin' : 'Staff' }}
+                    </span>
+                </article>
+            {% else %}
+                <p class="staff-empty w-100 mb-0">No staff members have been onboarded yet.</p>
+            {% endfor %}
+        </div>
+    </section>
 
-                    <!-- Username -->
-                    <td>
-                        <strong>{{ user.username }}</strong>
-                    </td>
-
-                    <!-- Role -->
-                    <td>
-                        {% if 'ROLE_ADMIN' in user.roles %}
-                            <span class="badge sweetoria-role-admin">Admin</span>
-                        {% elseif 'ROLE_STAFF' in user.roles %}
-                            <span class="badge sweetoria-role-staff">Staff</span>
+    <section class="staff-panel">
+        <div class="staff-panel-head">
+            <h2 class="staff-panel-title"><i class="bi bi-people-fill"></i> Staff Directory</h2>
+            <span class="staff-pill staff-pill--staff">{{ staff|length }} members</span>
+        </div>
+        <div class="staff-table-wrap">
+            <table class="staff-table">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <th class="text-end">Actions</th>
                         {% endif %}
-                    </td>
-
-                    <!-- Status -->
-                    <td>
-                        {% if user.isActive == 'active' %}
-                            <span class="sweetoria-status active">Active</span>
-                        {% else %}
-                            <span class="sweetoria-status disabled">Disabled</span>
-                        {% endif %}
-                    </td>
-
-                    <!-- Date -->
-                    <td>{{ user.createdAt|date('M d, Y') }}</td>
-
-                    <!-- Actions -->
-                    {% if is_granted('ROLE_ADMIN') %}
-                    <td class="text-center">
-                        <a href="{{ path('admin_staff_edit', {id: user.id}) }}" 
-                           class="btn btn-sm sweetoria-btn-edit">
-                            ✏️
-                        </a>
-
-                        <form method="post" action="{{ path('admin_staff_delete', {id: user.id}) }}" 
-                              style="display:inline-block"
-                              onsubmit="return confirm('Delete this account?');">
-                            <button class="btn btn-sm sweetoria-btn-delete">🗑️</button>
-                        </form>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in staff %}
+                        <tr>
+                            <td>
+                                <div class="staff-member-cell">
+                                    <div class="staff-avatar staff-avatar--sm">{{ user.username|slice(0, 1)|upper }}</div>
+                                    <span class="staff-member-name">{{ user.username }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if 'ROLE_ADMIN' in user.assignedRoles %}
+                                    <span class="staff-pill staff-pill--admin">Administrator</span>
+                                {% elseif 'ROLE_STAFF' in user.assignedRoles %}
+                                    <span class="staff-pill staff-pill--staff">Staff Member</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="staff-pill {{ user.isActive ? 'staff-pill--active' : 'staff-pill--disabled' }}">
+                                    {{ user.isActive ? 'Active' : 'Disabled' }}
+                                </span>
+                            </td>
+                            <td class="text-muted small">{{ user.createdAt|date('M d, Y') }}</td>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <td class="text-end">
+                                    <div class="staff-actions">
+                                        <a href="{{ path('admin_staff_edit', {id: user.id}) }}" class="staff-action-btn" title="Edit member">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('admin_staff_delete', {id: user.id}) }}" class="d-inline" onsubmit="return confirm('Delete this staff account permanently?');">
+                                            <button type="submit" class="staff-action-btn staff-action-btn--danger" title="Delete member">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="{{ is_granted('ROLE_ADMIN') ? 5 : 4 }}" class="text-center py-4 text-muted">
+                                No staff accounts found. Add your first team member to get started.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
-
-<style>
-/* Header Button */
-.sweetoria-add-btn {
-    font-weight: 600;
-    padding: 10px 18px;
-    border-radius: 10px;
-    transition: transform 0.2s ease;
-}
-.sweetoria-add-btn:hover {
-    transform: translateY(-2px);
-}
-
-/* Table Wrapper */
-.sweetoria-table-wrapper {
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-}
-
-/* Table */
-.sweetoria-table thead {
-    background: #6f42c1;
-    color: white;
-}
-.sweetoria-table thead th {
-    padding: 14px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.sweetoria-table tbody tr {
-    transition: background 0.2s ease;
-}
-.sweetoria-table tbody tr:hover {
-    background: #f8f3ff;
-}
-
-/* Role Badges */
-.sweetoria-role-admin {
-    background: #dc3545;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-}
-.sweetoria-role-staff {
-    background: #0dcaf0;
-    color: #003b4d;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-}
-
-/* Status Chips */
-.sweetoria-status {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-.sweetoria-status.active {
-    background: #d1f7d6;
-    color: #0f7a1f;
-}
-.sweetoria-status.disabled {
-    background: #ffe0e0;
-    color: #a30000;
-}
-
-/* Action Buttons */
-.sweetoria-btn-edit,
-.sweetoria-btn-delete {
-    border-radius: 8px;
-    padding: 6px 10px;
-    transition: all 0.2s ease;
-}
-
-.sweetoria-btn-edit {
-    background: #ffe8a3;
-    border: none;
-}
-.sweetoria-btn-edit:hover {
-    background: #ffdd7a;
-}
-
-.sweetoria-btn-delete {
-    background: #ffb3b3;
-    border: none;
-}
-.sweetoria-btn-delete:hover {
-    background: #ff8a8a;
-}
-</style>
-
 {% endblock %}

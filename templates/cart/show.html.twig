@@ -1,15 +1,18 @@
-
 {% extends 'base.html.twig' %}
 {% block title %}Your Cart{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
+{% endblock %}
+
 {% block body %}
+<div class="container mt-4 cart-page">
+  <header class="cart-page-header mb-4">
+    <h2 class="cart-page-title mb-1">Your Cart</h2>
+    <p class="cart-page-subtitle text-muted mb-0">Review your items before checkout.</p>
+  </header>
 
-{# <link rel="stylesheet" href="{{ asset('css/cart.css') }}"> #}
-
-<div class="container mt-4">
-  <h2 class="mb-4">🛒 Your Cart</h2>
-
-  {# ✅ Flash messages #}
   {% for label, messages in app.flashes %}
     {% for message in messages %}
       <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
@@ -20,50 +23,112 @@
   {% endfor %}
 
   {% if cart is empty %}
-    <p class="text-muted">Your cart is empty.</p>
+    <div class="cart-empty-card text-center">
+      <p class="text-muted mb-3">Your cart is empty.</p>
+      <a href="{{ path('app_menu') }}" class="btn btn-primary">Browse Menu</a>
+    </div>
   {% else %}
-    <table class="table cart-table">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Qty</th>
-          <th>Subtotal</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in cart %}
-        <tr>
-          <td>{{ item.product.name }}</td>
-          <td>
-            <div class="qty-controls">
-              <form method="post" action="{{ path('cart_update', {id: item.product.id, action: 'decrease'}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('cart_update_' ~ item.product.id ~ '_decrease') }}">
-                <button type="submit" class="btn btn-sm btn-outline-secondary">−</button>
-              </form>
-              <span>{{ item.quantity }}</span>
-              <form method="post" action="{{ path('cart_update', {id: item.product.id, action: 'increase'}) }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('cart_update_' ~ item.product.id ~ '_increase') }}">
-                <button type="submit" class="btn btn-sm btn-outline-secondary">+</button>
-              </form>
-            </div>
-          </td>
-          <td>₱{{ item.subtotal|number_format(2) }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr class="cart-total">
-          <th colspan="2">Total</th>
-          <th>₱{{ total|number_format(2) }}</th>
-        </tr>
-      </tfoot>
-    </table>
+    <div class="table-responsive cart-table-wrap">
+      <table class="table cart-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col" class="cart-col-image">Image</th>
+            <th scope="col">Product</th>
+            <th scope="col" class="text-center">Unit Price</th>
+            <th scope="col" class="text-center">Quantity</th>
+            <th scope="col" class="text-end">Subtotal</th>
+            <th scope="col" class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart %}
+            <tr>
+              <td class="cart-col-image">
+                <div class="cart-table-thumb">
+                  {% if item.type == 'product' and item.product.image %}
+                    <img
+                      src="{{ asset('uploads/products/' ~ item.product.image) }}"
+                      alt="{{ item.product.name }}"
+                      width="32"
+                      height="32"
+                    >
+                  {% elseif item.type == 'custom' and item.customization.previewImage is defined and item.customization.previewImage %}
+                    <img
+                      src="{{ asset('uploads/cake-previews/' ~ item.customization.previewImage) }}"
+                      alt="Custom cake preview"
+                      width="32"
+                      height="32"
+                    >
+                  {% else %}
+                    <img
+                      src="{{ asset('image/logo.png') }}"
+                      alt="{% if item.type == 'product' %}{{ item.product.name }}{% else %}Custom cake{% endif %}"
+                      class="cart-table-thumb-placeholder"
+                      width="32"
+                      height="32"
+                    >
+                  {% endif %}
+                </div>
+              </td>
+              <td class="cart-col-product">
+                {% if item.type == 'product' %}
+                  <span class="cart-table-product-name">{{ item.product.name }}</span>
+                {% else %}
+                  <span class="cart-table-product-name">Custom Cake</span>
+                  <div class="text-muted small">
+                    {{ item.customization.size|capitalize }} &bull;
+                    {{ item.customization.flavor|replace({'_': ' '})|capitalize }}
+                  </div>
+                  {% if item.customization.message %}
+                    <div class="text-muted small">"{{ item.customization.message }}"</div>
+                  {% endif %}
+                {% endif %}
+              </td>
+              <td class="text-center">
+                {% if item.type == 'product' %}
+                  PHP {{ item.product.price|number_format(2) }}
+                {% else %}
+                  PHP {{ (item.customization.price ?? 0)|number_format(2) }}
+                {% endif %}
+              </td>
+              <td>
+                <div class="qty-controls justify-content-center">
+                  <form method="post" action="{{ path('cart_update', {id: item.key, action: 'decrease'}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cart_update_' ~ item.key ~ '_decrease') }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Decrease quantity">−</button>
+                  </form>
+                  <span class="cart-item-qty-value">{{ item.quantity }}</span>
+                  <form method="post" action="{{ path('cart_update', {id: item.key, action: 'increase'}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cart_update_' ~ item.key ~ '_increase') }}">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Increase quantity">+</button>
+                  </form>
+                </div>
+              </td>
+              <td class="text-end fw-semibold cart-table-subtotal">
+                PHP {{ item.subtotal|number_format(2) }}
+              </td>
+              <td class="text-center">
+                <form method="post" action="{{ path('cart_remove', {key: item.key}) }}">
+                  <input type="hidden" name="_token" value="{{ csrf_token('cart_remove_' ~ item.key) }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="cart-total-row">
+            <th colspan="4" class="text-end">Total</th>
+            <th colspan="2" class="text-end cart-summary-total">PHP {{ total|number_format(2) }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
 
-    <div class="text-end">
+    <div class="cart-summary-actions mt-4">
+      <a href="{{ path('app_menu') }}" class="btn btn-outline-secondary">Continue Shopping</a>
       <a href="{{ path('checkout') }}" class="btn btn-primary btn-lg">Proceed to Checkout</a>
     </div>
   {% endif %}
 </div>
-
 {% endblock %}
-

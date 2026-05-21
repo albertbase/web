@@ -26,17 +26,71 @@ use Symfony\Component\Security\Http\Attribute\IsGranted as AttributeIsGranted;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 
+#[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
-// #[IsGranted('ROLE_ADMIN')]
-#[Route('/admin', name: 'admin_dashboard')]
-public function dashboard(EntityManagerInterface $em, ActivityLogRepository $logRepo): Response
-{
+    #[Route('/admin', name: 'admin_dashboard')]
+    public function dashboard(EntityManagerInterface $em, ActivityLogRepository $logRepo): Response
+    {
+        $totalProducts = $em->getRepository(Product::class)->count([]);
+        $totalUsers = $em->getRepository(\App\Entity\User::class)->count([]);
 
-    $user = $this->getUser();
-    if ($user && in_array('ROLE_STAFF', $user->getRoles(), true)) {
-        return $this->redirectToRoute('admin_products');
-    }
+        $totalStaff = $em->createQueryBuilder()
+            ->select('COUNT(u.id)')
+            ->from(\App\Entity\User::class, 'u')
+            ->where('u.roles LIKE :role')
+            ->setParameter('role', '%ROLE_STAFF%')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalStock = $em->createQueryBuilder()
+            ->select('SUM(p.stock)')
+            ->from(Product::class, 'p')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalValue = $em->createQueryBuilder()
+            ->select('SUM(p.price * p.stock)')
+            ->from(Product::class, 'p')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalOrders = $em->getRepository(\App\Entity\Order::class)->count([]);
+        $totalCategories = $em->getRepository(\App\Entity\Category::class)->count([]);
+
+        // Recent orders
+        $recentOrders = $em->createQueryBuilder()
+            ->select('o')
+            ->from(\App\Entity\Order::class, 'o')
+            ->orderBy('o.createdAt', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
+
+        // Recent products
+        $recentProducts = $em->createQueryBuilder()
+            ->select('p')
+            ->from(Product::class, 'p')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
+
+        // ✅ Recent activity logs
+        $recentLogs = $logRepo->findBy([], ['timestamp' => 'DESC'], 10);
+
+        return $this->render('admin/dashboard.html.twig', [
+            'totalProducts' => $totalProducts,
+            'totalUsers' => $totalUsers,
+            'totalStaff' => $totalStaff,
+            'totalStock' => $totalStock,
+            'totalValue' => $totalValue,
+            'totalOrders' => $totalOrders,
+            'totalCategories' => $totalCategories,
+            'recentOrders' => $recentOrders,
+            'recentProducts' => $recentProducts,
+            'recentLogs' => $recentLogs,
+        ]);
     
     $totalProducts = $em->getRepository(Product::class)->count([]);
     $totalUsers = $em->getRepository(\App\Entity\User::class)->count([]);
@@ -45,7 +99,7 @@ public function dashboard(EntityManagerInterface $em, ActivityLogRepository $log
         ->select('COUNT(u.id)')
         ->from(\App\Entity\User::class, 'u')
         ->where('u.roles LIKE :role')
-        ->setParameter('role', '%ROLE_ADMIN%')
+        ->setParameter('role', '%ROLE_STAFF%')
         ->getQuery()
         ->getSingleScalarResult();
 
@@ -232,5 +286,3 @@ public function SystemDashboard(ActivityLogRepository $activityLogRepository): R
     }
 
 }
-
-

@@ -2,50 +2,59 @@
 {% block title %}All Categories{% endblock %}
 
 {% block body %}
+<div class="container py-4 category-catalog">
+  <section class="text-center mb-5">
+    <p class="section-kicker mb-2">Categories</p>
+    <h1 class="display-5 fw-bold mb-3">Cakes, pastries, and desserts</h1>
+    <p class="text-muted mb-0 mx-auto" style="max-width: 720px;">
+      Explore each bakery category with products grouped neatly for easier browsing.
+    </p>
+  </section>
 
- {# <link rel="stylesheet" href="{{ asset('css/category_list.css') }}"> #}
-
-<div class="container mt-4">
-  <h2 class="mb-4 text-center fw-bold">🍞 All Categories</h2>
-
-  {% for category in categories %}
-    <h4 class="mt-5">
-      {{ category.name|lower == 'bread' ? '🥖' :
-         category.name|lower == 'cupcake' ? '🧁' :
-         category.name|lower == 'dessert' ? '🍨' :
-         category.name|lower == 'cakes' ? '🎂' :
-         '🍩' }} {{ category.name }}
-    </h4>
-
-    {% if category.products is not empty %}
-      <div class="row">
-        {% for product in category.products %}
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 product-card border-0 shadow-sm">
-              {% if product.image %}
-                <img src="{{ asset('uploads/products/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
-              {% else %}
-                <img src="{{ asset('images/no-image.png') }}" class="card-img-top" alt="No image">
-              {% endif %}
-              <div class="card-body bg-gradient-bakery">
-                <h5 class="card-title text-center fw-bold">{{ product.name }}</h5>
-                <p class="card-text text-center small">
-                  {{ product.description|length > 100 ? product.description|slice(0, 100) ~ '…' : product.description }}
-                </p>
-                <p class="card-text fw-bold text-center fs-5">₱{{ product.price|number_format(2) }}</p>
-                <p class="card-text text-muted text-center">Stock: {{ product.stock }}</p>
-              </div>
+  <div class="row g-4">
+    {% for category in categories %}
+      <div class="col-12">
+        <section class="p-4 p-lg-5 rounded-4 shadow-sm bg-white border">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+              <p class="section-kicker mb-1">{{ category.name }}</p>
+              <h2 class="h3 fw-bold mb-0">{{ category.name }}</h2>
             </div>
+            <span class="badge rounded-pill text-bg-light px-3 py-2">
+              {{ category.products|length }} products
+            </span>
           </div>
-        {% endfor %}
+
+          {% if category.products is not empty %}
+            <div class="row g-4">
+              {% for product in category.products %}
+                <div class="col-md-6 col-lg-4">
+                  <article class="card h-100 border-0 shadow-sm overflow-hidden">
+                    {% if product.image %}
+                      <img src="{{ asset('uploads/products/' ~ product.image) }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                      <img src="{{ asset('image/logo.png') }}" class="card-img-top" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                      <h3 class="h5 fw-bold mb-2">{{ product.name }}</h3>
+                      <p class="text-muted small mb-3">
+                        {{ product.description|length > 110 ? product.description|slice(0, 110) ~ '...' : product.description }}
+                      </p>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <strong class="text-dark">PHP {{ product.price|number_format(2) }}</strong>
+                        <small class="text-muted">Stock: {{ product.stock }}</small>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">No products in this category yet.</p>
+          {% endif %}
+        </section>
       </div>
-    {% else %}
-      <p class="text-muted">No products in this category.</p>
-    {% endif %}
-  {% endfor %}
+    {% endfor %}
+  </div>
 </div>
-
-
-
-
 {% endblock %}

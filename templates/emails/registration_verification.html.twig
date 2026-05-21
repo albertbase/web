@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Sweetoria Account</title>
+</head>
+<body style="margin:0;padding:0;background:#fff7ef;font-family:Arial,sans-serif;color:#3f2a1d;">
+    <div style="max-width:600px;margin:0 auto;padding:32px 20px;">
+        <div style="background:#ffffff;border-radius:20px;padding:32px;box-shadow:0 12px 30px rgba(92,61,46,0.08);">
+            <h1 style="margin:0 0 16px;font-size:28px;color:#5c3d2e;">Verify Your Account</h1>
+            <p style="margin:0 0 16px;line-height:1.6;font-size:16px;">
+                Hi {{ user.name ?: user.username }},
+            </p>
+            <p style="margin:0 0 24px;line-height:1.6;font-size:16px;">
+                Thanks for registering with Sweetoria. Please verify your account by clicking the button below.
+            </p>
+            <p style="margin:0 0 28px;">
+                <a href="{{ verificationUrl }}" style="display:inline-block;background:#ff7f50;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:10px;font-weight:700;">
+                    Verify Account
+                </a>
+            </p>
+            <p style="margin:0;line-height:1.6;font-size:14px;color:#7f6758;">
+                If the button does not work, copy and paste this link into your browser:
+            </p>
+            <p style="margin:8px 0 0;line-height:1.6;font-size:14px;word-break:break-all;">
+                <a href="{{ verificationUrl }}" style="color:#b86d3a;">{{ verificationUrl }}</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
