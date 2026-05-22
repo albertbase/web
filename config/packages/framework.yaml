@@ -4,6 +4,8 @@ framework:
         - '^127\.0\.0\.1$'
         - '^localhost$'
         - '^.+\.ngrok-free\.dev$'
+        - '^.+\.up\.railway\.app$'
+        - '^.+\.railway\.app$'
     secret: '%env(APP_SECRET)%'
 
     # Note that the session will be started ONLY if you read or write from it.

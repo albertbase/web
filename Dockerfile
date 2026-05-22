@@ -56,6 +56,9 @@ COPY nginx.conf /etc/nginx/conf.d/symfony.conf
 COPY entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+ENV APP_ENV=prod \
+    APP_DEBUG=0
+
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
     CMD curl -f http://localhost/ || exit 1
 
