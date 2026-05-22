@@ -16,8 +16,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY composer.json composer.lock ./
-
 RUN composer install --no-interaction --no-scripts --optimize-autoloader
+
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
 
@@ -25,7 +27,7 @@ RUN if [ ! -f /app/.env ]; then cp /app/.env.example /app/.env; fi
 
 # Now run post-install scripts after app code is available
 RUN composer install --no-interaction --optimize-autoloader --no-ansi || true
-RUN php bin/console importmap:install --no-interaction
+RUN NODE_ENV=production npm run build
 
 RUN php bin/console cache:warmup --env=prod --no-debug || true
 
