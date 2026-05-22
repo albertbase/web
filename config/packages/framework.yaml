@@ -22,6 +22,16 @@ when@dev:
     #esi: true
     #fragments: true
 
+when@prod:
+    framework:
+        trusted_proxies: 'private_ranges'
+        trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+        trusted_hosts:
+            - '^127\.0\.0\.1$'
+            - '^localhost$'
+            - '^.+\.up\.railway\.app$'
+            - '^.+\.railway\.app$'
+
 when@test:
     framework:
         test: true
