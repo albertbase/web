@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Service\RealTimeNotificationService;
 
 #[Route('/admin/products', name: 'api_admin_products_')]
 #[IsGranted('ROLE_STAFF')]
@@ -69,7 +70,8 @@ class ApiAdminProductController extends AbstractController
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        RealTimeNotificationService $realTimeNotificationService
     ): JsonResponse {
         try {
             $data = $request->toArray();
@@ -135,6 +137,13 @@ class ApiAdminProductController extends AbstractController
         $entityManager->persist($product);
         $entityManager->flush();
 
+        $realTimeNotificationService->publishInventoryUpdate($product);
+        $realTimeNotificationService->publishNotification(
+            'New Product Added',
+            sprintf('Product "%s" has been added with %d stock.', $product->getName(), $product->getStock()),
+            'success'
+        );
+
         return $this->apiSuccess('Product created successfully.', [
             'product' => $this->mapProduct($product, $request),
         ], 201);
@@ -147,7 +156,8 @@ class ApiAdminProductController extends AbstractController
         CategoryRepository $categoryRepository,
         ProductRepository $productRepository,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        RealTimeNotificationService $realTimeNotificationService
     ): JsonResponse {
         $product = $productRepository->find($id);
         if (!$product instanceof Product) {
@@ -218,6 +228,13 @@ class ApiAdminProductController extends AbstractController
         }
 
         $entityManager->flush();
+
+        $realTimeNotificationService->publishInventoryUpdate($product);
+        $realTimeNotificationService->publishNotification(
+            'Product Updated',
+            sprintf('Product "%s" stock updated to %d.', $product->getName(), $product->getStock()),
+            'info'
+        );
 
         return $this->apiSuccess('Product updated successfully.', [
             'product' => $this->mapProduct($product, $request),

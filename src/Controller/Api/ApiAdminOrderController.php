@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Service\RealTimeNotificationService;
 
 #[Route('/admin/orders', name: 'api_admin_orders_')]
 #[IsGranted('ROLE_STAFF')]
@@ -74,7 +75,8 @@ class ApiAdminOrderController extends AbstractController
         Request $request,
         ProductRepository $productRepository,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        RealTimeNotificationService $realTimeNotificationService
     ): JsonResponse {
         try {
             $data = $request->toArray();
@@ -159,6 +161,19 @@ class ApiAdminOrderController extends AbstractController
             $entityManager->persist($order);
             $entityManager->flush();
             $entityManager->commit();
+
+            // Real-time updates and notifications:
+            foreach ($order->getOrderItems() as $item) {
+                $product = $item->getProduct();
+                if ($product instanceof Product) {
+                    $realTimeNotificationService->publishInventoryUpdate($product);
+                }
+            }
+            $realTimeNotificationService->publishNotification(
+                'New Order Received',
+                sprintf('Order #%d was created by %s for a total of $%s.', $order->getId(), $order->getCustomerName(), $order->getTotalAmount()),
+                'success'
+            );
         } catch (\Throwable $exception) {
             if ($entityManager->getConnection()->isTransactionActive()) {
                 $entityManager->rollback();
@@ -179,7 +194,8 @@ class ApiAdminOrderController extends AbstractController
         ProductRepository $productRepository,
         OrderRepository $orderRepository,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        RealTimeNotificationService $realTimeNotificationService
     ): JsonResponse {
         $order = $orderRepository->findWithItems($id);
         if (!$order instanceof Order) {
@@ -309,6 +325,22 @@ class ApiAdminOrderController extends AbstractController
 
             $entityManager->flush();
             $entityManager->commit();
+
+            // Real-time order update:
+            $realTimeNotificationService->publishOrderStatusUpdate($order);
+            // Real-time inventory updates for products inside the order:
+            foreach ($order->getOrderItems() as $item) {
+                $product = $item->getProduct();
+                if ($product instanceof Product) {
+                    $realTimeNotificationService->publishInventoryUpdate($product);
+                }
+            }
+            // Real-time notifications:
+            $realTimeNotificationService->publishNotification(
+                'Order Updated',
+                sprintf('Order #%d has been updated. Status: %s.', $order->getId(), $order->getStatus()),
+                'info'
+            );
         } catch (\Throwable $exception) {
             if ($entityManager->getConnection()->isTransactionActive()) {
                 $entityManager->rollback();

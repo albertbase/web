@@ -46,7 +46,7 @@
             border-radius: 24px;
             box-shadow: var(--shadow);
             display: grid;
-            grid-template-rows: auto 1fr auto;
+            grid-template-rows: auto 1fr;
             overflow: hidden;
             animation: rise-in 350ms ease-out;
         }
@@ -62,6 +62,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
+            min-height: 50px;
         }
 
         .title {
@@ -69,6 +70,24 @@
             font-family: 'Fraunces', serif;
             font-size: 1.3rem;
             letter-spacing: 0.2px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #eadfce;
+            background: #fff;
+            object-fit: contain;
+            padding: 4px;
+            flex-shrink: 0;
         }
 
         .subtitle {
@@ -222,6 +241,18 @@
             border: 1px solid #eadfce;
         }
 
+        .btn-outline {
+            background: #fff;
+            color: #5f4b3e;
+            border: 1px solid #eadfce;
+            font-weight: 600;
+        }
+
+        .product-actions {
+            display: grid;
+            gap: 6px;
+        }
+
         .list {
             display: grid;
             gap: 8px;
@@ -302,6 +333,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 4px;
             padding: 8px;
+            margin-top: 10px;
         }
 
         .tab-btn {
@@ -378,12 +410,21 @@
 <div class="mobile-shell">
     <header class="topbar">
         <div class="title-row">
-            <h1 class="title">Sweetoria Mobile</h1>
+            <div class="brand">
+                <img class="brand-logo" src="/image/logo.png" alt="Sweetoria logo">
+            </div>
             <form method="post" action="{{ path('app_logout') }}" class="m-0 d-inline">
               <button type="submit" class="logout-link border-0 bg-transparent p-0">Log Out</button>
             </form>
         </div>
         <p class="subtitle">Customer order flow powered by Customer API</p>
+
+        <nav class="tabbar">
+            <button class="tab-btn active" data-tab="products" type="button">Products</button>
+            <button class="tab-btn" data-tab="cart" type="button">Cart (<span data-cart-count>0</span>)</button>
+            <button class="tab-btn" data-tab="orders" type="button">Orders</button>
+            <button class="tab-btn" data-tab="profile" type="button">Profile</button>
+        </nav>
     </header>
 
     <main class="content">
@@ -407,7 +448,7 @@
                     <input id="customerName" class="field" type="text" placeholder="Customer name">
                     <input id="customerPhone" class="field" type="text" placeholder="Phone number (optional)">
                 </div>
-                <button id="checkoutBtn" class="btn" type="button">Place order</button>
+                <button id="checkoutBtn" class="btn" type="button">Buy now</button>
                 <p class="muted">Orders are validated against live stock before checkout.</p>
             </div>
         </section>
@@ -421,12 +462,6 @@
         </section>
     </main>
 
-    <nav class="tabbar">
-        <button class="tab-btn active" data-tab="products" type="button">Products</button>
-        <button class="tab-btn" data-tab="cart" type="button">Cart</button>
-        <button class="tab-btn" data-tab="orders" type="button">Orders</button>
-        <button class="tab-btn" data-tab="profile" type="button">Profile</button>
-    </nav>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -461,6 +496,7 @@
     const profileCard = document.getElementById('profileCard');
     const refreshProductsBtn = document.getElementById('refreshProducts');
     const toast = document.getElementById('toast');
+    const cartCountNodes = document.querySelectorAll('[data-cart-count]');
 
     tabButtons.forEach((button) => {
         button.addEventListener('click', () => switchTab(button.dataset.tab || 'products'));
@@ -476,6 +512,14 @@
         state.activeTab = tab;
         tabButtons.forEach((button) => button.classList.toggle('active', button.dataset.tab === tab));
         views.forEach((view) => view.classList.toggle('active', view.dataset.view === tab));
+        renderTabLabels();
+    }
+
+    function renderTabLabels() {
+        const itemsCount = state.cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+        cartCountNodes.forEach((node) => {
+            node.textContent = String(itemsCount);
+        });
     }
 
     async function loadInitialData() {
@@ -500,6 +544,7 @@
             renderCart();
             renderOrders();
             renderProfile();
+            renderTabLabels();
         } catch (error) {
             showToast(error.message || 'Unable to load customer data.', true);
         }
@@ -569,7 +614,10 @@
                         <p class="product-meta">${escapeHtml(product.category || 'Uncategorized')} | Stock: ${stock}</p>
                         <p class="price">${formatCurrency(product.price || 0)}</p>
                     </div>
-                    <button class="btn add-btn" data-product-id="${Number(product.id)}" ${disabled}>Add</button>
+                    <div class="product-actions">
+                        <button class="btn add-btn" data-product-id="${Number(product.id)}" ${disabled}>Add</button>
+                        <button class="btn-outline buy-btn" data-product-id="${Number(product.id)}" ${disabled}>Buy</button>
+                    </div>
                 </article>
             `;
         }).join('');
@@ -578,6 +626,13 @@
             button.addEventListener('click', () => {
                 const id = Number(button.dataset.productId);
                 addToCart(id);
+            });
+        });
+
+        productsList.querySelectorAll('.buy-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                const id = Number(button.dataset.productId);
+                buyNow(id);
             });
         });
     }
@@ -609,10 +664,16 @@
         showToast('Added to cart.');
     }
 
+    function buyNow(productId) {
+        addToCart(productId);
+        switchTab('cart');
+    }
+
     function renderCart() {
         if (state.cart.length === 0) {
             cartList.innerHTML = '<div class="empty">Your cart is empty.</div>';
             cartTotal.textContent = formatCurrency(0);
+            renderTabLabels();
             return;
         }
 
@@ -648,6 +709,7 @@
         }).join('');
 
         cartTotal.textContent = formatCurrency(total);
+        renderTabLabels();
 
         cartList.querySelectorAll('.qty-btn').forEach((button) => {
             button.addEventListener('click', () => {
@@ -740,7 +802,7 @@
             showToast(error.message || 'Checkout failed.', true);
         } finally {
             checkoutBtn.disabled = false;
-            checkoutBtn.textContent = 'Place order';
+            checkoutBtn.textContent = 'Buy now';
         }
     }
 
