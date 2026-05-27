@@ -55,15 +55,13 @@ class ApiRegistrationController extends AbstractController
         }
 
         if ($existing instanceof User && !$existing->isVerified()) {
-            $emailSent = $registrationVerificationService->resendVerificationEmail($existing);
+            $registrationVerificationService->verifyExistingUnverifiedUser($existing);
 
             return $this->apiSuccess(
-                $emailSent
-                    ? 'Account already exists but is not verified. A new verification email was sent.'
-                    : 'Account already exists but is not verified. Verification email could not be sent right now.',
+                'Account already exists and is now verified. You can sign in.',
                 [
-                    'isVerified' => false,
-                    'verificationEmailSent' => $emailSent,
+                    'isVerified' => true,
+                    'verificationEmailSent' => false,
                 ]
             );
         }
@@ -73,20 +71,18 @@ class ApiRegistrationController extends AbstractController
         $user->setName($name !== '' ? $name : $normalizedUsername);
 
         try {
-            $emailSent = $registrationVerificationService->register($user, $plainPassword);
+            $registrationVerificationService->register($user, $plainPassword);
         } catch (UniqueConstraintViolationException) {
             $existing = $userRepository->findOneByNormalizedUsername($normalizedUsername);
 
             if ($existing instanceof User && !$existing->isVerified()) {
-                $emailSent = $registrationVerificationService->resendVerificationEmail($existing);
+                $registrationVerificationService->verifyExistingUnverifiedUser($existing);
 
                 return $this->apiSuccess(
-                    $emailSent
-                        ? 'Account already exists but is not verified. A new verification email was sent.'
-                        : 'Account already exists but is not verified. Verification email could not be sent right now.',
+                    'Account already exists and is now verified. You can sign in.',
                     [
-                        'isVerified' => false,
-                        'verificationEmailSent' => $emailSent,
+                        'isVerified' => true,
+                        'verificationEmailSent' => false,
                     ]
                 );
             }
@@ -94,15 +90,9 @@ class ApiRegistrationController extends AbstractController
             return $this->apiError('An account with this email already exists.', 409);
         }
 
-        return $this->apiSuccess(
-            $emailSent
-                ? 'Registration complete. Please check your email to verify your account.'
-                : 'Registration complete, but verification email could not be sent right now.',
-            [
-                'isVerified' => $user->isVerified(),
-                'verificationEmailSent' => $emailSent,
-            ],
-            201
-        );
+        return $this->apiSuccess('Registration complete. You can now sign in.', [
+            'isVerified' => $user->isVerified(),
+            'verificationEmailSent' => false,
+        ], 201);
     }
 }

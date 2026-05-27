@@ -29,14 +29,8 @@ class RegistrationController extends AbstractController
             if ($submittedUsername !== '') {
                 $existing = $userRepository->findOneByNormalizedUsername($submittedUsername);
                 if ($existing instanceof User && !$existing->isVerified()) {
-                    $emailSent = $registrationVerificationService->resendVerificationEmail($existing);
-
-                    $this->addFlash(
-                        $emailSent ? 'success' : 'warning',
-                        $emailSent
-                            ? 'Your account already exists but is not verified. A new verification email was sent.'
-                            : 'Your account already exists but is not verified. Verification email could not be sent right now.'
-                    );
+                    $registrationVerificationService->verifyExistingUnverifiedUser($existing);
+                    $this->addFlash('success', 'Your account has been verified. You can now sign in.');
 
                     return $this->redirectToRoute('app_login');
                 }
@@ -49,18 +43,13 @@ class RegistrationController extends AbstractController
             $user->setUsername(strtolower(trim((string) $user->getUserIdentifier())));
 
             try {
-                $emailSent = $registrationVerificationService->register($user, $plainPassword);
+                $registrationVerificationService->register($user, $plainPassword);
             } catch (UniqueConstraintViolationException) {
                 $this->addFlash('danger', 'An account with this email already exists.');
                 return $this->redirectToRoute('app_login');
             }
 
-            $this->addFlash(
-                $emailSent ? 'success' : 'warning',
-                $emailSent
-                    ? 'Registration complete. Please check your email to verify your account.'
-                    : 'Registration complete, but verification email could not be sent right now.'
-            );
+            $this->addFlash('success', 'Registration complete. You can now sign in.');
 
             return $this->redirectToRoute('app_login');
         }

@@ -183,11 +183,21 @@ class CartController extends AbstractController
         CsrfTokenManagerInterface $csrfTokenManager
     ): Response {
         $cart = $cartService->getCart();
+        $allowedPaymentMethods = ['cash', 'gcash', 'card', 'bank_transfer'];
 
         if ($request->isMethod('POST')) {
             $token = new CsrfToken('checkout', (string) $request->request->get('_token'));
             if (!$csrfTokenManager->isTokenValid($token)) {
                 throw $this->createAccessDeniedException('Invalid CSRF token.');
+            }
+
+            $paymentMethod = trim((string) $request->request->get('paymentMethod', ''));
+            if (!in_array($paymentMethod, $allowedPaymentMethods, true)) {
+                $this->addFlash('danger', sprintf(
+                    'Invalid payment method. Allowed: %s.',
+                    implode(', ', $allowedPaymentMethods)
+                ));
+                return $this->redirectToRoute('checkout');
             }
 
             if ($cart === []) {
@@ -218,7 +228,7 @@ class CartController extends AbstractController
 
             $order->setCustomerName($customerName);
             $order->setCustomerPhone(null);
-            $order->setStatus(Order::STATUS_PENDING);
+            $order->setStatus(Order::STATUS_PAID);
 
             $total = 0.0;
             $entityManager->beginTransaction();
@@ -291,7 +301,10 @@ class CartController extends AbstractController
 
             $cartService->clear();
 
-            $this->addFlash('success', 'Your order has been placed.');
+            $this->addFlash('success', sprintf(
+                'Payment successful via %s. Your order has been placed.',
+                strtoupper(str_replace('_', ' ', $paymentMethod))
+            ));
             return $this->redirectToRoute('order_confirmation', ['id' => $order->getId()]);
         }
 

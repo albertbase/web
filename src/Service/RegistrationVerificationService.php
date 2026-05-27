@@ -28,28 +28,39 @@ class RegistrationVerificationService
     ) {}
 
     /**
-     * Registers or persists the user and attempts to send a verification email.
-     * Returns true when email was sent successfully, false when sending failed.
+     * Registers or persists the user as already verified.
      *
      * @throws UniqueConstraintViolationException
      */
-    public function register(User $user, string $plainPassword): bool
+    public function register(User $user, string $plainPassword): void
     {
         $user->setUsername(strtolower(trim((string) $user->getUserIdentifier())));
         $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
         if ($user->getRoles() === []) {
             $user->setRoles(['ROLE_USER']);
         }
-        $user->setIsVerified(false);
+        $user->setIsVerified(true);
+        $user->setEmailVerificationToken(null);
+        $user->setEmailVerificationRequestedAt(null);
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setStatus(User::STATUS_ACTIVE);
         $user->setIsActive(true);
-        $this->initializeVerificationToken($user);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+    }
 
-        return $this->sendVerificationEmailSafely($user);
+    public function verifyExistingUnverifiedUser(User $user): void
+    {
+        if ($user->isVerified()) {
+            return;
+        }
+
+        $user->setIsVerified(true);
+        $user->setEmailVerificationToken(null);
+        $user->setEmailVerificationRequestedAt(null);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
     }
 
     /**

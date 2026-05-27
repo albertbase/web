@@ -14,7 +14,17 @@
 
     <form method="post" action="{{ path('checkout') }}" class="checkout-form mt-4">
       <input type="hidden" name="_token" value="{{ csrf_token('checkout') }}">
-      <button type="submit" class="btn btn-checkout w-100">Place Order</button>
+      <div class="mb-3">
+        <label for="paymentMethod" class="form-label fw-semibold">Payment Method</label>
+        <select id="paymentMethod" name="paymentMethod" class="form-select" required>
+          <option value="" disabled selected>Select payment method</option>
+          <option value="cash">Cash</option>
+          <option value="gcash">GCash</option>
+          <option value="card">Card</option>
+          <option value="bank_transfer">Bank Transfer</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-checkout w-100">Pay & Place Order</button>
     </form>
   </div>
 </div>
