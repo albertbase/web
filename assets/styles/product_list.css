@@ -1,20 +1,52 @@
 .menu-catalog .product-card {
   position: relative;
-  border-radius: 16px;
-  border: 1px solid #ead9c5;
-  box-shadow: 0 10px 24px rgba(92, 61, 46, 0.14);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  border-radius: 18px;
+  border: none;
+  box-shadow: 0 4px 20px rgba(92, 61, 46, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
+  background: #fff;
 }
 
 .menu-catalog .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(92, 61, 46, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(92, 61, 46, 0.22);
+}
+
+.menu-catalog .product-card-img-wrapper {
+  position: relative;
+  overflow: hidden;
 }
 
 .menu-catalog .product-card .card-img-top {
-  height: 230px;
+  height: 220px;
   object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.menu-catalog .product-card:hover .card-img-top {
+  transform: scale(1.05);
+}
+
+.menu-catalog .product-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.menu-catalog .badge-out-of-stock {
+  background: #dc3545;
+  color: #fff;
+}
+
+.menu-catalog .badge-low-stock {
+  background: #ffc107;
+  color: #5a3e00;
 }
 
 .menu-catalog .bg-gradient-bakery {
@@ -24,18 +56,20 @@
 
 .menu-catalog .card-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: #4a2c1d;
 }
 
 .menu-catalog .card-text {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   color: #6d5444;
+  line-height: 1.45;
 }
 
-.menu-catalog .fs-5 {
-  color: #5c3d2e;
+.menu-catalog .product-card-price {
+  font-size: 1.35rem;
   font-weight: 800;
+  color: #5c3d2e;
 }
 
 .menu-catalog .text-muted {
