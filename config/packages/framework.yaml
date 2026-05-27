@@ -2,7 +2,8 @@
 framework:
     trusted_hosts: 
         - '^127\.0\.0\.1$'
-        - '^localhost$'
+        - '^localhost$'Agent
+        
         - '^.+\.ngrok-free\.dev$'
         - '^.+\.up\.railway\.app$'
         - '^.+\.railway\.app$'
