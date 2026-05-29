@@ -1,15 +1,17 @@
 /**
  * Admin orders list — live updates without full page refresh.
- * Uses API polling (always) + Mercure SSE when the hub is available.
+ * Polls a session-authenticated feed (main firewall) + Mercure SSE when available.
  */
 (function () {
   const config = window.SWEETORIA_ADMIN_REALTIME || {};
-  const ordersApiUrl = config.ordersApiUrl || '/api/admin/orders';
+  const ordersApiBase = config.ordersApiUrl || '/admin/orders/live';
   const mercureUrl = config.mercureUrl || '/.well-known/mercure';
-  const pollMs = Number(config.pollIntervalMs) || 4000;
+  const pollMs = Number(config.pollIntervalMs) || 2500;
 
   const table = document.querySelector('[data-orders-table]');
   const tbody = table?.querySelector('tbody');
+  const liveIndicator = document.getElementById('orders-live-indicator');
+
   if (!tbody) {
     return;
   }
@@ -26,6 +28,19 @@
       String(row.getAttribute('data-order-id')),
     ),
   );
+
+  let pollFailures = 0;
+
+  const setLiveStatus = (message, variant) => {
+    if (!liveIndicator) {
+      return;
+    }
+    liveIndicator.classList.remove('d-none', 'alert-info', 'alert-warning', 'alert-danger');
+    liveIndicator.classList.add(
+      variant === 'error' ? 'alert-danger' : variant === 'warn' ? 'alert-warning' : 'alert-info',
+    );
+    liveIndicator.innerHTML = message;
+  };
 
   const formatMoney = (value) => {
     const n = Number(value);
@@ -47,13 +62,28 @@
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
+  const buildPollUrl = () => {
+    const url = new URL(ordersApiBase, window.location.origin);
+    const pageParams = new URLSearchParams(window.location.search);
+    const search = pageParams.get('search');
+    const status = pageParams.get('status');
+    if (search) {
+      url.searchParams.set('search', search);
+    }
+    if (status) {
+      url.searchParams.set('status', status);
+    }
+    url.searchParams.set('limit', '100');
+    return url.toString();
+  };
+
   const buildRowHtml = (order) => {
     const id = order.id;
     const status = order.status || 'Pending';
     const badge = statusBadgeClass[status] || 'bg-secondary';
     const showUrl = config.orderShowUrlTemplate
       ? config.orderShowUrlTemplate.replace('__ID__', String(id))
-      : `#`;
+      : '#';
 
     return `
       <tr class="order-row" data-order-id="${id}">
@@ -101,17 +131,28 @@
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(ordersApiUrl, {
+      const response = await fetch(buildPollUrl(), {
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
+        cache: 'no-store',
       });
 
       if (!response.ok) {
+        pollFailures += 1;
+        if (pollFailures >= 2) {
+          setLiveStatus(
+            '<i class="bi bi-exclamation-triangle"></i> Live updates paused — refresh the page or sign in again.',
+            'error',
+          );
+        }
         return;
       }
 
+      pollFailures = 0;
+      setLiveStatus('<i class="bi bi-broadcast"></i> Live — new orders appear automatically', 'ok');
+
       const payload = await response.json();
-      const orders = payload?.data?.orders ?? payload?.orders ?? [];
+      const orders = payload?.orders ?? payload?.data?.orders ?? [];
 
       if (!Array.isArray(orders)) {
         return;
@@ -119,7 +160,7 @@
 
       orders.forEach(upsertOrder);
     } catch {
-      // Ignore transient network errors.
+      pollFailures += 1;
     }
   };
 

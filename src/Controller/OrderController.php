@@ -6,6 +6,7 @@ use App\Entity\Order;
 use App\Form\OrderType;
 use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,6 +33,41 @@ final class OrderController extends AbstractController
             'orders' => $orders,
             'search' => $search,
             'status' => $status,
+        ]);
+    }
+
+    /**
+     * Session-authenticated JSON feed for admin live order polling (main firewall).
+     */
+    #[Route('/admin/orders/live', name: 'admin_orders_live', methods: ['GET'])]
+    public function liveFeed(Request $request, OrderRepository $orderRepo): JsonResponse
+    {
+        $search = trim((string) $request->query->get('search', ''));
+        $status = trim((string) $request->query->get('status', ''));
+        $limit = max(1, min(200, (int) $request->query->get('limit', 100)));
+
+        if ($status !== '' && !in_array($status, Order::ALLOWED_STATUSES, true)) {
+            return new JsonResponse(['success' => false, 'message' => 'Invalid status filter.'], 400);
+        }
+
+        $orders = $orderRepo->findForAdminList(
+            $search !== '' ? $search : null,
+            $status !== '' ? $status : null,
+            $limit,
+            0
+        );
+
+        return new JsonResponse([
+            'success' => true,
+            'orders' => array_map(static function (Order $order): array {
+                return [
+                    'id' => $order->getId(),
+                    'customerName' => $order->getCustomerName(),
+                    'status' => $order->getStatus(),
+                    'totalAmount' => $order->getTotalAmount(),
+                    'createdAt' => $order->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+                ];
+            }, $orders),
         ]);
     }
 

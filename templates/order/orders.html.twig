@@ -135,10 +135,10 @@
 
 <script>
   window.SWEETORIA_ADMIN_REALTIME = {
-    ordersApiUrl: '{{ path('api_admin_orders_list') }}',
+    ordersApiUrl: '{{ path('admin_orders_live') }}',
     mercureUrl: '{{ mercure_public_url|default('/.well-known/mercure') }}',
     orderShowUrlTemplate: '{{ path('admin_order_show', { id: '__ID__' }) }}',
-    pollIntervalMs: 4000,
+    pollIntervalMs: 2500,
   };
   document.getElementById('orders-live-indicator')?.classList.remove('d-none');
 </script>
