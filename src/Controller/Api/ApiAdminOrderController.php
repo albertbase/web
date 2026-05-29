@@ -163,6 +163,7 @@ class ApiAdminOrderController extends AbstractController
             $entityManager->commit();
 
             // Real-time updates and notifications:
+            $realTimeNotificationService->publishOrderCreated($order);
             foreach ($order->getOrderItems() as $item) {
                 $product = $item->getProduct();
                 if ($product instanceof Product) {

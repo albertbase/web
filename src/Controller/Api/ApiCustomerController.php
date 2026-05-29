@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Service\RealTimeNotificationService;
 
 #[Route('/customer', name: 'api_customer_')]
 #[IsGranted('ROLE_USER')]
@@ -138,7 +139,8 @@ class ApiCustomerController extends AbstractController
     public function createOrder(
         Request $request,
         EntityManagerInterface $entityManager,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        RealTimeNotificationService $realTimeNotificationService,
     ): JsonResponse {
         try {
             $data = $request->toArray();
@@ -248,6 +250,21 @@ class ApiCustomerController extends AbstractController
             $entityManager->persist($order);
             $entityManager->flush();
             $entityManager->commit();
+
+            $realTimeNotificationService->publishOrderCreated($order);
+            foreach ($productsById as $product) {
+                $realTimeNotificationService->publishInventoryUpdate($product);
+            }
+            $realTimeNotificationService->publishNotification(
+                'New order placed',
+                sprintf(
+                    'Order #%d from %s — ₱%s.',
+                    $order->getId(),
+                    $order->getCustomerName(),
+                    number_format((float) $order->getTotalAmount(), 2),
+                ),
+                'success',
+            );
         } catch (\Throwable $exception) {
             if ($entityManager->getConnection()->isTransactionActive()) {
                 $entityManager->rollback();
@@ -265,7 +282,8 @@ class ApiCustomerController extends AbstractController
     public function cancelOrder(
         int $id,
         OrderRepository $orderRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        RealTimeNotificationService $realTimeNotificationService,
     ): JsonResponse {
         $user = $this->getApiUser();
         $order = $orderRepository->find($id);
@@ -294,6 +312,14 @@ class ApiCustomerController extends AbstractController
             $order->setStatus(Order::STATUS_CANCELLED);
             $entityManager->flush();
             $entityManager->commit();
+
+            $realTimeNotificationService->publishOrderStatusUpdate($order);
+            foreach ($order->getOrderItems() as $item) {
+                $product = $item->getProduct();
+                if ($product instanceof Product) {
+                    $realTimeNotificationService->publishInventoryUpdate($product);
+                }
+            }
         } catch (\Throwable $exception) {
             if ($entityManager->getConnection()->isTransactionActive()) {
                 $entityManager->rollback();

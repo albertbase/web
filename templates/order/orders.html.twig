@@ -36,9 +36,13 @@
       </div>
   </form>
 
+  <div id="orders-live-indicator" class="alert alert-info py-2 small mb-3 d-none">
+    <i class="bi bi-broadcast"></i> Live — new orders appear automatically
+  </div>
+
   {# ✅ Orders Table #}
   <div class="table-responsive shadow-sm">
-    <table class="table table-hover align-middle">
+    <table class="table table-hover align-middle" data-orders-table>
       <thead class="table-dark">
         <tr>
           <th>ID</th>
@@ -61,7 +65,7 @@
       {% endif %}
 
       {% for order in orders %}
-        <tr class="order-row">
+        <tr class="order-row" data-order-id="{{ order.id }}">
           <td class="fw-bold">#{{ order.id }}</td>
           <td>{{ order.customerName }}</td>
 
@@ -120,6 +124,24 @@
       background: #f8f9fa;
       transition: 0.2s ease-in-out;
   }
+  tr.order-row--new {
+      animation: orderHighlight 1.5s ease-out;
+  }
+  @keyframes orderHighlight {
+      from { background-color: #d1e7dd; }
+      to { background-color: transparent; }
+  }
 </style>
+
+<script>
+  window.SWEETORIA_ADMIN_REALTIME = {
+    ordersApiUrl: '{{ path('api_admin_orders_list') }}',
+    mercureUrl: '{{ mercure_public_url|default('/.well-known/mercure') }}',
+    orderShowUrlTemplate: '{{ path('admin_order_show', { id: '__ID__' }) }}',
+    pollIntervalMs: 4000,
+  };
+  document.getElementById('orders-live-indicator')?.classList.remove('d-none');
+</script>
+<script src="{{ asset('js/admin-orders-realtime.js') }}"></script>
 
 {% endblock %}

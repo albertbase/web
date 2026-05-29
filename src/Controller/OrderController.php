@@ -12,7 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\OrderRepository;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\Entity\OrderItem; 
+use App\Entity\OrderItem;
+use App\Service\RealTimeNotificationService;
 use App\Repository\ProductRepository;
 
 #[IsGranted('ROLE_STAFF')]
@@ -52,13 +53,20 @@ final class OrderController extends AbstractController
 
     #[IsGranted('ROLE_STAFF')]
     #[Route('/admin/orders/{id}/update-status', name: 'admin_order_update_status', methods: ['POST'])]
-    public function updateStatus(Request $request, Order $order, EntityManagerInterface $em, ActivityLogger $logger): Response
-    {
+    public function updateStatus(
+        Request $request,
+        Order $order,
+        EntityManagerInterface $em,
+        ActivityLogger $logger,
+        RealTimeNotificationService $realTimeNotificationService,
+    ): Response {
         $newStatus = $request->request->get('status');
 
         if (in_array($newStatus, ['Pending', 'Paid', 'Shipped', 'Delivered'])) {
             $order->setStatus($newStatus);
             $em->flush();
+
+            $realTimeNotificationService->publishOrderStatusUpdate($order);
 
             $logger->log(
             $this->getUser(),
@@ -142,7 +150,13 @@ public function editOrder(int $id, OrderRepository $orderRepository, Request $re
 
 #[IsGranted('ROLE_STAFF')]
 #[Route('/admin/orders/new', name: 'admin_orders_new')]
-public function new(Request $request, EntityManagerInterface $em, ProductRepository $productRepo, ActivityLogger $logger): Response
+public function new(
+    Request $request,
+    EntityManagerInterface $em,
+    ProductRepository $productRepo,
+    ActivityLogger $logger,
+    RealTimeNotificationService $realTimeNotificationService,
+): Response
 {
     $order = new Order();
 
@@ -216,8 +230,14 @@ $em->flush();
         $em->persist($order);
         $em->flush();
 
-        // ✅ Log activity
-    $logger->log(
+        $realTimeNotificationService->publishOrderCreated($order);
+        $realTimeNotificationService->publishNotification(
+            'New Order Received',
+            sprintf('Order #%d was created for ₱%s.', $order->getId(), number_format($total, 2)),
+            'success',
+        );
+
+        $logger->log(
         $this->getUser(),
         'create',
         'Order',
