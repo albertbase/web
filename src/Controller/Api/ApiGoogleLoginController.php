@@ -5,9 +5,9 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\ApiTokenService;
+use App\Service\GoogleOAuthAudienceValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -24,8 +24,7 @@ class ApiGoogleLoginController extends AbstractController
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
         private ApiTokenService $apiTokenService,
-        #[Autowire('%env(GOOGLE_CLIENT_ID)%')]
-        private string $googleClientId,
+        private GoogleOAuthAudienceValidator $googleAudienceValidator,
     ) {}
 
     #[Route('/auth/google', name: 'api_auth_google', methods: ['POST'])]
@@ -37,7 +36,7 @@ class ApiGoogleLoginController extends AbstractController
             return $this->apiError('Invalid JSON payload.', 400);
         }
 
-        $idToken = trim((string) ($data['id_token'] ?? $data['idToken'] ?? ''));
+        $idToken = trim((string) ($data['id_token'] ?? $data['idToken'] ?? $data['credential'] ?? ''));
 
         if ($idToken === '') {
             return $this->apiError('id_token is required in the JSON body.', 400);
@@ -61,8 +60,12 @@ class ApiGoogleLoginController extends AbstractController
             return $this->apiError('Google account email is not verified.', 403);
         }
 
+        $customerIntent = $this->isCustomerGoogleRequest($request, $data);
+
         try {
-            $user = $this->resolveStaffUser($email, $name, $googleId);
+            $user = $customerIntent
+                ? $this->resolveCustomerUser($email, $name, $googleId)
+                : $this->resolveStaffUser($email, $name, $googleId);
         } catch (\RuntimeException $exception) {
             return $this->apiError($exception->getMessage(), 403);
         }
@@ -89,6 +92,44 @@ class ApiGoogleLoginController extends AbstractController
     }
 
     /**
+     * @param array<string, mixed> $data
+     */
+    private function isCustomerGoogleRequest(Request $request, array $data): bool
+    {
+        if (strcasecmp((string) $request->headers->get('X-App-Audience', ''), 'customer') === 0) {
+            return true;
+        }
+
+        if (strcasecmp((string) ($data['audience'] ?? ''), 'customer') === 0) {
+            return true;
+        }
+
+        if (!empty($data['registerAsCustomer']) || !empty($data['createIfMissing']) || !empty($data['registerIfMissing'])) {
+            return true;
+        }
+
+        if (($data['client'] ?? '') === 'sweetoria-mobile' || ($data['mobile'] ?? false) === true) {
+            return true;
+        }
+
+        $role = strtoupper(trim((string) ($data['role'] ?? '')));
+        if ($role === 'ROLE_USER') {
+            return true;
+        }
+
+        $roles = $data['roles'] ?? [];
+        if (!is_array($roles)) {
+            return false;
+        }
+
+        $normalized = array_map(static fn ($r) => strtoupper(trim((string) $r)), $roles);
+
+        return in_array('ROLE_USER', $normalized, true)
+            && !in_array('ROLE_STAFF', $normalized, true)
+            && !in_array('ROLE_ADMIN', $normalized, true);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function verifyGoogleIdToken(string $idToken): array
@@ -107,22 +148,58 @@ class ApiGoogleLoginController extends AbstractController
         $tokenInfo = $response->toArray(false);
         $audience = (string) ($tokenInfo['aud'] ?? '');
 
-        if ($audience === '' || !$this->isAllowedGoogleAudience($audience)) {
+        if ($audience === '' || !$this->googleAudienceValidator->isAllowed($audience)) {
             throw new \InvalidArgumentException('Google token audience is not allowed.');
         }
 
         return $tokenInfo;
     }
 
-    private function isAllowedGoogleAudience(string $audience): bool
+    private function resolveCustomerUser(string $email, string $name, string $googleId): User
     {
-        $allowed = array_filter([
-            $this->googleClientId,
-            $_ENV['GOOGLE_ANDROID_CLIENT_ID'] ?? null,
-            $_ENV['GOOGLE_IOS_CLIENT_ID'] ?? null,
-        ]);
+        $user = $this->userRepository->findOneBy(['username' => $email]);
 
-        return in_array($audience, $allowed, true);
+        if (!$user instanceof User) {
+            $user = new User();
+            $user->setUsername($email);
+            $user->setName($name !== '' ? $name : $email);
+            $user->setRoles(['ROLE_USER']);
+            $user->setGoogleId($googleId);
+            $user->setAuthProvider('google');
+            $user->setStatus('active');
+            $user->setIsActive(true);
+            $user->setIsVerified(true);
+            $user->setCreatedAt(new \DateTimeImmutable());
+            $user->setPassword(
+                $this->passwordHasher->hashPassword($user, bin2hex(random_bytes(32)))
+            );
+            $user->setLastLogin(new \DateTimeImmutable());
+            $this->entityManager->persist($user);
+
+            return $user;
+        }
+
+        if (in_array('ROLE_ADMIN', $user->getAssignedRoles(), true)) {
+            throw new \RuntimeException('Admin accounts cannot sign in with Google.');
+        }
+
+        if (!$user->isVerified()) {
+            $user->setIsVerified(true);
+        }
+
+        if (!$user->getGoogleId() && $googleId !== '') {
+            $user->setGoogleId($googleId);
+        }
+
+        if ($user->getAuthProvider() !== 'google') {
+            $user->setAuthProvider('google');
+        }
+
+        if (!$user->getName() && $name !== '') {
+            $user->setName($name);
+        }
+
+        return $user;
     }
 
     private function resolveStaffUser(string $email, string $name, string $googleId): User
