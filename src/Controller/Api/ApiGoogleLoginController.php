@@ -60,12 +60,13 @@ class ApiGoogleLoginController extends AbstractController
             return $this->apiError('Google account email is not verified.', 403);
         }
 
-        $customerIntent = $this->isCustomerGoogleRequest($request, $data);
+        // API Google sign-in defaults to customers (ROLE_USER). Staff/admin must opt in explicitly.
+        $staffIntent = $this->isStaffGoogleRequest($request, $data);
 
         try {
-            $user = $customerIntent
-                ? $this->resolveCustomerUser($email, $name, $googleId)
-                : $this->resolveStaffUser($email, $name, $googleId);
+            $user = $staffIntent
+                ? $this->resolveStaffUser($email, $name, $googleId)
+                : $this->resolveCustomerUser($email, $name, $googleId);
         } catch (\RuntimeException $exception) {
             return $this->apiError($exception->getMessage(), 403);
         }
@@ -92,28 +93,27 @@ class ApiGoogleLoginController extends AbstractController
     }
 
     /**
+     * Staff/admin Google via API only when the client explicitly requests it.
+     * Sweetoria mobile and bare id_token requests use the customer path (ROLE_USER).
+     *
      * @param array<string, mixed> $data
      */
-    private function isCustomerGoogleRequest(Request $request, array $data): bool
+    private function isStaffGoogleRequest(Request $request, array $data): bool
     {
-        if (strcasecmp((string) $request->headers->get('X-App-Audience', ''), 'customer') === 0) {
+        if (strcasecmp((string) $request->headers->get('X-App-Audience', ''), 'staff') === 0) {
             return true;
         }
 
-        if (strcasecmp((string) ($data['audience'] ?? ''), 'customer') === 0) {
+        if (strcasecmp((string) ($data['audience'] ?? ''), 'staff') === 0) {
             return true;
         }
 
-        if (!empty($data['registerAsCustomer']) || !empty($data['createIfMissing']) || !empty($data['registerIfMissing'])) {
-            return true;
-        }
-
-        if (($data['client'] ?? '') === 'sweetoria-mobile' || ($data['mobile'] ?? false) === true) {
+        if (!empty($data['staff']) || !empty($data['registerAsStaff'])) {
             return true;
         }
 
         $role = strtoupper(trim((string) ($data['role'] ?? '')));
-        if ($role === 'ROLE_USER') {
+        if ($role === 'ROLE_STAFF' || $role === 'ROLE_ADMIN') {
             return true;
         }
 
@@ -124,9 +124,8 @@ class ApiGoogleLoginController extends AbstractController
 
         $normalized = array_map(static fn ($r) => strtoupper(trim((string) $r)), $roles);
 
-        return in_array('ROLE_USER', $normalized, true)
-            && !in_array('ROLE_STAFF', $normalized, true)
-            && !in_array('ROLE_ADMIN', $normalized, true);
+        return in_array('ROLE_STAFF', $normalized, true)
+            || in_array('ROLE_ADMIN', $normalized, true);
     }
 
     /**
@@ -155,6 +154,9 @@ class ApiGoogleLoginController extends AbstractController
         return $tokenInfo;
     }
 
+    /**
+     * Mobile app / API customers: create or link accounts with ROLE_USER only.
+     */
     private function resolveCustomerUser(string $email, string $name, string $googleId): User
     {
         $user = $this->userRepository->findOneBy(['username' => $email]);
@@ -163,7 +165,7 @@ class ApiGoogleLoginController extends AbstractController
             $user = new User();
             $user->setUsername($email);
             $user->setName($name !== '' ? $name : $email);
-            $user->setRoles(['ROLE_USER']);
+            $user->setRoles(['ROLE_USER']); // customer role for app Google sign-in
             $user->setGoogleId($googleId);
             $user->setAuthProvider('google');
             $user->setStatus('active');
@@ -202,6 +204,9 @@ class ApiGoogleLoginController extends AbstractController
         return $user;
     }
 
+    /**
+     * Staff Google via API (explicit staff intent) or admin web tooling.
+     */
     private function resolveStaffUser(string $email, string $name, string $googleId): User
     {
         $user = $this->userRepository->findOneBy(['username' => $email]);
