@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+echo "Running database migrations..."
+php bin/console doctrine:migrations:migrate --no-interaction --all-or-nothing || echo "Migration skipped or failed"
+
 echo "Starting PHP-FPM..."
 php-fpm -F &
 PHP_PID=$!
