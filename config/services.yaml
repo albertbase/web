@@ -32,8 +32,4 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener }
 
-    App\EventSubscriber\LoginSuccessSubscriber:
-        arguments:
-            - '@App\Service\LogService'
-        tags:
-            - { name: kernel.event_subscriber }
+
