@@ -106,10 +106,11 @@ final class OrderController extends AbstractController
 
             $logger->log(
             $this->getUser(),
-            'update',
+            'UPDATE',
             'Order',
             $order->getId(),
-            'Updated status to: ' . $newStatus
+            'Updated status to: ' . $newStatus,
+            ActivityLogger::productsFromOrder($order)
         );
 
             $this->addFlash('success', 'Order status updated successfully.');
@@ -167,10 +168,11 @@ public function editOrder(int $id, OrderRepository $orderRepository, Request $re
         // ✅ Log activity
         $logger->log(
             $this->getUser(),
-            'update',
+            'UPDATE',
             'Order',
             $order->getId(),
-            'Edited order details'
+            'Edited order details',
+            ActivityLogger::productsFromOrder($order)
         );
 
         $this->addFlash('success', 'Order updated!');
@@ -275,10 +277,11 @@ $em->flush();
 
         $logger->log(
         $this->getUser(),
-        'create',
+        'CREATE',
         'Order',
         $order->getId(),
-        'Created a new order with total ₱' . number_format($total, 2)
+        'Created a new order with total ₱' . number_format($total, 2),
+        ActivityLogger::productsFromOrder($order)
     );
 
 
@@ -310,10 +313,11 @@ public function delete(int $id, OrderRepository $orderRepository, Order $order, 
     // ✅ Log before deletion
     $logger->log(
         $this->getUser(),
-        'delete',
+        'DELETE',
         'Order',
         $order->getId(),
-        'Deleted order with total ₱' . number_format($order->getTotalAmount(), 2)
+        'Deleted order with total ₱' . number_format($order->getTotalAmount(), 2),
+        ActivityLogger::productsFromOrder($order)
     );
 
     $em->remove($order);

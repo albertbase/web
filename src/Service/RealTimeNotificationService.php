@@ -89,6 +89,32 @@ class RealTimeNotificationService
     }
 
     /**
+     * Publish a new activity log entry to the admin panel in real-time.
+     *
+     * @param array<string, mixed> $logData
+     */
+    public function publishActivityLog(array $logData): void
+    {
+        $this->publishAdmin(
+            [
+                'event'      => 'activity_log',
+                'type'       => 'activity_log',
+                'id'         => $logData['id'] ?? null,
+                'username'   => $logData['username'] ?? null,
+                'userRole'   => $logData['userRole'] ?? null,
+                'action'     => $logData['action'] ?? null,
+                'entityType' => $logData['entityType'] ?? null,
+                'entityId'   => $logData['entityId'] ?? null,
+                'details'    => $logData['details'] ?? null,
+                'summary'    => $logData['summary'] ?? null,
+                'products'   => $logData['products'] ?? [],
+                'timestamp'  => $logData['timestamp'] ?? (new \DateTimeImmutable())->format(DATE_ATOM),
+            ],
+            'activity_log',
+        );
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     private function publish(array $data, string $eventType): void
@@ -106,6 +132,28 @@ class RealTimeNotificationService
         } catch (\Throwable $exception) {
             // Do not break checkout if Mercure hub is down (e.g. Railway without Mercure service).
             error_log('[Mercure] Publish failed: '.$exception->getMessage());
+        }
+    }
+
+    /**
+     * Publish an admin-only event (activity_log, etc.) on a dedicated topic.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function publishAdmin(array $data, string $eventType): void
+    {
+        try {
+            $update = new Update(
+                ['activity_log', 'admin_activity', 'admin_orders'],
+                json_encode($data, JSON_THROW_ON_ERROR),
+                false,
+                $eventType,
+                'application/json',
+            );
+
+            $this->hub->publish($update);
+        } catch (\Throwable $exception) {
+            error_log('[Mercure] Admin publish failed: '.$exception->getMessage());
         }
     }
 

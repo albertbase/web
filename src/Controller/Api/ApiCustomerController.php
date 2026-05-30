@@ -16,7 +16,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Service\ActivityLogger;
 use App\Service\RealTimeNotificationService;
+
 
 #[Route('/customer', name: 'api_customer_')]
 #[IsGranted('ROLE_USER')]
@@ -141,6 +143,7 @@ class ApiCustomerController extends AbstractController
         EntityManagerInterface $entityManager,
         ProductRepository $productRepository,
         RealTimeNotificationService $realTimeNotificationService,
+        ActivityLogger $activityLogger,
     ): JsonResponse {
         try {
             $data = $request->toArray();
@@ -264,6 +267,21 @@ class ApiCustomerController extends AbstractController
                     number_format((float) $order->getTotalAmount(), 2),
                 ),
                 'success',
+            );
+
+            // ⭐ Log to activity log + broadcast in real-time so admin sees what was bought
+            $activityLogger->log(
+                $this->getApiUser(),
+                'CREATE',
+                'Order',
+                $order->getId(),
+                sprintf(
+                    'Customer "%s" placed order #%d via mobile app — ₱%s.',
+                    $order->getCustomerName(),
+                    $order->getId(),
+                    number_format((float) $order->getTotalAmount(), 2),
+                ),
+                ActivityLogger::productsFromOrder($order),
             );
         } catch (\Throwable $exception) {
             if ($entityManager->getConnection()->isTransactionActive()) {

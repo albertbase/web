@@ -4,9 +4,17 @@
 
 {% block body %}
 
-<div class="page-title mb-4 sweetoria-fade">
-    <h1 class="h3 fw-bold">📜 Activity Logs</h1>
-    <p class="text-muted">System-wide activity history. Read-only.</p>
+<div class="page-title mb-4 sweetoria-fade d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="h3 fw-bold">📜 Activity Logs</h1>
+        <p class="text-muted mb-0">System-wide activity history. New entries appear automatically.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="live-badge" id="liveBadge" title="Real-time updates active">
+            <span class="live-dot"></span> LIVE
+        </span>
+        <span class="text-muted small" id="lastUpdatedLabel"></span>
+    </div>
 </div>
 
 {# ============================
@@ -80,23 +88,24 @@
 <div class="card sweet-card shadow-sm sweetoria-fade">
     <div class="card-header bg-white border-0 d-flex justify-content-between sticky-top" style="z-index: 20;">
         <strong class="text-purple">Logs</strong>
-        <span class="text-muted small">{{ logs|length }} record(s)</span>
+        <span class="text-muted small"><span id="logCount">{{ logs|length }}</span> record(s)</span>
     </div>
 
     <div class="table-responsive sweet-table-wrapper" style="max-height: 70vh; overflow-y: auto;">
-        <table class="table sweet-table align-middle">
+        <table class="table sweet-table align-middle" id="logsTable">
             <thead class="sticky-header">
                 <tr>
                     <th>Username</th>
                     <th>Role</th>
                     <th>Action</th>
                     <th>Affected Data</th>
+                    <th>Products Bought</th>
                     <th>Timestamp</th>
                     <th class="text-center">View</th>
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody id="logsBody">
             {% for log in logs %}
                 {% set color =
                     log.action == 'CREATE' ? 'success' :
@@ -105,7 +114,13 @@
                     'secondary'
                 %}
 
-                <tr class="sweetoria-row interactive-row">
+                {# Extract product list from details string #}
+                {% set productSummary = '' %}
+                {% if log.details and 'Products: ' in log.details %}
+                    {% set productSummary = log.details|split('Products: ')|last %}
+                {% endif %}
+
+                <tr class="sweetoria-row interactive-row" data-log-id="{{ log.id }}">
                     <td class="fw-semibold">{{ log.username }}</td>
 
                     <td>
@@ -117,9 +132,21 @@
                     </td>
 
                     <td>
-                        <span class="text-truncate d-inline-block" style="max-width: 260px;">
+                        <span class="text-truncate d-inline-block" style="max-width: 220px;">
                             {{ log.summary ?? log.details|u.truncate(60, '...') }}
                         </span>
+                    </td>
+
+                    <td>
+                        {% if productSummary %}
+                            <span class="product-pills">
+                                {% for part in productSummary|split(', ') %}
+                                    <span class="product-pill">🛍 {{ part|trim }}</span>
+                                {% endfor %}
+                            </span>
+                        {% else %}
+                            <span class="text-muted small">—</span>
+                        {% endif %}
                     </td>
 
                     <td>{{ log.Timestamp|date('Y-m-d H:i:s') }}</td>
@@ -139,7 +166,7 @@
                         <div class="modal-content sweet-modal">
 
                             <div class="modal-header">
-                                <h5 class="modal-title">Log Details</h5>
+                                <h5 class="modal-title">Log Details — #{{ log.id }}</h5>
                                 <button class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
 
@@ -158,9 +185,25 @@
                                         <span class="badge bg-{{ color }}">{{ log.action }}</span>
                                     </dd>
 
-                                    <dt class="col-sm-3">Affected Data</dt>
+                                    <dt class="col-sm-3">Entity</dt>
+                                    <dd class="col-sm-9">{{ log.entityType ?? '—' }} {% if log.entityId %}#{{ log.entityId }}{% endif %}</dd>
+
+                                    <dt class="col-sm-3">Products Bought</dt>
                                     <dd class="col-sm-9">
-                                        <pre class="sweet-pre">{{ log.details|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                        {% if productSummary %}
+                                            <div class="d-flex flex-wrap gap-1">
+                                            {% for part in productSummary|split(', ') %}
+                                                <span class="badge bg-light text-dark border">🛍 {{ part|trim }}</span>
+                                            {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No product data</span>
+                                        {% endif %}
+                                    </dd>
+
+                                    <dt class="col-sm-3">Full Details</dt>
+                                    <dd class="col-sm-9">
+                                        <pre class="sweet-pre">{{ log.details }}</pre>
                                     </dd>
 
                                     <dt class="col-sm-3">Timestamp</dt>
@@ -177,8 +220,8 @@
                 </div>
 
             {% else %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
+                <tr id="emptyRow">
+                    <td colspan="7" class="text-center text-muted py-4">
                         No logs found.
                     </td>
                 </tr>
@@ -189,33 +232,79 @@
 </div>
 
 <style>
-/* Fade animation */
+/* ── Live badge ─────────────────────────────────────────────────────────── */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg,#6f42c1,#9c6de3);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(111,66,193,.35);
+}
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #7effa0;
+    border-radius: 50%;
+    animation: pulse-dot 1.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: .5; transform: scale(1.5); }
+}
+.live-badge.offline {
+    background: linear-gradient(135deg,#adb5bd,#868e96);
+}
+.live-badge.offline .live-dot { background:#ff7e7e; animation:none; }
+
+/* ── Product pills ───────────────────────────────────────────────────────── */
+.product-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.product-pill {
+    background: #f3eaff;
+    color: #5a1e96;
+    border: 1px solid #cbb7ff;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+/* ── New row flash ───────────────────────────────────────────────────────── */
+@keyframes rowFlash {
+    0%   { background: #e8f5e9; }
+    50%  { background: #c8e6c9; }
+    100% { background: transparent; }
+}
+.sweetoria-row.new-entry { animation: rowFlash 1.6s ease forwards; }
+
+/* ── Fade animation ─────────────────────────────────────────────────────── */
 .sweetoria-fade {
     animation: fadeIn 0.4s ease;
 }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Expandable filter card */
+/* ── Expandable filter card ─────────────────────────────────────────────── */
 .sweetoria-expand .filter-body {
     max-height: 500px;
     overflow: hidden;
     transition: max-height 0.35s ease;
 }
-.sweetoria-expand.collapsed .filter-body {
-    max-height: 0;
-}
+.sweetoria-expand.collapsed .filter-body { max-height: 0; }
 .toggle-icon {
     cursor: pointer;
     transition: transform 0.3s ease;
 }
-.sweetoria-expand.collapsed .toggle-icon {
-    transform: rotate(-90deg);
-}
+.sweetoria-expand.collapsed .toggle-icon { transform: rotate(-90deg); }
 
-/* Action toggle buttons */
+/* ── Action toggle buttons ──────────────────────────────────────────────── */
 .sweetoria-action-toggle {
     padding: 6px 14px;
     border-radius: 20px;
@@ -228,47 +317,39 @@
     background: #ffffff;
     display: inline-block;
 }
-.sweetoria-action-toggle:hover {
-    background: #f3eaff;
-}
+.sweetoria-action-toggle:hover { background: #f3eaff; }
 .sweetoria-action-toggle.active {
     background: #6f42c1;
     color: white;
     border-color: #6f42c1;
-    box-shadow: 0 0 6px rgba(111, 66, 193, 0.4);
+    box-shadow: 0 0 6px rgba(111,66,193,.4);
 }
-.sweetoria-action-toggle input {
-    display: none;
-}
+.sweetoria-action-toggle input { display: none; }
 
-/* Sticky table header */
+/* ── Sticky table header ─────────────────────────────────────────────────── */
 .sweet-table thead.sticky-header th {
     position: sticky;
     top: 0;
     z-index: 15;
     background: #f7f1ff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
 }
 
-/* Table wrapper scroll shadow */
-.sweet-table-wrapper {
-    position: relative;
-}
+/* ── Table wrapper scroll shadow ────────────────────────────────────────── */
+.sweet-table-wrapper { position: relative; }
 .sweet-table-wrapper:after {
     content: "";
     position: absolute;
     top: 0;
     left: 0; right: 0;
     height: 6px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
+    background: linear-gradient(to bottom,rgba(0,0,0,.1),transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
-.sweet-table-wrapper.scrolled:after {
-    opacity: 1;
-}
+.sweet-table-wrapper.scrolled:after { opacity: 1; }
 
-/* Interactive rows */
+/* ── Interactive rows ───────────────────────────────────────────────────── */
 .interactive-row {
     transition: background 0.25s ease, transform 0.15s ease;
 }
@@ -277,15 +358,23 @@
     transform: scale(1.01);
 }
 
-/* Modal */
+/* ── Modal ──────────────────────────────────────────────────────────────── */
 .sweet-modal-animate .modal-dialog {
     animation: modalPop 0.25s ease;
 }
 @keyframes modalPop {
     from { transform: scale(0.92); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    to   { transform: scale(1); opacity: 1; }
+}
+.sweet-modal { border-radius: 14px; }
+.sweet-pre {
+    background: #f8f3ff;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
 }
 
+/* ── Inputs ─────────────────────────────────────────────────────────────── */
 .sweet-input {
     border-radius: 10px;
     padding: 10px 14px;
@@ -293,24 +382,19 @@
 }
 .sweet-input:focus {
     border-color: #6f42c1;
-    box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
+    box-shadow: 0 0 0 4px rgba(111,66,193,.15);
 }
-
-.sweet-table thead {
-    background: #f7f1ff;
-}
+.sweet-table thead { background: #f7f1ff; }
 .sweet-table thead th {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-
 .sweetoria-action {
     padding: 6px 10px;
     border-radius: 8px;
     font-size: 0.8rem;
 }
-
 .sweetoria-view-btn {
     border-radius: 8px;
     padding: 6px 10px;
@@ -320,19 +404,210 @@
     background: #e8e0ff;
     border-color: #cbb7ff;
 }
-
-.sweet-modal {
-    border-radius: 14px;
-}
-.sweet-pre {
-    background: #f8f3ff;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-}
 </style>
 
 <script>
+// ── Helpers ───────────────────────────────────────────────────────────────
+const MERCURE_URL = '{{ mercure_public_url ?? '' }}';
+
+function badgeColor(action) {
+    const map = { CREATE:'success', UPDATE:'primary', DELETE:'danger' };
+    return map[(action||'').toUpperCase()] || 'secondary';
+}
+
+function formatTs(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.getFullYear() + '-' +
+        String(d.getMonth()+1).padStart(2,'0') + '-' +
+        String(d.getDate()).padStart(2,'0') + ' ' +
+        String(d.getHours()).padStart(2,'0') + ':' +
+        String(d.getMinutes()).padStart(2,'0') + ':' +
+        String(d.getSeconds()).padStart(2,'0');
+}
+
+function buildProductPills(products) {
+    if (!products || products.length === 0) return '<span class="text-muted small">—</span>';
+    return '<span class="product-pills">' +
+        products.map(p => `<span class="product-pill">🛍 ${p.name} ×${p.quantity || 1}</span>`).join('') +
+        '</span>';
+}
+
+function buildProductBadges(products) {
+    if (!products || products.length === 0) return '<span class="text-muted">No product data</span>';
+    return '<div class="d-flex flex-wrap gap-1">' +
+        products.map(p => `<span class="badge bg-light text-dark border">🛍 ${p.name} ×${p.quantity || 1}</span>`).join('') +
+        '</div>';
+}
+
+function buildRow(log) {
+    const color   = badgeColor(log.action);
+    const ts      = formatTs(log.timestamp);
+    const details = log.details || '';
+    const summary = log.summary || (details.includes('Products: ') ? '' : details.substring(0, 60) + (details.length > 60 ? '...' : ''));
+    const pills   = buildProductPills(log.products);
+    const badges  = buildProductBadges(log.products);
+    const modalId = `logModalLive${log.id}`;
+
+    const roleHtml = log.userRole
+        ? `<span class="badge bg-secondary">${log.userRole}</span>`
+        : '<span class="text-muted">—</span>';
+
+    return `
+<tr class="sweetoria-row interactive-row new-entry" data-log-id="${log.id}">
+    <td class="fw-semibold">${log.username || '—'}</td>
+    <td>${roleHtml}</td>
+    <td><span class="badge sweetoria-action bg-${color}">${log.action || '—'}</span></td>
+    <td><span class="text-truncate d-inline-block" style="max-width:220px">${summary}</span></td>
+    <td>${pills}</td>
+    <td>${ts}</td>
+    <td class="text-center">
+        <button class="btn btn-sm sweetoria-view-btn" data-bs-toggle="modal" data-bs-target="#${modalId}">
+            <i class="bi bi-eye"></i>
+        </button>
+    </td>
+</tr>
+<!-- modal for live row ${log.id} -->
+<div class="modal fade sweet-modal-animate" id="${modalId}" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content sweet-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">Log Details — #${log.id}</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Username</dt><dd class="col-sm-9">${log.username || '—'}</dd>
+                    <dt class="col-sm-3">Role</dt><dd class="col-sm-9">${roleHtml}</dd>
+                    <dt class="col-sm-3">Action</dt><dd class="col-sm-9"><span class="badge bg-${color}">${log.action || '—'}</span></dd>
+                    <dt class="col-sm-3">Entity</dt><dd class="col-sm-9">${log.entityType || '—'} ${log.entityId ? '#'+log.entityId : ''}</dd>
+                    <dt class="col-sm-3">Products Bought</dt><dd class="col-sm-9">${badges}</dd>
+                    <dt class="col-sm-3">Full Details</dt><dd class="col-sm-9"><pre class="sweet-pre">${details}</pre></dd>
+                    <dt class="col-sm-3">Timestamp</dt><dd class="col-sm-9">${ts}</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>`;
+}
+
+// ── State ─────────────────────────────────────────────────────────────────
+const seenIds   = new Set(
+    [...document.querySelectorAll('#logsBody tr[data-log-id]')]
+        .map(r => Number(r.dataset.logId))
+);
+let latestTs    = new Date().toISOString();   // cursor for polling
+let liveActive  = false;
+
+function setLiveStatus(online) {
+    const badge = document.getElementById('liveBadge');
+    if (online) {
+        badge.classList.remove('offline');
+        badge.title = 'Real-time updates active';
+    } else {
+        badge.classList.add('offline');
+        badge.title = 'Real-time disconnected — polling fallback active';
+    }
+    liveActive = online;
+}
+
+function updateLastUpdated() {
+    const el = document.getElementById('lastUpdatedLabel');
+    if (el) el.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+}
+
+function prependLog(log) {
+    if (seenIds.has(log.id)) return;
+    seenIds.add(log.id);
+
+    const tbody  = document.getElementById('logsBody');
+    const empty  = document.getElementById('emptyRow');
+    if (empty) empty.remove();
+
+    const tmpl   = document.createElement('template');
+    tmpl.innerHTML = buildRow(log).trim();
+    tbody.insertBefore(tmpl.content, tbody.firstChild);
+
+    // Update counter
+    const counter = document.getElementById('logCount');
+    if (counter) counter.textContent = Number(counter.textContent) + 1;
+
+    updateLastUpdated();
+}
+
+// ── Mercure SSE ───────────────────────────────────────────────────────────
+function startMercure() {
+    const hubBase = MERCURE_URL ||
+        '{{ (mercure_public_url ?? (app.request.schemeAndHttpHost ~ '/.well-known/mercure'))|e('js') }}';
+
+    if (!hubBase) { startPolling(); return; }
+
+    const url = new URL(hubBase);
+    ['activity_log', 'admin_activity', 'admin_orders'].forEach(t => url.searchParams.append('topic', t));
+
+    const es = new EventSource(url.toString(), { withCredentials: true });
+
+    es.addEventListener('activity_log', e => {
+        try {
+            const data = JSON.parse(e.data);
+            if (data && data.id) prependLog(data);
+        } catch {}
+    });
+
+    es.addEventListener('open', () => {
+        setLiveStatus(true);
+        stopPolling();
+    });
+
+    es.addEventListener('error', () => {
+        setLiveStatus(false);
+        startPolling();
+    });
+}
+
+// ── Polling fallback ──────────────────────────────────────────────────────
+let pollTimer = null;
+
+function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+function startPolling() {
+    if (pollTimer) return;
+    pollTimer = setInterval(pollLogs, 5000);
+    pollLogs(); // immediate first poll
+}
+
+async function pollLogs() {
+    try {
+        const url = new URL('{{ path('admin_activity_logs_live') }}', window.location.origin);
+        url.searchParams.set('after', latestTs);
+        url.searchParams.set('limit', 30);
+
+        const res  = await fetch(url.toString(), { credentials: 'same-origin' });
+        if (!res.ok) return;
+
+        const json = await res.json();
+        if (!json.success || !Array.isArray(json.logs)) return;
+
+        // logs are DESC so iterate in reverse to prepend oldest-first
+        [...json.logs].reverse().forEach(prependLog);
+
+        if (json.logs.length > 0) {
+            latestTs = json.logs[0].timestamp; // most recent (first in DESC list)
+            updateLastUpdated();
+        }
+
+        setLiveStatus(true);
+    } catch {
+        setLiveStatus(false);
+    }
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────
 /* Toggle filter card */
 document.querySelectorAll('.sweetoria-expand .card-header').forEach(header => {
     header.addEventListener('click', () => {
@@ -353,6 +628,11 @@ document.querySelectorAll('.sweetoria-action-toggle input').forEach(box => {
         box.closest('form').submit();
     });
 });
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────
+startMercure();
+// Always also start polling as a safety net (it won't fire if SSE is healthy)
+startPolling();
 </script>
 
 {% endblock %}
