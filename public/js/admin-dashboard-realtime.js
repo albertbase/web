@@ -8,8 +8,9 @@
   const liveIndicator = document.getElementById('dashboard-live-indicator');
   const ordersTbody = document.querySelector('[data-dashboard-orders-table] tbody');
   const productsTbody = document.querySelector('[data-dashboard-products-table] tbody');
+  const logsTbody = document.querySelector('[data-dashboard-logs-table] tbody');
 
-  if (!ordersTbody || !productsTbody) {
+  if (!ordersTbody || !productsTbody || !logsTbody) {
     return;
   }
 
@@ -149,10 +150,51 @@
     );
   };
 
+  const upsertLog = (log) => {
+    if (!log?.id) {
+      return;
+    }
+
+    const id = String(log.id);
+    let row = logsTbody.querySelector(`tr[data-log-id="${id}"]`);
+    if (row) {
+      return; // Logs are immutable, if it's there we don't update it
+    }
+
+    const emptyRow = logsTbody.querySelector('tr:not([data-log-id])');
+    if (emptyRow) {
+      emptyRow.remove();
+    }
+
+    const entityHtml = log.entityType
+      ? `<span class="text-muted">${log.entityType}</span> <span class="fw-bold text-dark">#${log.entityId}</span>`
+      : '<span class="text-muted">—</span>';
+      
+    const detailsHtml = log.details ? log.details : 'No additional data';
+
+    logsTbody.insertAdjacentHTML(
+      'afterbegin',
+      `<tr data-log-id="${id}" class="row--new">
+        <td><span class="log-user">${log.username || ''}</span></td>
+        <td><small class="badge bg-light text-dark border">${log.userRole || ''}</small></td>
+        <td><span class="action-badge">${log.action || ''}</span></td>
+        <td>${entityHtml}</td>
+        <td><div class="log-details text-truncate" style="max-width: 200px;">${detailsHtml}</div></td>
+        <td class="text-muted small">${formatDate(log.timestamp)}</td>
+      </tr>`,
+    );
+
+    // Keep only the most recent 10 rows to match the backend limit
+    while (logsTbody.children.length > 10) {
+        logsTbody.lastElementChild.remove();
+    }
+  };
+
   const handlePayload = (payload) => {
     updateMetrics(payload?.metrics);
-    (payload?.recentOrders ?? []).forEach(upsertOrder);
-    (payload?.recentProducts ?? []).forEach(upsertProduct);
+    (payload?.recentOrders ?? []).reverse().forEach(upsertOrder);
+    (payload?.recentProducts ?? []).reverse().forEach(upsertProduct);
+    (payload?.recentLogs ?? []).reverse().forEach(upsertLog);
   };
 
   const fetchDashboard = async () => {
@@ -191,7 +233,7 @@
 
     try {
       const url = new URL(config.mercureUrl, window.location.origin);
-      ['orders', 'admin_orders', 'new_order', 'order_created', 'inventory', 'notification'].forEach(
+      ['orders', 'admin_orders', 'new_order', 'order_created', 'inventory', 'notification', 'activity_log'].forEach(
         (topic) => url.searchParams.append('topic', topic),
       );
 
@@ -201,7 +243,7 @@
       };
 
       source.addEventListener('message', onEvent);
-      ['order_created', 'new_order', 'inventory', 'notification'].forEach((type) => {
+      ['order_created', 'new_order', 'inventory', 'notification', 'activity_log'].forEach((type) => {
         source.addEventListener(type, onEvent);
       });
 

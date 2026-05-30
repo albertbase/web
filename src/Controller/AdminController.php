@@ -98,7 +98,7 @@ class AdminController extends AbstractController
      * Session-authenticated JSON feed for dashboard live polling (main firewall).
      */
     #[Route('/admin/dashboard/live', name: 'admin_dashboard_live', methods: ['GET'])]
-    public function dashboardLive(EntityManagerInterface $em): JsonResponse
+    public function dashboardLive(EntityManagerInterface $em, ActivityLogRepository $logRepo): JsonResponse
     {
         $totalProducts = $em->getRepository(Product::class)->count([]);
         $totalUsers = $em->getRepository(User::class)->count([]);
@@ -129,6 +129,8 @@ class AdminController extends AbstractController
             ->getQuery()
             ->getResult();
 
+        $recentLogs = $logRepo->findBy([], ['timestamp' => 'DESC'], 10);
+
         return new JsonResponse([
             'success' => true,
             'metrics' => [
@@ -156,6 +158,18 @@ class AdminController extends AbstractController
                     'image' => $product->getImage(),
                 ];
             }, $recentProducts),
+            'recentLogs' => array_map(static function ($log): array {
+                return [
+                    'id' => $log->getId(),
+                    'username' => $log->getUsername(),
+                    'userRole' => $log->getUserRole(),
+                    'action' => $log->getAction(),
+                    'entityType' => $log->getEntityType(),
+                    'entityId' => $log->getEntityId(),
+                    'details' => $log->getDetails(),
+                    'timestamp' => $log->getTimestamp()?->format(\DateTimeInterface::ATOM),
+                ];
+            }, $recentLogs),
         ]);
     }
 

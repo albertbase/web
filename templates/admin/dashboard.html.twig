@@ -324,7 +324,7 @@
                     <a href="{{ path('admin_activity_logs_index') }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">Full Audit</a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table admin-table align-middle">
+                    <table class="table admin-table align-middle" data-dashboard-logs-table>
                         <thead>
                             <tr>
                                 <th>User / Staff</th>
@@ -337,7 +337,7 @@
                         </thead>
                         <tbody>
                         {% for log in recentLogs %}
-                            <tr>
+                            <tr data-log-id="{{ log.id }}">
                                 <td><span class="log-user">{{ log.username }}</span></td>
                                 <td><small class="badge bg-light text-dark border">{{ log.userRole }}</small></td>
                                 <td><span class="action-badge">{{ log.action }}</span></td>
