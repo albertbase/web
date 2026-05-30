@@ -405,7 +405,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function markSessionEnded(): static
     {
         $this->markOffline();
-        $this->setIsActive(false);
 
         return $this;
     }

@@ -56,7 +56,10 @@ class LoginSuccessSubscriber implements EventSubscriberInterface
     {
         $user = $event->getToken()?->getUser();
 
-        $event->getRequest()->getSession()->remove('cart');
+        $request = $event->getRequest();
+        if ($request->hasSession()) {
+            $request->getSession()->remove('cart');
+        }
 
         // ✅ Ensure it's your User entity
         if (!$user instanceof User) {
