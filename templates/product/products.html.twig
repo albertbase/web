@@ -38,11 +38,15 @@
     </div>
   </form>
 
+  <div id="products-live-indicator" class="alert alert-info py-2 small mb-3 d-none">
+    <i class="bi bi-broadcast"></i> Live — stock and prices update automatically
+  </div>
+
   <!-- Product Cards -->
-  <div class="row">
+  <div class="row" data-products-grid>
     {% for product in products %}
-      <div class="col-md-3 mb-4">
-        <div class="sweetoria-card card h-100 shadow-sm 
+      <div class="col-md-3 mb-4" data-product-id="{{ product.id }}">
+        <div class="sweetoria-card card h-100 shadow-sm product-card
             {% if product.stock == 0 %}border-danger{% elseif product.stock <= 5 %}border-warning{% endif %}">
 
           <!-- Image -->
@@ -57,14 +61,14 @@
             <h5 class="card-title fw-bold">{{ product.name }}</h5>
 
             <p class="card-text mb-2">
-              <span class="sweetoria-price">₱{{ product.price|number_format(2) }}</span><br>
-              <span class="badge bg-light text-dark mt-1">
+              <span class="sweetoria-price" data-product-price>₱{{ product.price|number_format(2) }}</span><br>
+              <span class="badge bg-light text-dark mt-1" data-product-category>
                 {{ product.category ? product.category.name : 'Uncategorized' }}
               </span>
             </p>
 
             <!-- Stock Badge -->
-            <div class="mb-3">
+            <div class="mb-3" data-stock-wrap>
               {% if product.stock == 0 %}
                 <span class="badge bg-danger">Out of Stock</span>
               {% elseif product.stock <= 5 %}
@@ -174,5 +178,25 @@
     background: #ffb3b3;
     border-color: #ffb3b3;
   }
+
+  .product-card--updated {
+    animation: productPulse 1.5s ease-out;
+  }
+  @keyframes productPulse {
+    from { box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.35); }
+    to { box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
+  }
 </style>
+
+<script>
+  window.SWEETORIA_PRODUCTS_REALTIME = {
+    feedUrl: '{{ path('admin_products_live') }}',
+    mercureUrl: '{{ mercure_public_url|default('/.well-known/mercure') }}',
+    noImageUrl: '{{ asset('images/no-image.png') }}',
+    uploadsBase: '{{ asset('uploads/products/') }}',
+    pollIntervalMs: 2500,
+  };
+  document.getElementById('products-live-indicator')?.classList.remove('d-none');
+</script>
+<script src="{{ asset('js/admin-products-realtime.js') }}"></script>
 {% endblock %}

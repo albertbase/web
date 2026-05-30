@@ -8,6 +8,7 @@ use App\Form\ProductType;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -65,6 +66,35 @@ public function index(Request $request, ProductRepository $productRepo, Category
         'categories' => $categories,
     ]);
 }
+
+    /**
+     * Session-authenticated JSON feed for admin products live polling (main firewall).
+     */
+    #[Route('/products/live', name: 'admin_products_live', methods: ['GET'])]
+    public function liveFeed(Request $request, ProductRepository $productRepo): JsonResponse
+    {
+        $searchTerm = trim((string) $request->query->get('search', ''));
+        $categoryFilter = trim((string) $request->query->get('category', ''));
+
+        $products = $productRepo->findByFilters(
+            $searchTerm !== '' ? $searchTerm : null,
+            $categoryFilter !== '' ? $categoryFilter : null,
+        );
+
+        return new JsonResponse([
+            'success' => true,
+            'products' => array_map(static function (Product $product): array {
+                return [
+                    'id' => $product->getId(),
+                    'name' => $product->getName(),
+                    'price' => $product->getPrice(),
+                    'stock' => $product->getStock(),
+                    'categoryName' => $product->getCategory()?->getName(),
+                    'image' => $product->getImage(),
+                ];
+            }, $products),
+        ]);
+    }
 
 
 

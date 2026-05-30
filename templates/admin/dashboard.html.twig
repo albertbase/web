@@ -140,6 +140,11 @@
     .quick-nav-caramel .quick-nav-icon, .metric-card-caramel .metric-icon { background: var(--bakery-caramel); color: var(--bakery-caramel-dark); }
     .quick-nav-cream .quick-nav-icon, .metric-card-cream .metric-icon { background: var(--bakery-cream); color: var(--bakery-cream-dark); }
     .quick-nav-mint .quick-nav-icon, .metric-card-mint .metric-icon { background: var(--bakery-mint); color: var(--bakery-mint-dark); }
+    tr.row--new { animation: orderHighlight 1.5s ease-out; }
+    @keyframes orderHighlight {
+        from { background-color: #d1e7dd; }
+        to { background-color: transparent; }
+    }
 </style>
 
 <div class="admin-page">
@@ -179,34 +184,133 @@
         </a>
     </section>
 
+    <div id="dashboard-live-indicator" class="alert alert-info py-2 small mb-3 d-none">
+        <i class="bi bi-broadcast"></i> Live — orders and inventory update automatically
+    </div>
+
     <div class="section-label"><span>Store Pulse</span></div>
     <section class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-4 mb-4">
         <div class="col">
             <div class="metric-card metric-card-rose">
                 <i class="bi bi-box-seam metric-icon"></i>
                 <span class="metric-label">Products</span>
-                <strong class="metric-value">{{ totalProducts }}</strong>
+                <strong class="metric-value" data-metric="totalProducts">{{ totalProducts }}</strong>
             </div>
         </div>
         <div class="col">
             <div class="metric-card metric-card-cream">
                 <i class="bi bi-people metric-icon"></i>
                 <span class="metric-label">Users</span>
-                <strong class="metric-value">{{ totalUsers }}</strong>
+                <strong class="metric-value" data-metric="totalUsers">{{ totalUsers }}</strong>
             </div>
         </div>
         <div class="col">
             <div class="metric-card metric-card-mint">
                 <i class="bi bi-person-badge metric-icon"></i>
                 <span class="metric-label">Staff</span>
-                <strong class="metric-value">{{ totalStaff }}</strong>
+                <strong class="metric-value" data-metric="totalStaff">{{ totalStaff }}</strong>
             </div>
         </div>
         <div class="col">
             <div class="metric-card metric-card-caramel">
                 <i class="bi bi-bag-check metric-icon"></i>
                 <span class="metric-label">Orders</span>
-                <strong class="metric-value">{{ totalOrders }}</strong>
+                <strong class="metric-value" data-metric="totalOrders">{{ totalOrders }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-label"><span>Live Store Feed</span></div>
+    <section class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="panel-card h-100">
+                <div class="panel-head d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="panel-title mb-0">Recent Orders</h2>
+                    <a href="{{ path('admin_orders') }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">All Orders</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table admin-table align-middle mb-0" data-dashboard-orders-table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if recentOrders is empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No orders yet.</td>
+                            </tr>
+                        {% endif %}
+                        {% for order in recentOrders %}
+                            <tr data-order-id="{{ order.id }}">
+                                <td class="fw-bold">#{{ order.id }}</td>
+                                <td>{{ order.customerName }}</td>
+                                <td>
+                                    {% set badge = {
+                                      'Pending': 'bg-warning text-dark',
+                                      'Paid': 'bg-info text-dark',
+                                      'Shipped': 'bg-primary',
+                                      'Delivered': 'bg-success'
+                                    }[order.status] ?? 'bg-secondary' %}
+                                    <span class="badge {{ badge }} px-2 py-1">{{ order.status }}</span>
+                                </td>
+                                <td class="fw-semibold">₱{{ order.totalAmount|number_format(2) }}</td>
+                                <td class="text-muted small">{{ order.createdAt|date('M d, H:i') }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="panel-card h-100">
+                <div class="panel-head d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="panel-title mb-0">Products</h2>
+                    <a href="{{ path('admin_products') }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">Inventory</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table admin-table align-middle mb-0" data-dashboard-products-table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Stock</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if recentProducts is empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">No products yet.</td>
+                            </tr>
+                        {% endif %}
+                        {% for product in recentProducts %}
+                            <tr data-product-id="{{ product.id }}">
+                                <td>
+                                    <span class="fw-semibold">{{ product.name }}</span>
+                                    {% if product.category %}
+                                        <br><small class="text-muted">{{ product.category.name }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if product.stock == 0 %}
+                                        <span class="badge bg-danger" data-stock-badge>Out (0)</span>
+                                    {% elseif product.stock <= 5 %}
+                                        <span class="badge bg-warning text-dark" data-stock-badge>Low ({{ product.stock }})</span>
+                                    {% else %}
+                                        <span class="badge bg-success" data-stock-badge>In ({{ product.stock }})</span>
+                                    {% endif %}
+                                </td>
+                                <td class="fw-semibold" data-product-price>₱{{ product.price|number_format(2) }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </section>
@@ -263,4 +367,14 @@
         </div>
     </section>
 </div>
+
+<script>
+  window.SWEETORIA_DASHBOARD_REALTIME = {
+    feedUrl: '{{ path('admin_dashboard_live') }}',
+    mercureUrl: '{{ mercure_public_url|default('/.well-known/mercure') }}',
+    pollIntervalMs: 2500,
+  };
+  document.getElementById('dashboard-live-indicator')?.classList.remove('d-none');
+</script>
+<script src="{{ asset('js/admin-dashboard-realtime.js') }}"></script>
 {% endblock %}

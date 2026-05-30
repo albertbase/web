@@ -8,6 +8,7 @@ use App\Entity\Product;
 use App\Form\ProductType;
 use App\Form\ChangePasswordFormType;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -91,67 +92,72 @@ class AdminController extends AbstractController
             'recentProducts' => $recentProducts,
             'recentLogs' => $recentLogs,
         ]);
-    
-    $totalProducts = $em->getRepository(Product::class)->count([]);
-    $totalUsers = $em->getRepository(\App\Entity\User::class)->count([]);
+    }
 
-    $totalStaff = $em->createQueryBuilder()
-        ->select('COUNT(u.id)')
-        ->from(\App\Entity\User::class, 'u')
-        ->where('u.roles LIKE :role')
-        ->setParameter('role', '%ROLE_STAFF%')
-        ->getQuery()
-        ->getSingleScalarResult();
+    /**
+     * Session-authenticated JSON feed for dashboard live polling (main firewall).
+     */
+    #[Route('/admin/dashboard/live', name: 'admin_dashboard_live', methods: ['GET'])]
+    public function dashboardLive(EntityManagerInterface $em): JsonResponse
+    {
+        $totalProducts = $em->getRepository(Product::class)->count([]);
+        $totalUsers = $em->getRepository(User::class)->count([]);
 
-    $totalStock = $em->createQueryBuilder()
-        ->select('SUM(p.stock)')
-        ->from(Product::class, 'p')
-        ->getQuery()
-        ->getSingleScalarResult();
+        $totalStaff = (int) $em->createQueryBuilder()
+            ->select('COUNT(u.id)')
+            ->from(User::class, 'u')
+            ->where('u.roles LIKE :role')
+            ->setParameter('role', '%ROLE_STAFF%')
+            ->getQuery()
+            ->getSingleScalarResult();
 
-    $totalValue = $em->createQueryBuilder()
-        ->select('SUM(p.price * p.stock)')
-        ->from(Product::class, 'p')
-        ->getQuery()
-        ->getSingleScalarResult();
+        $totalOrders = $em->getRepository(Order::class)->count([]);
 
-    $totalOrders = $em->getRepository(\App\Entity\Order::class)->count([]);
-    $totalCategories = $em->getRepository(\App\Entity\Category::class)->count([]);
+        $recentOrders = $em->createQueryBuilder()
+            ->select('o')
+            ->from(Order::class, 'o')
+            ->orderBy('o.createdAt', 'DESC')
+            ->setMaxResults(8)
+            ->getQuery()
+            ->getResult();
 
-    // Recent orders
-    $recentOrders = $em->createQueryBuilder()
-        ->select('o')
-        ->from(\App\Entity\Order::class, 'o')
-        ->orderBy('o.createdAt', 'DESC')
-        ->setMaxResults(5)
-        ->getQuery()
-        ->getResult();
+        $recentProducts = $em->createQueryBuilder()
+            ->select('p')
+            ->from(Product::class, 'p')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults(8)
+            ->getQuery()
+            ->getResult();
 
-    // Recent products
-    $recentProducts = $em->createQueryBuilder()
-        ->select('p')
-        ->from(Product::class, 'p')
-        ->orderBy('p.id', 'DESC')
-        ->setMaxResults(5)
-        ->getQuery()
-        ->getResult();
-
-    // ✅ Recent activity logs
-    $recentLogs = $logRepo->findBy([], ['timestamp' => 'DESC'], 10);
-
-    return $this->render('admin/dashboard.html.twig', [
-        'totalProducts' => $totalProducts,
-        'totalUsers' => $totalUsers,
-        'totalStaff' => $totalStaff,
-        'totalStock' => $totalStock,
-        'totalValue' => $totalValue,
-        'totalOrders' => $totalOrders,
-        'totalCategories' => $totalCategories,
-        'recentOrders' => $recentOrders,
-        'recentProducts' => $recentProducts,
-        'recentLogs' => $recentLogs, // ✅ Pass logs to Twig
-    ]);
-}
+        return new JsonResponse([
+            'success' => true,
+            'metrics' => [
+                'totalProducts' => $totalProducts,
+                'totalUsers' => $totalUsers,
+                'totalStaff' => $totalStaff,
+                'totalOrders' => $totalOrders,
+            ],
+            'recentOrders' => array_map(static function (Order $order): array {
+                return [
+                    'id' => $order->getId(),
+                    'customerName' => $order->getCustomerName(),
+                    'status' => $order->getStatus(),
+                    'totalAmount' => $order->getTotalAmount(),
+                    'createdAt' => $order->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+                ];
+            }, $recentOrders),
+            'recentProducts' => array_map(static function (Product $product): array {
+                return [
+                    'id' => $product->getId(),
+                    'name' => $product->getName(),
+                    'price' => $product->getPrice(),
+                    'stock' => $product->getStock(),
+                    'categoryName' => $product->getCategory()?->getName(),
+                    'image' => $product->getImage(),
+                ];
+            }, $recentProducts),
+        ]);
+    }
 
 
 
