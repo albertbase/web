@@ -6,7 +6,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\ApiTokenService;
 use App\Service\GoogleOAuthAudienceValidator;
-use App\Service\LogService;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,7 +26,7 @@ class ApiGoogleLoginController extends AbstractController
         private UserPasswordHasherInterface $passwordHasher,
         private ApiTokenService $apiTokenService,
         private GoogleOAuthAudienceValidator $googleAudienceValidator,
-        private LogService $logService,
+        private ActivityLogger $activityLogger,
     ) {}
 
     #[Route('/auth/google', name: 'api_auth_google', methods: ['POST'])]
@@ -77,7 +77,8 @@ class ApiGoogleLoginController extends AbstractController
         $user->setLastLogin(new \DateTimeImmutable());
         $this->entityManager->flush();
 
-        $this->logService->logAndFlush(
+        $this->activityLogger->log(
+            $user,
             'LOGIN',
             'User',
             $user->getId(),
