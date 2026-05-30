@@ -3,7 +3,7 @@
 namespace App\EventSubscriber;
 
 use App\Entity\User;
-use App\Service\LogService;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
@@ -12,7 +12,7 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 class LoginSuccessSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private LogService $logService,
+        private ActivityLogger $activityLogger,
         private EntityManagerInterface $entityManager,
     ) {}
 
@@ -43,7 +43,8 @@ class LoginSuccessSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->logService->logAndFlush(
+        $this->activityLogger->log(
+            $user,
             'LOGIN',
             'User',
             $user->getId(),
@@ -65,7 +66,8 @@ class LoginSuccessSubscriber implements EventSubscriberInterface
         $user->markSessionEnded();
         $this->entityManager->flush();
 
-        $this->logService->logAndFlush(
+        $this->activityLogger->log(
+            $user,
             'LOGOUT',
             'User',
             $user->getId(),
