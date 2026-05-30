@@ -37,6 +37,12 @@ class LoginSuccessSubscriber implements EventSubscriberInterface
         $user->setLastLogin(new \DateTimeImmutable());
         $this->entityManager->flush();
 
+        // 🛑 Skip logging for stateless API firewall since it fires on *every* request.
+        // Actual API logins are logged manually in ApiLoginController and ApiGoogleLoginController.
+        if ($event->getFirewallName() === 'api') {
+            return;
+        }
+
         $this->logService->logAndFlush(
             'LOGIN',
             'User',

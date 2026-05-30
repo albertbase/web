@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\User;
 use App\Service\ApiTokenService;
+use App\Service\LogService;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,7 +23,8 @@ class ApiLoginController extends AbstractController
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
-        ApiTokenService $apiTokenService
+        ApiTokenService $apiTokenService,
+        LogService $logService
     ): JsonResponse {
         try {
             $data = $request->toArray();
@@ -53,6 +55,13 @@ class ApiLoginController extends AbstractController
         $user->markSessionStarted();
         $user->setLastLogin(new \DateTimeImmutable());
         $entityManager->flush();
+
+        $logService->logAndFlush(
+            'LOGIN',
+            'User',
+            $user->getId(),
+            ['username' => $user->getUserIdentifier(), 'source' => 'API']
+        );
 
         $token = $apiTokenService->generate($user);
 
